@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screens/home.dart';  // استيراد HomeScreen من مجلد screens
+import 'screens/start_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,12 +11,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,  // لإخفاء الشريط العلوي أثناء التطوير
-      title: 'Modrik App',
+      debugShowCheckedModeBanner: false,
+      home: const StartScreen(),
       theme: ThemeData(
-        primarySwatch: Colors.purple,  // تغيير اللون الأساسي للتطبيق
+        fontFamily: 'Sans-serif',
       ),
-      home: const HomeScreen(),  // تعيين HomeScreen كصفحة رئيسية للتطبيق
     );
   }
 }

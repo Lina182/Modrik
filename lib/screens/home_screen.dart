@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'profile.dart';  // استيراد صفحة ProfileScreen من مجلد screens
+import 'profile.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
+
+  static const Color mainPurple = Color(0xFF9DA3D9);
 
   @override
   Widget build(BuildContext context) {
@@ -10,12 +12,13 @@ class HomeScreen extends StatelessWidget {
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          // الجزء العلوي باللون البنفسجي الفاتح مع الزوايا الدائرية
+          // ===== الجزء العلوي =====
           Container(
-            height: 250,
-            decoration: BoxDecoration(
-              color: Colors.purple[100],
-              borderRadius: const BorderRadius.only(
+            height: 260,
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              color: mainPurple,
+              borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(50),
                 bottomRight: Radius.circular(50),
               ),
@@ -25,23 +28,24 @@ class HomeScreen extends StatelessWidget {
               children: [
                 GestureDetector(
                   onTap: () {
-                    // الانتقال إلى صفحة ProfileScreen عند الضغط على الأيقونة
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const ProfileScreen()),
+                      MaterialPageRoute(
+                        builder: (context) => const ProfileScreen(),
+                      ),
                     );
                   },
-                  child: CircleAvatar(
-                    radius: 40,
+                  child: const CircleAvatar(
+                    radius: 42,
                     backgroundColor: Colors.white,
                     child: Icon(
-                      Icons.person,
-                      size: 40,
-                      color: Colors.purple,
+                      Icons.person_outline,
+                      size: 42,
+                      color: mainPurple,
                     ),
                   ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 14),
                 const Text(
                   'Welcome in Modrik',
                   style: TextStyle(
@@ -54,42 +58,44 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
 
-          // الحاوية البيضاوية
+          // ===== النص البيضاوي =====
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 14,
+              ),
               decoration: BoxDecoration(
-                color: Colors.purple[100],
-                borderRadius: BorderRadius.circular(20),
+                color: mainPurple.withOpacity(0.7),
+                borderRadius: BorderRadius.circular(30),
               ),
               child: const Text(
                 'We transform your genetic data into clear and reliable information.',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 16,
-                ),
                 textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Colors.black,
+                ),
               ),
             ),
           ),
 
           const SizedBox(height: 30),
 
-          // الأزرار العمودية
+          // ===== الأزرار =====
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   buildHomeButton(Icons.analytics, 'Analysis'),
                   const SizedBox(height: 20),
-                  buildHomeButton(Icons.chat, 'Chat'),
+                  buildHomeButton(Icons.chat_bubble_outline, 'Chat'),
                   const SizedBox(height: 20),
-                  buildHomeButton(Icons.insert_chart, 'Reports'),
+                  buildHomeButton(Icons.description_outlined, 'Reports'),
                 ],
               ),
             ),
@@ -97,43 +103,41 @@ class HomeScreen extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  // دالة لبناء زر Home
-  Widget buildHomeButton(IconData icon, String text) {
+  }Widget buildHomeButton(IconData icon, String text) {
     return Container(
       height: 60,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: mainPurple,
         borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
-            blurRadius: 6,
+            color: Colors.black.withOpacity(0.15),
+            blurRadius: 8,
             offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Row(
         children: [
+          const SizedBox(width: 16),
           Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              color: Colors.purple[100],
+            padding: const EdgeInsets.all(10),
+            decoration: const BoxDecoration(
+              color: Colors.white,
               shape: BoxShape.circle,
             ),
-            padding: const EdgeInsets.all(12),
             child: Icon(
               icon,
-              color: Colors.purple,
-              size: 24,
-              ),
+              color: mainPurple,
+              size: 22,),
           ),
+          const SizedBox(width: 16),
           Text(
             text,
             style: const TextStyle(
               fontSize: 18,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w600,
+              color: Colors.black,
             ),
           ),
         ],
