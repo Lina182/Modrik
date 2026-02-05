@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'profile.dart';
+import 'AI_chat_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -64,10 +65,7 @@ class HomeScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 14,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
               decoration: BoxDecoration(
                 color: mainPurple.withOpacity(0.7),
                 borderRadius: BorderRadius.circular(30),
@@ -75,10 +73,7 @@ class HomeScreen extends StatelessWidget {
               child: const Text(
                 'We transform your genetic data into clear and reliable information.',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 15,
-                  color: Colors.black,
-                ),
+                style: TextStyle(fontSize: 15, color: Colors.black),
               ),
             ),
           ),
@@ -93,7 +88,18 @@ class HomeScreen extends StatelessWidget {
                 children: [
                   buildHomeButton(Icons.analytics, 'Analysis'),
                   const SizedBox(height: 20),
-                  buildHomeButton(Icons.chat_bubble_outline, 'Chat'),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AIChatScreen(),
+                        ),
+                      );
+                    },
+                    child: buildHomeButton(Icons.chat_bubble_outline, 'Chat'),
+                  ),
+
                   const SizedBox(height: 20),
                   buildHomeButton(Icons.description_outlined, 'Reports'),
                 ],
@@ -103,7 +109,9 @@ class HomeScreen extends StatelessWidget {
         ],
       ),
     );
-  }Widget buildHomeButton(IconData icon, String text) {
+  }
+
+  Widget buildHomeButton(IconData icon, String text) {
     return Container(
       height: 60,
       decoration: BoxDecoration(
@@ -126,10 +134,7 @@ class HomeScreen extends StatelessWidget {
               color: Colors.white,
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              icon,
-              color: mainPurple,
-              size: 22,),
+            child: Icon(icon, color: mainPurple, size: 22),
           ),
           const SizedBox(width: 16),
           Text(
