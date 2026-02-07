@@ -13,7 +13,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: const StartScreen(),
-      theme: ThemeData(fontFamily: 'Sans-serif'),
+      theme: ThemeData(
+        fontFamily: 'Sans-serif',
+      ),
     );
   }
 }
