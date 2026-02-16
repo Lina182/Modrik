@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'profile.dart';
+import 'analysis.dart';
 import 'AI_chat_screen.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -86,8 +87,17 @@ class HomeScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 children: [
-                  buildHomeButton(Icons.analytics, 'Analysis'),
-                  const SizedBox(height: 20),
+GestureDetector(
+  onTap: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const AnalysisScreen(),
+      ),
+    );
+  },
+  child: buildHomeButton(Icons.analytics, 'Analysis'),
+),                  const SizedBox(height: 20),
                   GestureDetector(
                     onTap: () {
                       Navigator.push(
