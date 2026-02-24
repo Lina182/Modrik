@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "954028606901",
+    "project_id": "modrik-1f0d3",
+    "storage_bucket": "modrik-1f0d3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:954028606901:android:5fae096283b340a222c5fc",
+        "android_client_info": {
+          "package_name": "com.example.modik_pages"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC7yUPRK46T0Qzg2AbhZC4rNz8e7fkS1xk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
