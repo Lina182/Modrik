@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
-import 'edit_profile.dart';  // استيراد صفحة EditProfileScreen
-import 'settings_profile.dart';  // استيراد صفحة SettingsProfileScreen
+import 'edit_profile.dart';
+import 'settings_profile.dart';
+import 'home_screen.dart'; // ✅ إضافة الهوم
+
+const Color mainPurple = Color(0xFFC4C8EA);
+const Color bgPurple = Color(0xFF9DA3D9);
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -8,143 +12,237 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
+
+      // ===== AppBar =====
       appBar: AppBar(
-        title: const Text('My Profile'),
-        backgroundColor: Colors.purple,  // لون شريط التطبيق
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        shadowColor: Colors.transparent,
+        centerTitle: true,
+
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+
+        title: const Text(
+          'My Profile',
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+            fontSize: 22,
+          ),
+        ),
         actions: [
-          // إضافة أيقونة الإعدادات
           IconButton(
-            icon: const Icon(Icons.settings),
+            icon: const Icon(Icons.settings, color: Colors.black),
             onPressed: () {
-              // عند الضغط على أيقونة الإعدادات، الانتقال إلى صفحة SettingsProfileScreen
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const SettingsProfileScreen()),
+                MaterialPageRoute(
+                  builder: (_) => const SettingsProfileScreen(),
+                ),
               );
             },
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,  // محاذاة العناصر بشكل مركزي
-          crossAxisAlignment: CrossAxisAlignment.center,  // محاذاة العناصر بشكل مركزي أفقي
-          children: [
-            // المربع الذي يحتوي على الأيقونة والاسم
-            Container(
-              padding: const EdgeInsets.all(16.0),
-              width: double.infinity,  // عرض المربع ليشغل العرض بالكامل
+
+      // ===== Body =====
+      body: Stack(
+        children: [
+          Positioned(
+            top: -220,
+            right: -220,
+            child: Container(
+              width: 420,
+              height: 420,
               decoration: BoxDecoration(
-                color: Color(0xFFC4C8EA),  // اللون المطلوب
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.3),
-                    blurRadius: 6,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+                color: bgPurple.withOpacity(0.25),
+                shape: BoxShape.circle,
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  CircleAvatar(
-                    radius: 60,
-                    backgroundColor: Colors.white,
-                    child: const Icon(
-                      Icons.person,
-                      size: 60,
-                      color: Colors.purple,
-                    ),
+            ),
+          ),
+
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                // ===== User Card =====
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: mainPurple,
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Username',  // اسم المستخدم
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const CircleAvatar(
+                        radius: 35,
+                        backgroundColor: Colors.white,
+                        child: Icon(Icons.person, size: 35),
+                      ),
+                      const SizedBox(width: 16),
+
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Username',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            const Text(
+                              'useremail@gmail.com',
+                              style: TextStyle(color: Colors.black54),
+                            ),
+
+                            const SizedBox(height: 12),// ===== Edit Button =====
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        const EditProfileScreen(),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 14,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.15),
+                                      blurRadius: 6,
+                                      offset: const Offset(0, 3),
+                                    ),
+                                  ],
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: const [
+                                    Icon(
+                                      Icons.edit,
+                                      size: 18,
+                                      color: Colors.black87,
+                                    ),
+                                    SizedBox(width: 6),
+                                    Text(
+                                      'Edit Profile',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'useremail@gmail.com',  // البريد الإلكتروني
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: () {
-                      // الانتقال إلى صفحة تعديل البروفايل عند الضغط على "Edit Profile"
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const EditProfileScreen()),
-                      );
-                    },
+                ),
+
+                const SizedBox(height: 30),
+
+                // ===== Logout Button =====
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () {},
+                    icon: const Icon(Icons.logout, color: Colors.red),
+                    label: const Text('Log out'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFFC4C8EA), // اللون المطلوب
+                      backgroundColor: mainPurple,
+                      foregroundColor: Colors.black,
+                      padding:
+                          const EdgeInsets.symmetric(vertical: 14),
+                      elevation: 6,
+                      shadowColor:
+                          Colors.black.withOpacity(0.4),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                     ),
-                    child: const Text('Edit Profile'),
                   ),
-                ],
-              ),
+                ),
+
+                const SizedBox(height: 10),
+              ],
             ),
-            const SizedBox(height: 30),
-            // زر تسجيل الخروج
-            ElevatedButton(
-              onPressed: () {
-                // إضافة أي منطق لتسجيل الخروج
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red, // لون الزر
-              ),
-              child: const Text('Log out'),
-            ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(currentIndex: 3, // تعيين الأيقونة الحالية (Profile)
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.file_copy),
-            label: 'Documents',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.analytics),
-            label: 'Analysis',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
           ),
         ],
-        onTap: (index) {
-          // يمكنك إضافة منطق التنقل هنا حسب الأيقونة
-          switch (index) {
-            case 0:
-              // الانتقال إلى الصفحة الرئيسية
-              break;
-            case 1:
-              // الانتقال إلى صفحة المستندات
-              break;
-            case 2:
-              // الانتقال إلى صفحة التحليل
-              break;
-            case 3:
-              // نحن في صفحة البروفايل بالفعل
-              break;
-          }
-        },
-        selectedItemColor: Colors.purple,  // تغيير اللون عند تحديد العنصر
-        unselectedItemColor: Colors.grey,  // اللون عند عدم تحديد العنصر
-        type: BottomNavigationBarType.fixed,  // لجعل العناصر مرئية بشكل دائم
+      ),// ===== Bottom Navigation =====
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 6),
+          decoration: BoxDecoration(
+            color: mainPurple,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.15),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: BottomNavigationBar(
+            currentIndex: 3,
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            selectedItemColor: bgPurple,
+            unselectedItemColor: Colors.black54,
+            type: BottomNavigationBarType.fixed,
+
+            // ✅ Home فقط
+            onTap: (index) {
+              if (index == 0) {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const HomeScreen(),
+                  ),
+                );
+              }
+            },
+
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home),label: 'Home',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.file_copy),
+                label: 'Reports',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.analytics),
+                label: 'Analysis',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.person),
+                label: 'Profile',
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
