@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../firebase_options.dart';
 
 class CreateAccountScreen extends StatefulWidget {
   const CreateAccountScreen({super.key});
@@ -14,6 +17,13 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
   final FocusNode emailFocus = FocusNode();
   final FocusNode passwordFocus = FocusNode();
   final FocusNode confirmPasswordFocus = FocusNode();
+
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
+
+  bool _loading = false;
 
   @override
   void initState() {
@@ -48,6 +58,57 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
         borderSide: const BorderSide(color: Colors.black, width: 1),
       ),
     );
+  }
+
+  Future<void> _signUp() async {
+    if (nameController.text.isEmpty ||
+        emailController.text.isEmpty ||
+        passwordController.text.isEmpty ||
+        confirmPasswordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please fill all fields")),
+      );
+      return;
+    }
+
+    if (passwordController.text != confirmPasswordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Passwords don't match")),
+      );
+      return;
+    }
+
+    setState(() => _loading = true);
+
+    try {
+      // تأكد من تهيئة Firebase
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+
+      // إنشاء الحساب
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text,
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Account created successfully ✅")),
+      );
+
+      // ممكن هنا تعمل Navigator للصفحة الرئيسية
+    } on FirebaseAuthException catch (e) {
+      String msg = "Something went wrong";
+      if (e.code == 'invalid-email') msg = "This email is invalid";
+      if (e.code == 'weak-password') msg = "Password is too weak";
+      if (e.code == 'email-already-in-use') msg = "Email already in use. Try logging in.";
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(msg)),
+      );
+    } finally {
+      setState(() => _loading = false);
+    }
   }
 
   @override
@@ -100,59 +161,54 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                   const SizedBox(height: 40),
                   TextField(
                     focusNode: nameFocus,
-                    decoration: inputDecoration(
-                      "Name",
-                      Icons.person_outline,
-                    ),
+                    controller: nameController,
+                    decoration: inputDecoration("Name", Icons.person_outline),
                   ),
                   const SizedBox(height: 18),
                   TextField(
                     focusNode: emailFocus,
-                    decoration: inputDecoration(
-                      "Email",
-                      Icons.email_outlined,
-                    ),
+                    controller: emailController,
+                    decoration: inputDecoration("Email", Icons.email_outlined),
                   ),
                   const SizedBox(height: 18),
                   TextField(
                     focusNode: passwordFocus,
+                    controller: passwordController,
                     obscureText: true,
-                    decoration: inputDecoration(
-                      "Password",
-                      Icons.lock_outline,
-                    ),
+                    decoration: inputDecoration("Password", Icons.lock_outline),
                   ),
                   const SizedBox(height: 18),
                   TextField(
-                    focusNode: confirmPasswordFocus,obscureText: true,decoration: inputDecoration(
-                      "Confirm Password",
-                      Icons.lock_outline,
-                    ),
+                    focusNode: confirmPasswordFocus,
+                    controller: confirmPasswordController,
+                    obscureText: true,
+                    decoration:
+                        inputDecoration("Confirm Password", Icons.lock_outline),
                   ),
                   const SizedBox(height: 28),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 55,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
+                  _loading
+                      ? const Center(child: CircularProgressIndicator())
+                      : SizedBox(
+                          width: double.infinity,
+                          height: 55,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                            ),
+                            onPressed: _signUp,
+                            child: const Text(
+                              "Sign Up",
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      child: const Text(
-                        "Sign Up",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                  ),
                   const SizedBox(height: 16),
                   TextButton(
                     onPressed: () => Navigator.pop(context),
