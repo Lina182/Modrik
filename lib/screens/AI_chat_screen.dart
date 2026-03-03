@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class AIChatScreen extends StatefulWidget {
   const AIChatScreen({super.key});
@@ -19,9 +21,30 @@ class _AIChatScreenState extends State<AIChatScreen> {
     },
   ];
 
+  /// 🔹 دالة الاتصال بالسيرفر
+  Future<String> sendMessageToBackend(String message) async {
+    final url = Uri.parse("http://172.237.116.141:8003/chat/");
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"message": message}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data["reply"];
+      } else {
+        return "Server error: ${response.statusCode}";
+      }
+    } catch (e) {
+      return "Connection error";
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    /// Responsive values
     final size = MediaQuery.of(context).size;
     final width = size.width;
     final height = size.height;
@@ -29,24 +52,19 @@ class _AIChatScreenState extends State<AIChatScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
 
-      /// ---------------- APP BAR ----------------
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-
-        /// رجوع للهوم
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
-            Navigator.pop(context); // يرجع لصفحة الهوم
+            Navigator.pop(context);
           },
         ),
-
         title: const Text(
           "Your smart assistant",
           style: TextStyle(color: Colors.black),
         ),
-
         actions: const [
           Padding(
             padding: EdgeInsets.only(right: 12),
@@ -55,20 +73,18 @@ class _AIChatScreenState extends State<AIChatScreen> {
         ],
       ),
 
-      /// ---------------- BODY ----------------
       body: Column(
         children: [
           SizedBox(height: height * 0.02),
 
-          /// التاريخ
           const Text(
-            "Nov 30, 2023, 9:41 AM",
+            "AI Chat",
             style: TextStyle(fontSize: 12, color: Colors.grey),
           ),
 
           SizedBox(height: height * 0.02),
 
-          /// ---------------- MESSAGES ----------------
+          /// ================= MESSAGES =================
           Expanded(
             child: ListView.builder(
               padding: EdgeInsets.symmetric(horizontal: width * 0.04),
@@ -84,15 +100,13 @@ class _AIChatScreenState extends State<AIChatScreen> {
                   child: Container(
                     margin: const EdgeInsets.only(bottom: 12),
                     padding: EdgeInsets.all(width * 0.04),
-                    constraints: BoxConstraints(
-                      maxWidth: width * 0.75, // ريسبونسف
-                    ),
+                    constraints: BoxConstraints(maxWidth: width * 0.75),
                     decoration: BoxDecoration(
                       color: isBot ? const Color(0xFFD6D9F2) : Colors.white,
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Text(
-                      message["text"]!,
+                      message["text"] ?? "",
                       style: const TextStyle(fontSize: 14),
                     ),
                   ),
@@ -101,7 +115,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
             ),
           ),
 
-          /// ---------------- INPUT ----------------
+          /// ================= INPUT =================
           Padding(
             padding: EdgeInsets.all(width * 0.03),
             child: Container(
@@ -118,7 +132,6 @@ class _AIChatScreenState extends State<AIChatScreen> {
               ),
               child: Row(
                 children: [
-                  /// Text input
                   Expanded(
                     child: TextField(
                       controller: _controller,
@@ -128,8 +141,6 @@ class _AIChatScreenState extends State<AIChatScreen> {
                       ),
                     ),
                   ),
-
-                  /// Send button
                   IconButton(
                     icon: const Icon(Icons.send),
                     onPressed: () {
@@ -145,45 +156,27 @@ class _AIChatScreenState extends State<AIChatScreen> {
     );
   }
 
-  /// ---------------- SEND MESSAGE ----------------
+  /// ================= SEND MESSAGE =================
   void sendUserMessage() async {
     if (_controller.text.trim().isEmpty) return;
 
-    String userMessage = _controller.text;
+    String userMessage = _controller.text.trim();
     _controller.clear();
 
     setState(() {
       messages.add({"sender": "user", "text": userMessage});
     });
 
-    /// ================= BACKEND (COMMENTED) =================
-    /*
-    هنا لاحقًا يتم الربط مع الباك اند:
-
-    1️⃣ ترسلين الرسالة للسيرفر
-    2️⃣ السيرفر يعالج (AI / OpenCRAVAT / VarSome)
-    3️⃣ يرجع الرد
-    4️⃣ تضيفينه كرسالة بوت
-
-    مثال:
+    /// عرض مؤشر تحميل مؤقت
+    setState(() {
+      messages.add({"sender": "bot", "text": "Typing..."});
+    });
 
     String botReply = await sendMessageToBackend(userMessage);
 
     setState(() {
-      messages.add({
-        "sender": "bot",
-        "text": botReply,
-      });
-    });
-    */
-
-    /// رد مؤقت (Dummy Response)
-    await Future.delayed(const Duration(seconds: 1));
-    setState(() {
-      messages.add({
-        "sender": "bot",
-        "text": "This is a temporary response until backend is connected 🧬",
-      });
+      messages.removeLast(); // إزالة "Typing..."
+      messages.add({"sender": "bot", "text": botReply});
     });
   }
 }
