@@ -1,4 +1,4 @@
-import 'screens/individual_report_screen.dart';
+//import 'screens/individual_report_screen.dart';
 import 'package:flutter/material.dart';
 import 'screens/start_screen.dart';
 
@@ -13,8 +13,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      //home: const StartScreen(),
-      home: const IndividualReportScreen(),
+      home: const StartScreen(),
+      //home: const IndividualReportScreen(),
       theme: ThemeData(fontFamily: 'Sans-serif'),
     );
   }

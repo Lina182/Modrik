@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:modik_pages/screens/individual_upload.dart';
-import '../data/dummy_report_data.dart';
+import '../models/individual_report_item.dart';
 import '../widgets/individual_report_card.dart';
 import '../widgets/report_action_buttons.dart';
 
 const Color mainPurple = Color(0xFF9DA3D9);
 
 class IndividualReportScreen extends StatelessWidget {
-  const IndividualReportScreen({super.key});
+  final List<IndividualReportItem> reportItems;
+
+  const IndividualReportScreen({super.key, required this.reportItems});
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +28,7 @@ class IndividualReportScreen extends StatelessWidget {
                     Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => IndividualUploadScreen(),
+                        builder: (_) => const IndividualUploadScreen(),
                       ),
                       (route) => false,
                     );
@@ -63,19 +65,20 @@ class IndividualReportScreen extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            ...dummyIndividualReports.map(
+            ...reportItems.map(
               (item) => Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: IndividualReportCard(item: item),
               ),
             ),
+
             const SizedBox(height: 20),
 
             ReportActionButtons(
               onDownloadPdf: () {},
               onAskAi: () {},
               onConsultExpert: () {},
-              pdfLabel: 'Download Full Report (PDF)',
+              pdfLabel: 'Download Full Report',
               aiLabel: 'Ask AI about results',
             ),
           ],
