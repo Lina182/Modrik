@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'create_account_screen.dart';
-import 'forget_password_screen.dart';
 import 'home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -13,222 +13,171 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final Color lavender = const Color(0xFF9DA3D9);
 
-  final FocusNode emailFocus = FocusNode();
-  final FocusNode passwordFocus = FocusNode();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  bool _loading = false;
 
   @override
   void initState() {
     super.initState();
-    emailFocus.addListener(() => setState(() {}));
-    passwordFocus.addListener(() => setState(() {}));
+
+    // ✅ Auto Login
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+        );
+      }
+    });
   }
 
   @override
   void dispose() {
-    emailFocus.dispose();
-    passwordFocus.dispose();
+    emailController.dispose();
+    passwordController.dispose();
     super.dispose();
+  }
+
+  bool _isValidEmail(String email) {
+    final regex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
+    return regex.hasMatch(email);
+  }
+
+  Future<void> _login() async {
+    FocusScope.of(context).unfocus();
+
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
+
+    // ✅ Empty check
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("All fields are required")),
+      );
+      return;
+    }
+
+    // ✅ Email format check
+    if (!_isValidEmail(email)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Enter a valid email")),
+      );
+      return;
+    }
+
+    // ✅ Password length check
+    if (password.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Password must be at least 6 characters")),
+      );
+      return;
+    }
+
+    setState(() => _loading = true);
+
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
+      );
+    } on FirebaseAuthException catch (e) {
+      String message = "Login failed";
+
+      if (e.code == 'user-not-found') {
+        message = "No account found with this email";
+      } else if (e.code == 'wrong-password') {
+        message = "Incorrect password";
+      } else if (e.code == 'invalid-email') {
+        message = "Invalid email format";
+      } else if (e.code == 'invalid-credential') {
+        message = "Email or password is incorrect";
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Unexpected error occurred")),
+      );
+    } finally {
+      setState(() => _loading = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: lavender,
-      body: Stack(
-        children: [
-          // ===== الخلفية الأساسية =====
-          Container(
-            color: lavender,
-          ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 28),
+        child: Column(
+          children: [
+            const SizedBox(height: 120),
 
-          // ===== الدائرة العلوية الكبيرة =====
-          Positioned(
-            top: -180,  // إزاحة للأعلى لإظهار ربع الدائرة
-            right: -100, // إزاحة لليمين
-            child: Container(
-              width: 400,
-              height: 400,
-              decoration: BoxDecoration(
-                color: Colors.white, // أبيض كامل
-                shape: BoxShape.circle,
+            const Text(
+              "Login",
+              style: TextStyle(
+                fontSize: 30,
+                fontWeight: FontWeight.bold,
               ),
             ),
-          ),
 
-          // ===== الخط المنحني الأبيض =====
-          Positioned(
-            top: 50,
-            right: 0,
-            child: CustomPaint(
-              size: const Size(200, 100),
-              painter: TopCurvePainter(),
+            const SizedBox(height: 40),
+
+            TextField(
+              controller: emailController,
+              decoration: const InputDecoration(
+                hintText: "Email",
+              ),
             ),
-          ),
 
-          // ===== محتوى الشاشة =====
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 28),
-            child: Column(
-              children: [
-                const SizedBox(height: 120),
+            const SizedBox(height: 20),
 
-                const Text(
-                  "Login",
-                  style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-
-                const SizedBox(height: 10),
-
-                const Text(
-                  "Welcome back you've\nbeen missed!",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.black87),
-                ),
-
-                const SizedBox(height: 50),
-
-                // ===== Email =====
-                TextField(
-                  focusNode: emailFocus,
-                  decoration: InputDecoration(
-                    hintText: "Email",
-                    prefixIcon: const Icon(Icons.email_outlined),
-                    filled: true,
-                    fillColor: emailFocus.hasFocus
-                        ? Colors.white.withOpacity(0.55)
-                        : Colors.white.withOpacity(0.55),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: BorderSide.none,
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: const BorderSide(
-                        color: Colors.black,
-                        width: 1,
-                      ),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 18),// ===== Password =====
-                TextField(
-                  focusNode: passwordFocus,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    hintText: "Password",
-                    prefixIcon: const Icon(Icons.lock_outline),
-                    filled: true,
-                    fillColor: passwordFocus.hasFocus
-                        ? Colors.white.withOpacity(0.55)
-                        : Colors.white.withOpacity(0.55),
-                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14),
-                      borderSide: BorderSide.none,
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: const BorderSide(
-                        color: Colors.black,
-                        width: 1,
-                      ),
-                    ),
-                  ),
-                ),
-
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const ForgetPasswordScreen(),
-                        ),
-                      );
-                    },
-                    child: const Text(
-                      "Forgot Password?",
-                      style: TextStyle(color: Colors.black),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 25),
-
-                // ===== زر الدخول =====
-                SizedBox(
-                  width: double.infinity,
-                  height: 55,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                    ),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const HomeScreen(),
-                        ),
-                      );
-                    },
-                    child: const Text(
-                      "Log in",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 16),
-
-                TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const CreateAccountScreen(),
-                      ),
-                    );
-                  },
-                  child: const Text(
-                    "Don’t have an account ? Sign Up",
-                    style: TextStyle(color: Colors.black),
-                  ),
-                ),
-              ],
+            TextField(
+              controller: passwordController,
+              obscureText: true,
+              decoration: const InputDecoration(
+                hintText: "Password",
+              ),
             ),
-          ),
-        ],
+
+            const SizedBox(height: 30),
+
+            _loading
+                ? const CircularProgressIndicator()
+                : SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: _login,
+                      child: const Text("Log in"),
+                    ),
+                  ),
+
+            const SizedBox(height: 10),
+
+            TextButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const CreateAccountScreen()),
+                );
+              },
+              child: const Text("Create Account"),
+            ),
+          ],
+        ),
       ),
     );
   }
-}
-
-/// ===== الخط المنحني فوق =====
-class TopCurvePainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.white
-      ..strokeWidth = 2
-      ..style = PaintingStyle.stroke;
-
-    final path = Path();
-    path.moveTo(0, size.height);
-    path.quadraticBezierTo(size.width / 2, 0, size.width, size.height);
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
