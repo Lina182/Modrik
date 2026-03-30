@@ -1,20 +1,50 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:http/http.dart' as http;
+
+import '../models/individual_report_item.dart';
+import 'individual_report_screen.dart';
 
 class IndividualUploadScreen extends StatefulWidget {
   const IndividualUploadScreen({super.key});
 
   @override
-  State<IndividualUploadScreen> createState() =>
-      _IndividualUploadScreenState();
+  State<IndividualUploadScreen> createState() => _IndividualUploadScreenState();
 }
 
 class _IndividualUploadScreenState extends State<IndividualUploadScreen> {
   static const Color mainPurple = Color(0xFF9DA3D9);
 
-  String? selectedFileName; // نخزن اسم الملف هنا
+  PlatformFile? selectedFile;
 
-  // ===== دالة اختيار الملف =====
+  void showLoading(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.black.withOpacity(0.3),
+      builder: (_) {
+        return Center(
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: const Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 15),
+                Text("Analyzing..."),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> pickFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -23,8 +53,50 @@ class _IndividualUploadScreenState extends State<IndividualUploadScreen> {
 
     if (result != null) {
       setState(() {
-        selectedFileName = result.files.single.name;
+        selectedFile = result.files.single;
       });
+    }
+  }
+
+  Future<List<IndividualReportItem>> uploadFile() async {
+    var uri = Uri.parse("http://172.237.116.141:8003/analyze_vcf/");
+
+    var request = http.MultipartRequest('POST', uri);
+
+    request.files.add(
+      await http.MultipartFile.fromPath('file', selectedFile!.path!),
+    );
+
+    var response = await request.send();
+
+    if (response.statusCode == 200) {
+      var responseBody = await response.stream.bytesToString();
+
+      print("🔥 RAW RESPONSE:");
+      print(responseBody);
+
+      final decodedData = jsonDecode(responseBody);
+
+      /// 🔥 هذا اللي فيه قائمة الفاريانتس
+      final List<dynamic> resultsList = decodedData['results'] ?? [];
+
+      /// 🔥 هذا اللي فيه معلومات PanelApp لكل جين
+      final Map<String, dynamic> panelResponses =
+          decodedData['panelapp_responses'] ?? {};
+
+      final List<IndividualReportItem> reportItems = resultsList.map((item) {
+        final String gene = item['base__hugo']?.toString() ?? '';
+
+        /// نجيب معلومات الجين من panelapp_responses
+        final Map<String, dynamic>? panelInfo =
+            panelResponses[gene] as Map<String, dynamic>?;
+
+        return IndividualReportItem.fromJson(item, panelInfo);
+      }).toList();
+
+      return reportItems;
+    } else {
+      throw Exception("Upload failed: ${response.statusCode}");
     }
   }
 
@@ -34,7 +106,6 @@ class _IndividualUploadScreenState extends State<IndividualUploadScreen> {
       backgroundColor: const Color(0xFFF4F4F4),
       body: Stack(
         children: [
-          // ===== الهيدر البنفسجي + الصورة =====
           Container(
             height: 240,
             width: double.infinity,
@@ -45,13 +116,9 @@ class _IndividualUploadScreenState extends State<IndividualUploadScreen> {
                 bottomRight: Radius.circular(60),
               ),
             ),
-            child: Image.asset(
-              "assets/header_pattern.png",
-              fit: BoxFit.cover,
-            ),
+            child: Image.asset("assets/header_pattern.png", fit: BoxFit.cover),
           ),
 
-          // ===== الكارد الأبيض =====
           Padding(
             padding: const EdgeInsets.only(top: 120, left: 20, right: 20),
             child: Container(
@@ -62,7 +129,6 @@ class _IndividualUploadScreenState extends State<IndividualUploadScreen> {
               ),
               child: Column(
                 children: [
-                  // ===== العنوان + زر رجوع =====
                   Row(
                     children: [
                       IconButton(
@@ -87,7 +153,6 @@ class _IndividualUploadScreenState extends State<IndividualUploadScreen> {
 
                   const SizedBox(height: 30),
 
-                  // ===== مربع اختيار الملف =====
                   InkWell(
                     onTap: pickFile,
                     child: Container(
@@ -96,10 +161,7 @@ class _IndividualUploadScreenState extends State<IndividualUploadScreen> {
                       decoration: BoxDecoration(
                         color: const Color(0xFFF2F2F2),
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: Colors.grey,
-                          width: 2,
-                        ),
+                        border: Border.all(color: Colors.grey, width: 2),
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -115,25 +177,19 @@ class _IndividualUploadScreenState extends State<IndividualUploadScreen> {
                           ),
                           const SizedBox(height: 20),
 
-                          // ===== يظهر اسم الملف هنا =====
                           Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 20),
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
                             child: Row(
                               children: [
-                                const Icon(
-                                  Icons.insert_drive_file_outlined,
-                                ),
+                                const Icon(Icons.insert_drive_file_outlined),
                                 const SizedBox(width: 10),
                                 Expanded(
                                   child: Text(
-                                    selectedFileName ??
-                                        "No file selected",
+                                    selectedFile?.name ?? "No file selected",
                                   ),
                                 ),
-                                if (selectedFileName != null)
-                                  const Icon(Icons.check,
-                                      color: Colors.green),
+                                if (selectedFile != null)
+                                  const Icon(Icons.check, color: Colors.green),
                               ],
                             ),
                           ),
@@ -144,7 +200,6 @@ class _IndividualUploadScreenState extends State<IndividualUploadScreen> {
 
                   const Spacer(),
 
-                  // ===== الأزرار تحت =====
                   Row(
                     children: [
                       Expanded(
@@ -156,16 +211,39 @@ class _IndividualUploadScreenState extends State<IndividualUploadScreen> {
                         ),
                       ),
                       const SizedBox(width: 15),
+
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: selectedFileName == null
+                          onPressed: selectedFile == null
                               ? null
-                              : () {
-                                  // هنا مستقبلاً نرسل الملف للتحليل
+                              : () async {
+                                  showLoading(context);
+
+                                  try {
+                                    final reportItems = await uploadFile();
+
+                                    Navigator.pop(context);
+
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => IndividualReportScreen(
+                                          reportItems: reportItems,
+                                        ),
+                                      ),
+                                    );
+                                  } catch (e) {
+                                    Navigator.pop(context);
+
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text("Upload failed: $e"),
+                                      ),
+                                    );
+                                  }
                                 },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                const Color(0xFF4F4F6F),
+                            backgroundColor: const Color(0xFF4F4F6F),
                           ),
                           child: const Text("Continue"),
                         ),
