@@ -44,3 +44,28 @@ class MyApp extends StatelessWidget {
   }
 }
 */
+
+
+//this part to display Expert pages
+/*
+import 'package:flutter/material.dart';
+import 'screens/expert/ExpertHomeScreen.dart'; // تأكد من استيراد صفحة ExpertHomeScreen.dart
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: const ExpertHomeScreen(),  // تغيير AdminDashScreen إلى ExpertHomeScreen
+      theme: ThemeData(
+        fontFamily: 'Sans-serif',
+      ),
+    );
+  }
+*/
