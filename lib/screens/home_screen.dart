@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'profile.dart';
 import 'analysis.dart';
 import 'AI_chat_screen.dart';
+import 'Expertchat.dart';
+import 'settings_profile.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -12,92 +14,109 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Column(
-        children: [
-          // ===== الجزء العلوي =====
-          Container(
-            height: 260,
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              color: mainPurple,
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(50),
-                bottomRight: Radius.circular(50),
-              ),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Stack(
               children: [
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ProfileScreen(),
-                      ),
-                    );
-                  },
-                  child: const CircleAvatar(
-                    radius: 42,
-                    backgroundColor: Colors.white,
-                    child: Icon(
-                      Icons.person_outline,
-                      size: 42,
-                      color: mainPurple,
+                Container(
+                  height: 260,
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                    color: mainPurple,
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(50),
+                      bottomRight: Radius.circular(50),
                     ),
                   ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ProfileScreen(),
+                            ),
+                          );
+                        },
+                        child: const CircleAvatar(
+                          radius: 42,
+                          backgroundColor: Colors.white,
+                          child: Icon(
+                            Icons.person_outline,
+                            size: 42,
+                            color: mainPurple,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      const Text(
+                        'Welcome in Modrik',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 14),
-                const Text(
-                  'Welcome in Modrik',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
+                Positioned(
+                  top: 40,
+                  right: 16,
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const SettingsProfileScreen(),
+                        ),
+                      );
+                    },
+                    child: const Icon(Icons.settings, size: 22, color: Colors.black),
                   ),
                 ),
               ],
             ),
-          ),
 
-          const SizedBox(height: 24),
+            const SizedBox(height: 24),
 
-          // ===== النص البيضاوي =====
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-              decoration: BoxDecoration(
-                color: mainPurple.withOpacity(0.7),
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: const Text(
-                'We transform your genetic data into clear and reliable information.',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 15, color: Colors.black),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                decoration: BoxDecoration(
+                  color: mainPurple.withOpacity(0.7),
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: const Text(
+                  'We transform your genetic data into clear and reliable information.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 15, color: Colors.black),
+                ),
               ),
             ),
-          ),
 
-          const SizedBox(height: 30),
+            const SizedBox(height: 30),
 
-          // ===== الأزرار =====
-          Expanded(
-            child: Padding(
+            Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 children: [
-GestureDetector(
-  onTap: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const AnalysisScreen(),
-      ),
-    );
-  },
-  child: buildHomeButton(Icons.analytics, 'Analysis'),
-),                  const SizedBox(height: 20),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AnalysisScreen(),
+                        ),
+                      );
+                    },child: buildHomeButton(Icons.analytics, 'Analysis'),
+                  ),
+                  const SizedBox(height: 20),
+
                   GestureDetector(
                     onTap: () {
                       Navigator.push(
@@ -111,12 +130,29 @@ GestureDetector(
                   ),
 
                   const SizedBox(height: 20),
+
                   buildHomeButton(Icons.description_outlined, 'Reports'),
+
+                  const SizedBox(height: 20),
+
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ExpertHomeScreen(),
+                        ),
+                      );
+                    },
+                    child: buildHomeButton(Icons.person_search, 'Expert'),
+                  ),
+
+                  const SizedBox(height: 40),
                 ],
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
