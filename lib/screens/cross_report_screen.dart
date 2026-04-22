@@ -1,67 +1,73 @@
 import 'package:flutter/material.dart';
-import '../data/dummy_report_data.dart';
+import '../models/cross_report_item.dart';
 import '../widgets/cross_report_card.dart';
 import '../widgets/report_action_buttons.dart';
 
+const Color mainPurple = Color(0xFF9DA3D9);
+
 class CrossReportScreen extends StatelessWidget {
-  const CrossReportScreen({super.key});
+  final List<CrossReportItem> reports;
+
+  const CrossReportScreen({super.key, required this.reports});
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, List<dynamic>> grouped = {};
-
-    for (final item in dummyCrossReports) {
-      grouped.putIfAbsent(item.sectionTitle, () => []).add(item);
-    }
-
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F2FB),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFF7F2FB),
-        elevation: 0,
-        title: const Text('Cross Genetic Risk Report'),
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.ios_share_outlined),
+      backgroundColor: mainPurple,
+
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(60),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Row(
+              children: [
+                IconButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
+                ),
+                const Expanded(
+                  child: Text(
+                    "Couple Genetic Risk Report",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  onPressed: () {},
+                  icon: const Icon(
+                    Icons.ios_share_outlined,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ],
+        ),
       ),
+
       body: SafeArea(
-        child: Padding(
+        child: ListView(
           padding: const EdgeInsets.all(16),
-          child: ListView(
-            children: [
-              ...grouped.entries.map((entry) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      entry.key,
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    ...entry.value.map(
-                      (item) =>
-                          CrossReportCard(item: item, onExplainPressed: () {}),
-                    ),
-                    const SizedBox(height: 8),
-                  ],
-                );
-              }),
-              const SizedBox(height: 12),
-              ReportActionButtons(
-                onDownloadPdf: () {},
-                onAskAi: () {},
-                onConsultExpert: () {},
-                pdfLabel: 'Download Full Couple Report (PDF)',
-                aiLabel: 'Chat with AI',
-              ),
-            ],
-          ),
+          children: [
+            ...reports.map((item) => CrossReportCard(item: item)),
+
+            const SizedBox(height: 10),
+
+            ReportActionButtons(
+              onDownloadPdf: () {},
+              onAskAi: () {},
+              onConsultExpert: () {},
+              pdfLabel: 'Download Full Couple Report (PDF)',
+              aiLabel: 'Chat with AI',
+            ),
+          ],
         ),
       ),
     );

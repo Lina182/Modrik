@@ -1,5 +1,10 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:http/http.dart' as http;
+
+import '../models/cross_report_item.dart';
+import 'cross_report_screen.dart';
 
 class CrossUploadScreen extends StatefulWidget {
   const CrossUploadScreen({super.key});
@@ -11,31 +16,210 @@ class CrossUploadScreen extends StatefulWidget {
 class _CrossUploadScreenState extends State<CrossUploadScreen> {
   static const Color mainPurple = Color(0xFF9DA3D9);
 
-  List<String> selectedFiles = []; // نخزن اسمين هنا
+  PlatformFile? maleFile;
+  PlatformFile? femaleFile;
 
-  // ===== اختيار ملفين =====
-  Future<void> pickFiles() async {
+  /// ⚠️ عدلي هذا إذا الباك عندك على IP أو بورت مختلف
+  final String apiUrl = "http://172.237.116.141:8003/analyze_cross/";
+
+  // =========================
+  // اختيار ملف الأب
+  // =========================
+  Future<void> pickMaleFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
-      allowMultiple: true,
       type: FileType.custom,
       allowedExtensions: ['vcf'],
+      withData: true,
     );
 
     if (result != null) {
       setState(() {
-        selectedFiles =
-            result.files.map((file) => file.name).toList();
+        maleFile = result.files.single;
       });
     }
   }
 
+  // =========================
+  // اختيار ملف الأم
+  // =========================
+  Future<void> pickFemaleFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['vcf'],
+      withData: true,
+    );
+
+    if (result != null) {
+      setState(() {
+        femaleFile = result.files.single;
+      });
+    }
+  }
+
+  // =========================
+  // نافذة اللودنق
+  // =========================
+  void showLoading() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.black.withOpacity(0.25),
+      builder: (_) {
+        return Center(
+          child: Container(
+            width: 220,
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.95),
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: const Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 18),
+                Text(
+                  "Analyzing couple files...",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // =========================
+  // تحليل الملفين وإرسالهم للباك
+  // =========================
+  Future<void> analyzeCrossFiles() async {
+    if (maleFile == null || femaleFile == null) return;
+
+    showLoading();
+
+    try {
+      var request = http.MultipartRequest("POST", Uri.parse(apiUrl));
+
+      request.files.add(
+        http.MultipartFile.fromBytes(
+          'male_file',
+          maleFile!.bytes!,
+          filename: maleFile!.name,
+        ),
+      );
+
+      request.files.add(
+        http.MultipartFile.fromBytes(
+          'female_file',
+          femaleFile!.bytes!,
+          filename: femaleFile!.name,
+        ),
+      );
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      Navigator.pop(context); // يقفل اللودنق
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final crossResults = data['cross_results'];
+
+        List<CrossReportItem> reports = [];
+
+        /// =========================
+        /// Autosomal Dominant
+        /// =========================
+        for (var item in crossResults['autosomal_dominant']) {
+          reports.add(
+            CrossReportItem.fromJson(item, "Autosomal Dominant Risks"),
+          );
+        }
+
+        /// =========================
+        /// Autosomal Recessive
+        /// =========================
+        for (var item in crossResults['autosomal_recessive']) {
+          reports.add(
+            CrossReportItem.fromJson(item, "Autosomal Recessive Risks"),
+          );
+        }
+
+        /// =========================
+        /// X-Linked Recessive
+        /// =========================
+        for (var item in crossResults['x_linked_recessive']) {
+          reports.add(
+            CrossReportItem.fromJson(item, "X-Linked Recessive Risks"),
+          );
+        }
+
+        /// =========================
+        /// X-Linked Dominant
+        /// =========================
+        for (var item in crossResults['x_linked_dominant']) {
+          reports.add(
+            CrossReportItem.fromJson(item, "X-Linked Dominant Risks"),
+          );
+        }
+
+        /// =========================
+        /// Both Uncertain
+        /// =========================
+        for (var item in crossResults['both_uncertain']) {
+          reports.add(
+            CrossReportItem.fromJson(item, "Uncertain / Both Pattern Risks"),
+          );
+        }
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => CrossReportScreen(reports: reports),
+          ),
+        );
+      } else {
+        showError("Failed to analyze files");
+      }
+    } catch (e) {
+      Navigator.pop(context); // يقفل اللودنق إذا صار خطأ
+      showError("Something went wrong");
+    }
+  }
+
+  // =========================
+  // نافذة الخطأ
+  // =========================
+  void showError(String message) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Error"),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("OK"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // =========================
+  // واجهة الصفحة
+  // =========================
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF4F4F4),
       body: Stack(
         children: [
-          // ===== الهيدر =====
+          /// =========================
+          /// الهيدر البنفسجي
+          /// =========================
           Container(
             height: 240,
             width: double.infinity,
@@ -46,13 +230,12 @@ class _CrossUploadScreenState extends State<CrossUploadScreen> {
                 bottomRight: Radius.circular(60),
               ),
             ),
-            child: Image.asset(
-              "assets/header_pattern.png",
-              fit: BoxFit.cover,
-            ),
+            child: Image.asset("assets/header_pattern.png", fit: BoxFit.cover),
           ),
 
-          // ===== الكارد الأبيض =====
+          /// =========================
+          /// الكارد الأبيض
+          /// =========================
           Padding(
             padding: const EdgeInsets.only(top: 120, left: 20, right: 20),
             child: Container(
@@ -63,7 +246,9 @@ class _CrossUploadScreenState extends State<CrossUploadScreen> {
               ),
               child: Column(
                 children: [
-                  // ===== رجوع + عنوان =====
+                  /// =========================
+                  /// رجوع + عنوان
+                  /// =========================
                   Row(
                     children: [
                       IconButton(
@@ -88,61 +273,75 @@ class _CrossUploadScreenState extends State<CrossUploadScreen> {
 
                   const SizedBox(height: 30),
 
-                  // ===== مربع اختيار الملفات =====
-                  InkWell(
-                    onTap: pickFiles,
-                    child: Container(
-                      height: 240,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF2F2F2),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: Colors.grey, width: 2),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.cloud_upload_outlined, size: 50),
-                          const SizedBox(height: 12),
-                          const Text(
-                            "Select your VCF files",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
+                  /// =========================
+                  /// مربع رفع الملفين
+                  /// =========================
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF2F2F2),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: Colors.grey, width: 2),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min, // 🔥 هذا حل الشريط الأصفر
+                      children: [
+                        const Icon(Icons.cloud_upload_outlined, size: 50),
+                        const SizedBox(height: 12),
+                        const Text(
+                          "Select your VCF files",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
                           ),
-                          const SizedBox(height: 20),
+                        ),
+                        const SizedBox(height: 20),
 
-                          // عرض الملفات
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Column(
-                              children: selectedFiles.isEmpty
-                                  ? [
-                                      const Text("No files selected"),
-                                    ]
-                                  : selectedFiles
-                                      .map(
-                                        (file) => Row(
-                                          children: [
-                                            const Icon(Icons.insert_drive_file_outlined),
-                                            const SizedBox(width: 10),
-                                            Expanded(child: Text(file)),
-                                            const Icon(Icons.check, color: Colors.green),
-                                          ],
-                                        ),
-                                      )
-                                      .toList(),
+                        /// زر ملف الأب
+                        OutlinedButton(
+                          onPressed: pickMaleFile,
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size(double.infinity, 48),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
                             ),
                           ),
-                        ],
-                      ),
+                          child: Text(
+                            maleFile == null
+                                ? "Choose Father File"
+                                : maleFile!.name,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        /// زر ملف الأم
+                        OutlinedButton(
+                          onPressed: pickFemaleFile,
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size(double.infinity, 48),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
+                          child: Text(
+                            femaleFile == null
+                                ? "Choose Mother File"
+                                : femaleFile!.name,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
 
                   const Spacer(),
 
-                  // ===== الأزرار =====
+                  /// =========================
+                  /// الأزرار تحت
+                  /// =========================
                   Row(
                     children: [
                       Expanded(
@@ -150,17 +349,27 @@ class _CrossUploadScreenState extends State<CrossUploadScreen> {
                           onPressed: () {
                             Navigator.pop(context);
                           },
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size.fromHeight(50),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
                           child: const Text("Cancel"),
                         ),
                       ),
                       const SizedBox(width: 15),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: selectedFiles.length < 2
+                          onPressed: (maleFile == null || femaleFile == null)
                               ? null
-                              : () {},
+                              : analyzeCrossFiles,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF4F4F6F),
+                            minimumSize: const Size.fromHeight(50),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
                           ),
                           child: const Text("Continue"),
                         ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-const Color mainPurple = Color(0xFFC4C8EA);
-const Color bgPurple = Color(0xFF9DA3D9);
+const mainPurple = Color(0xFFC4C8EA);
+const bgPurple = Color(0xFF9DA3D9);
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -11,38 +11,22 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final name = TextEditingController();
+  final email = TextEditingController();
+  final password = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-
-      // ===== AppBar =====
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.transparent,
-        surfaceTintColor: Colors.transparent,
-        shadowColor: Colors.transparent,
         centerTitle: true,
-
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-
-        title: const Text(
-          'Edit Profile',
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-
+        iconTheme: const IconThemeData(color: Colors.black),
+        title: const Text('Edit Profile',
+            style: TextStyle(
+                color: Colors.black, fontWeight: FontWeight.bold)),
         actions: [
           IconButton(
             icon: const Icon(Icons.check, color: Colors.black),
@@ -53,8 +37,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ),
         ],
       ),
-
-      // ===== Body =====
       body: Stack(
         children: [
           Positioned(
@@ -64,19 +46,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               width: 420,
               height: 420,
               decoration: BoxDecoration(
-                color: bgPurple.withOpacity(0.25),
+                color: bgPurple.withValues(alpha: 0.25),
                 shape: BoxShape.circle,
               ),
             ),
           ),
-
           SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
                 const SizedBox(height: 10),
 
-                // ===== User Card (بدون زر) =====
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(16),
@@ -85,33 +65,24 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const CircleAvatar(
+                    children: const [
+                      CircleAvatar(
                         radius: 35,
                         backgroundColor: Colors.white,
                         child: Icon(Icons.person, size: 35),
                       ),
-                      const SizedBox(width: 16),
-
-                      const Expanded(
+                      SizedBox(width: 16),
+                      Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'Username',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                            Text('Username',
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold)),
                             SizedBox(height: 4),
-                            Text(
-                              'useremail@gmail.com',
-                              style: TextStyle(
-                                color: Colors.black54,
-                              ),
-                            ),
+                            Text('useremail@gmail.com',
+                                style: TextStyle(color: Colors.black54)),
                           ],
                         ),
                       ),
@@ -119,91 +90,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 30),// ===== Name =====
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Name',
-                    style: TextStyle(fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 30),
 
-                TextFormField(
-                  controller: _nameController,
-                  decoration: InputDecoration(
-                    hintText: 'Enter your new name',
-                    hintStyle: const TextStyle(color: Colors.grey),
-                    filled: true,
-                    fillColor: mainPurple,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                  ),
-                ),
-
+                _field('Name', 'Enter your new name', name),
                 const SizedBox(height: 20),
 
-                // ===== Email =====
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Email',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 6),
-
-                TextFormField(
-                  controller: _emailController,
-                  decoration: InputDecoration(
-                    hintText: 'Enter your new email',
-                    hintStyle: const TextStyle(color: Colors.grey),
-                    filled: true,
-                    fillColor: mainPurple,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                  ),
-                ),
-
+                _field('Email', 'Enter your new email', email),
                 const SizedBox(height: 20),
 
-                // ===== Password =====
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Password',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 6),
-
-                TextFormField(
-                  controller: _passwordController,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    hintText: 'Enter your new password',
-                    hintStyle: const TextStyle(color: Colors.grey),
-                    filled: true,
-                    fillColor: mainPurple,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                  ),
-                ),
+                _field('Password', 'Enter your new password', password,
+                    isPassword: true),
 
                 const SizedBox(height: 30),
 
-                // ===== Delete Account (أصغر + موف + نص أحمر) =====
                 SizedBox(
                   width: 180,
                   child: ElevatedButton(
@@ -218,12 +117,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       ),
                       elevation: 2,
                     ),
-                    child: const Text(
-                      'Delete Account',
+                    child: const Text('Delete Account',
                       style: TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
-                      ),
+                          color: Colors.red, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
@@ -234,6 +130,31 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _field(String title, String hint, TextEditingController controller,
+      {bool isPassword = false}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title,
+            style:
+                const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        const SizedBox(height: 6),
+        TextFormField(
+          controller: controller,
+          obscureText: isPassword,
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: const TextStyle(color: Colors.grey),
+            filled: true,
+            fillColor: mainPurple,
+            border:
+                OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+          ),
+        ),
+      ],
     );
   }
 }
