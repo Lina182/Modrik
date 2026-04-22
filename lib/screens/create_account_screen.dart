@@ -59,58 +59,58 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       ),
     );
   }
-
-  Future<void> _signUp() async {
-    if (nameController.text.isEmpty ||
-        emailController.text.isEmpty ||
-        passwordController.text.isEmpty ||
-        confirmPasswordController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please fill all fields")),
-      );
-      return;
-    }
-
-    if (passwordController.text != confirmPasswordController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Passwords don't match")),
-      );
-      return;
-    }
-
-    setState(() => _loading = true);
-
-    try {
-      // تأكد من تهيئة Firebase
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      );
-
-      // إنشاء الحساب
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: emailController.text.trim(),
-        password: passwordController.text,
-      );
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Account created successfully ✅")),
-      );
-
-      // ممكن هنا تعمل Navigator للصفحة الرئيسية
-    } on FirebaseAuthException catch (e) {
-      String msg = "Something went wrong";
-      if (e.code == 'invalid-email') msg = "This email is invalid";
-      if (e.code == 'weak-password') msg = "Password is too weak";
-      if (e.code == 'email-already-in-use') msg = "Email already in use. Try logging in.";
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(msg)),
-      );
-    } finally {
-      setState(() => _loading = false);
-    }
+Future<void> _signUp() async {
+  if (nameController.text.isEmpty ||
+      emailController.text.isEmpty ||
+      passwordController.text.isEmpty ||
+      confirmPasswordController.text.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Please fill all fields")),
+    );
+    return;
   }
 
+  if (passwordController.text != confirmPasswordController.text) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Passwords don't match")),
+    );
+    return;
+  }
+
+  setState(() => _loading = true);
+
+  try {
+    final userCredential = await FirebaseAuth.instance
+      .createUserWithEmailAndPassword(
+     email: emailController.text.trim(),
+     password: passwordController.text,
+   );
+
+    final user = userCredential.user;
+    await user?.updateDisplayName(nameController.text.trim());
+    final idToken = await user?.getIdToken();
+    print(" TOKEN: $idToken");
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Account created successfully ✅")),
+    );
+
+  } on FirebaseAuthException catch (e) {
+    String msg = "Something went wrong";
+
+    if (e.code == 'invalid-email') msg = "This email is invalid";
+    if (e.code == 'weak-password') msg = "Password is too weak";
+    if (e.code == 'email-already-in-use') {
+      msg = "Email already in use. Try logging in.";
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(msg)),
+    );
+  } finally {
+    setState(() => _loading = false);
+  }
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
