@@ -22,31 +22,26 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController passwordController = TextEditingController();
 
   bool _loading = false;
+late final Stream<User?> _authStream;
 
-  @override
-  void initState() {
-    super.initState();
+@override
+void initState() {
+  super.initState();
 
-    emailFocus.addListener(() => setState(() {}));
-    passwordFocus.addListener(() => setState(() {}));
+  emailFocus.addListener(() => setState(() {}));
+  passwordFocus.addListener(() => setState(() {}));
 
-    // ✅ Auto Login باستخدام authStateChanges
-    FirebaseAuth.instance.authStateChanges().listen((user) {
-      if (user != null) {
-        // المستخدم مسجل دخوله مسبقًا
-        Future.microtask(() {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const HomeScreen()),
-          );
-        });
-      } else {
-        // تعليق: المستخدم غير مسجل الدخول حالياً
-        debugPrint("User is not logged in");
-      }
-    });
-  }
+  _authStream = FirebaseAuth.instance.authStateChanges();
 
+  _authStream.listen((user) {
+    if (user != null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
+      );
+    }
+  });
+}
   @override
   void dispose() {
     emailFocus.dispose();
@@ -74,7 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       final user = userCredential.user;
       final idToken = await user?.getIdToken();
-      print(idToken); // ✅ طباعة الـ ID Token في الكونسول
+      print(" TOKEN: $idToken");
 
       // 🔹 تسجيل دخول المستخدم في Firestore
       if (user != null) {
