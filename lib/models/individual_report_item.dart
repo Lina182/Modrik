@@ -1,7 +1,6 @@
 class IndividualReportItem {
   final String gene;
   final String disease;
-  final String arabicDisease;
   final String clinicalSignificance;
   final String inheritance;
   final String confidenceLevel;
@@ -9,33 +8,27 @@ class IndividualReportItem {
   IndividualReportItem({
     required this.gene,
     required this.disease,
-    required this.arabicDisease,
     required this.clinicalSignificance,
     required this.inheritance,
     required this.confidenceLevel,
   });
 
-  /// 🔥 تنظيف اسم المرض لو جاء فيه | أو not specified
   static String cleanDiseaseName(String rawDisease) {
-    if (rawDisease.trim().isEmpty) return 'Not available';
+    if (rawDisease.isEmpty) return 'Not available';
 
-    final parts = rawDisease
-        .split('|')
-        .map((e) => e.trim())
-        .where(
-          (e) =>
-              e.isNotEmpty &&
-              e.toLowerCase() != 'not specified' &&
-              e.toLowerCase() != 'not provided',
-        )
-        .toList();
+    final parts = rawDisease.split('|');
 
-    if (parts.isEmpty) return 'Not available';
+    for (var part in parts) {
+      part = part.trim().toLowerCase();
 
-    return parts.first;
+      if (part != 'not specified' && part != 'not provided') {
+        return part;
+      }
+    }
+
+    return 'Not available';
   }
 
-  /// 🔥 هذا يقرأ من شكل JSON الحقيقي اللي جاي من الباك
   factory IndividualReportItem.fromJson(
     Map<String, dynamic> json,
     Map<String, dynamic>? panelInfo,
@@ -43,11 +36,10 @@ class IndividualReportItem {
     return IndividualReportItem(
       gene: json['base__hugo']?.toString() ?? 'Not available',
 
+      // 👇 هنا التعديل
       disease: cleanDiseaseName(
         json['clinvar__disease_names']?.toString() ?? '',
       ),
-
-      arabicDisease: '',
 
       clinicalSignificance: json['clinvar__sig']?.toString() ?? 'Not available',
 
@@ -57,5 +49,15 @@ class IndividualReportItem {
       confidenceLevel:
           panelInfo?['confidence_level']?.toString() ?? 'Not available',
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "gene": gene,
+      "disease": disease,
+      "clinicalSignificance": clinicalSignificance,
+      "inheritance": inheritance,
+      "confidenceLevel": confidenceLevel,
+    };
   }
 }

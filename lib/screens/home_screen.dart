@@ -4,6 +4,7 @@ import 'analysis.dart';
 import 'AI_chat_screen.dart';
 import 'Expertchat.dart';
 import 'settings_profile.dart';
+import 'saved_reports_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -75,7 +76,11 @@ class HomeScreen extends StatelessWidget {
                         ),
                       );
                     },
-                    child: const Icon(Icons.settings, size: 22, color: Colors.black),
+                    child: const Icon(
+                      Icons.settings,
+                      size: 22,
+                      color: Colors.black,
+                    ),
                   ),
                 ),
               ],
@@ -86,7 +91,10 @@ class HomeScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 14,
+                ),
                 decoration: BoxDecoration(
                   color: mainPurple.withOpacity(0.7),
                   borderRadius: BorderRadius.circular(30),
@@ -113,7 +121,8 @@ class HomeScreen extends StatelessWidget {
                           builder: (context) => const AnalysisScreen(),
                         ),
                       );
-                    },child: buildHomeButton(Icons.analytics, 'Analysis'),
+                    },
+                    child: buildHomeButton(Icons.analytics, 'Analysis'),
                   ),
                   const SizedBox(height: 20),
 
@@ -131,7 +140,20 @@ class HomeScreen extends StatelessWidget {
 
                   const SizedBox(height: 20),
 
-                  buildHomeButton(Icons.description_outlined, 'Reports'),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const SavedReportsScreen(),
+                        ),
+                      );
+                    },
+                    child: buildHomeButton(
+                      Icons.description_outlined,
+                      'Reports',
+                    ),
+                  ),
 
                   const SizedBox(height: 20),
 

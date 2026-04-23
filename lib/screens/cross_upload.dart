@@ -19,7 +19,6 @@ class _CrossUploadScreenState extends State<CrossUploadScreen> {
   PlatformFile? maleFile;
   PlatformFile? femaleFile;
 
-  /// ⚠️ عدلي هذا إذا الباك عندك على IP أو بورت مختلف
   final String apiUrl = "http://172.237.116.141:8003/analyze_cross/";
 
   // =========================

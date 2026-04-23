@@ -1,15 +1,48 @@
 import 'package:flutter/material.dart';
-import 'package:modik_pages/screens/individual_upload.dart';
+import 'package:modik_pages/screens/home_screen.dart';
 import '../models/individual_report_item.dart';
 import '../widgets/individual_report_card.dart';
 import '../widgets/report_action_buttons.dart';
+import 'dart:convert';
+import 'package:sqflite/sqflite.dart';
 
 const Color mainPurple = Color(0xFF9DA3D9);
 
+Future<void> saveReport(
+  List<IndividualReportItem> items, {
+
+  required String title,
+}) async {
+  final db = await openDatabase('reports.db');
+
+  // إنشاء الجدول إذا ما كان موجود
+  await db.execute(
+    'CREATE TABLE IF NOT EXISTS reports (id INTEGER PRIMARY KEY, data TEXT)',
+  );
+
+  // 👇 هذا أهم سطر (يضيف العمود إذا مو موجود)
+  try {
+    await db.execute('ALTER TABLE reports ADD COLUMN title TEXT');
+  } catch (e) {
+    // إذا موجود خلاص ignore
+  }
+
+  String data = jsonEncode(items.map((item) => item.toJson()).toList());
+
+  await db.insert('reports', {'data': data, 'title': title});
+}
+
 class IndividualReportScreen extends StatelessWidget {
   final List<IndividualReportItem> reportItems;
+  final String fileName; // 👈 اسم التقرير
+  final bool showDownload;
 
-  const IndividualReportScreen({super.key, required this.reportItems});
+  const IndividualReportScreen({
+    super.key,
+    required this.reportItems,
+    required this.fileName,
+    this.showDownload = true,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -27,20 +60,18 @@ class IndividualReportScreen extends StatelessWidget {
                   onPressed: () {
                     Navigator.pushAndRemoveUntil(
                       context,
-                      MaterialPageRoute(
-                        builder: (_) => const IndividualUploadScreen(),
-                      ),
+                      MaterialPageRoute(builder: (_) => const HomeScreen()),
                       (route) => false,
                     );
                   },
                   icon: const Icon(Icons.arrow_back, color: Colors.white),
                 ),
 
-                const Expanded(
+                Expanded(
                   child: Text(
-                    "Genetic Disease Analysis Report",
+                    fileName, // 👈 يظهر الاسم فوق
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
                       color: Colors.white,
@@ -48,13 +79,7 @@ class IndividualReportScreen extends StatelessWidget {
                   ),
                 ),
 
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(
-                    Icons.ios_share_outlined,
-                    color: Colors.white,
-                  ),
-                ),
+                const Icon(Icons.ios_share_outlined, color: Colors.white),
               ],
             ),
           ),
@@ -75,9 +100,19 @@ class IndividualReportScreen extends StatelessWidget {
             const SizedBox(height: 20),
 
             ReportActionButtons(
-              onDownloadPdf: () {},
+              onDownloadPdf: showDownload
+                  ? () async {
+                      await saveReport(reportItems, title: fileName);
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Report saved locally')),
+                      );
+                    }
+                  : null,
+
               onAskAi: () {},
               onConsultExpert: () {},
+
               pdfLabel: 'Download Full Report',
               aiLabel: 'Ask AI about results',
             ),
