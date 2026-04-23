@@ -72,22 +72,16 @@ class _IndividualUploadScreenState extends State<IndividualUploadScreen> {
     if (response.statusCode == 200) {
       var responseBody = await response.stream.bytesToString();
 
-      print("🔥 RAW RESPONSE:");
-      print(responseBody);
-
       final decodedData = jsonDecode(responseBody);
 
-      /// 🔥 هذا اللي فيه قائمة الفاريانتس
       final List<dynamic> resultsList = decodedData['results'] ?? [];
 
-      /// 🔥 هذا اللي فيه معلومات PanelApp لكل جين
       final Map<String, dynamic> panelResponses =
           decodedData['panelapp_responses'] ?? {};
 
       final List<IndividualReportItem> reportItems = resultsList.map((item) {
         final String gene = item['base__hugo']?.toString() ?? '';
 
-        /// نجيب معلومات الجين من panelapp_responses
         final Map<String, dynamic>? panelInfo =
             panelResponses[gene] as Map<String, dynamic>?;
 
@@ -97,6 +91,35 @@ class _IndividualUploadScreenState extends State<IndividualUploadScreen> {
       return reportItems;
     } else {
       throw Exception("Upload failed: ${response.statusCode}");
+    }
+  }
+
+  Future<void> uploadAndNavigate() async {
+    showLoading(context);
+
+    try {
+      final reportItems = await uploadFile();
+
+      Navigator.pop(context);
+
+      // 👇 هذا أهم سطر (نشيل .vcf)
+      String fileName = selectedFile!.name.replaceAll('.vcf', '');
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => IndividualReportScreen(
+            reportItems: reportItems,
+            fileName: fileName, // 👈 نمرره هنا
+          ),
+        ),
+      );
+    } catch (e) {
+      Navigator.pop(context);
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Upload failed: $e")));
     }
   }
 
@@ -216,32 +239,7 @@ class _IndividualUploadScreenState extends State<IndividualUploadScreen> {
                         child: ElevatedButton(
                           onPressed: selectedFile == null
                               ? null
-                              : () async {
-                                  showLoading(context);
-
-                                  try {
-                                    final reportItems = await uploadFile();
-
-                                    Navigator.pop(context);
-
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => IndividualReportScreen(
-                                          reportItems: reportItems,
-                                        ),
-                                      ),
-                                    );
-                                  } catch (e) {
-                                    Navigator.pop(context);
-
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text("Upload failed: $e"),
-                                      ),
-                                    );
-                                  }
-                                },
+                              : uploadAndNavigate, // 👈 ربطناها هنا
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF4F4F6F),
                           ),

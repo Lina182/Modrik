@@ -21,7 +21,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
     },
   ];
 
-  /// 🔹 دالة الاتصال بالسيرفر
+  ///  دالة الاتصال بالسيرفر
   Future<String> sendMessageToBackend(String message) async {
     final url = Uri.parse("http://172.237.116.141:8003/chat/");
 
