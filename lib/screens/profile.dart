@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 import 'edit_profile.dart';
 import 'settings_profile.dart';
-import 'home_screen.dart'; // ✅ إضافة الهوم
+import 'home_screen.dart';
+import 'login_screen.dart';
 
 const Color mainPurple = Color(0xFFC4C8EA);
 const Color bgPurple = Color(0xFF9DA3D9);
@@ -9,8 +12,21 @@ const Color bgPurple = Color(0xFF9DA3D9);
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
+  // ===== Logout =====
+  Future<void> _logout(BuildContext context) async {
+    await FirebaseAuth.instance.signOut();
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const LoginScreen()),
+      (route) => false,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+
     return Scaffold(
       backgroundColor: Colors.white,
 
@@ -24,9 +40,7 @@ class ProfileScreen extends StatelessWidget {
 
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+          onPressed: () => Navigator.pop(context),
         ),
 
         title: const Text(
@@ -37,6 +51,7 @@ class ProfileScreen extends StatelessWidget {
             fontSize: 22,
           ),
         ),
+
         actions: [
           IconButton(
             icon: const Icon(Icons.settings, color: Colors.black),
@@ -94,32 +109,38 @@ class ProfileScreen extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'Username',
-                              style: TextStyle(
+                            // ===== Username from Firebase =====
+                            Text(
+                              user?.displayName ?? 'No Username',
+                              style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
+
                             const SizedBox(height: 4),
-                            const Text(
-                              'useremail@gmail.com',
-                              style: TextStyle(color: Colors.black54),
+
+                            // ===== Email from Firebase =====
+                            Text(
+                              user?.email ?? 'No Email',
+                              style: const TextStyle(color: Colors.black54),
                             ),
 
-                            const SizedBox(height: 12),// ===== Edit Button =====
+                            const SizedBox(height: 12),
+
+                            // ===== Edit Profile =====
                             GestureDetector(
                               onTap: () {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (_) =>
-                                        const EditProfileScreen(),
+                                    builder: (_) => const EditProfileScreen(),
                                   ),
                                 );
                               },
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 14,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 14,
                                   vertical: 8,
                                 ),
                                 decoration: BoxDecoration(
@@ -136,11 +157,8 @@ class ProfileScreen extends StatelessWidget {
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: const [
-                                    Icon(
-                                      Icons.edit,
-                                      size: 18,
-                                      color: Colors.black87,
-                                    ),
+                                    Icon(Icons.edit,
+                                        size: 18, color: Colors.black87),
                                     SizedBox(width: 6),
                                     Text(
                                       'Edit Profile',
@@ -165,17 +183,15 @@ class ProfileScreen extends StatelessWidget {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
-                    onPressed: () {},
+                    onPressed: () => _logout(context),
                     icon: const Icon(Icons.logout, color: Colors.red),
                     label: const Text('Log out'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: mainPurple,
                       foregroundColor: Colors.black,
-                      padding:
-                          const EdgeInsets.symmetric(vertical: 14),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
                       elevation: 6,
-                      shadowColor:
-                          Colors.black.withOpacity(0.4),
+                      shadowColor: Colors.black.withOpacity(0.4),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
@@ -188,7 +204,9 @@ class ProfileScreen extends StatelessWidget {
             ),
           ),
         ],
-      ),// ===== Bottom Navigation =====
+      ),
+
+      // ===== Bottom Navigation =====
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(12),
         child: Container(
@@ -212,7 +230,6 @@ class ProfileScreen extends StatelessWidget {
             unselectedItemColor: Colors.black54,
             type: BottomNavigationBarType.fixed,
 
-            // ✅ Home فقط
             onTap: (index) {
               if (index == 0) {
                 Navigator.pushReplacement(
@@ -226,7 +243,8 @@ class ProfileScreen extends StatelessWidget {
 
             items: const [
               BottomNavigationBarItem(
-                icon: Icon(Icons.home),label: 'Home',
+                icon: Icon(Icons.home),
+                label: 'Home',
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.file_copy),

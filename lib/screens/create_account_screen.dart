@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../firebase_options.dart';
 
 class CreateAccountScreen extends StatefulWidget {
@@ -24,6 +25,21 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
   final TextEditingController confirmPasswordController = TextEditingController();
 
   bool _loading = false;
+
+  // ✅ رسالة موحدة
+void showMsg(String msg) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text(msg)),
+  );
+}
+
+// ✅ تحقق من الإيميل
+bool isValidEmail(String email) {
+  final emailRegex = RegExp(
+    r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+  );
+  return emailRegex.hasMatch(email);
+}
 
   @override
   void initState() {
@@ -59,58 +75,83 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       ),
     );
   }
-Future<void> _signUp() async {
-  if (nameController.text.isEmpty ||
-      emailController.text.isEmpty ||
-      passwordController.text.isEmpty ||
-      confirmPasswordController.text.isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Please fill all fields")),
-    );
-    return;
-  }
 
-  if (passwordController.text != confirmPasswordController.text) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Passwords don't match")),
-    );
-    return;
-  }
-
-  setState(() => _loading = true);
-
-  try {
-    final userCredential = await FirebaseAuth.instance
-      .createUserWithEmailAndPassword(
-     email: emailController.text.trim(),
-     password: passwordController.text,
-   );
-
-    final user = userCredential.user;
-    await user?.updateDisplayName(nameController.text.trim());
-    final idToken = await user?.getIdToken();
-    print(" TOKEN: $idToken");
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Account created successfully ✅")),
-    );
-
-  } on FirebaseAuthException catch (e) {
-    String msg = "Something went wrong";
-
-    if (e.code == 'invalid-email') msg = "This email is invalid";
-    if (e.code == 'weak-password') msg = "Password is too weak";
-    if (e.code == 'email-already-in-use') {
-      msg = "Email already in use. Try logging in.";
-    }
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(msg)),
-    );
-  } finally {
-    setState(() => _loading = false);
-  }
+  Future<void> _signUp() async {
+  if (nameController.text.trim().isEmpty ||
+    emailController.text.trim().isEmpty ||
+    passwordController.text.isEmpty ||
+    confirmPasswordController.text.isEmpty) {
+  showMsg("Please fill all fields");
+  return;
 }
+
+// ✅ تحقق من الإيميل
+if (!isValidEmail(emailController.text.trim())) {
+  showMsg("Enter a valid email format");
+  return;
+}
+
+// ✅ تحقق من الباسورد
+if (passwordController.text.length < 6) {
+  showMsg("Password must be at least 6 characters");
+  return;
+}
+
+// ✅ تطابق الباسورد
+if (passwordController.text != confirmPasswordController.text) {
+  showMsg("Passwords don't match");
+  return;
+}
+
+    setState(() => _loading = true);
+
+    try {
+      final userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text,
+      );
+
+      final user = userCredential.user;
+
+      // Firebase Auth display name (اختياري)
+      await user?.updateDisplayName(nameController.text.trim());
+
+      // 🔥 حفظ البيانات في Firestore
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user!.uid)
+          .set({
+        'name': nameController.text.trim(),
+        'email': emailController.text.trim(),
+        'uid': user.uid,
+        'role': 'user',
+        'createdAt': Timestamp.now(),
+      });
+
+      final idToken = await user.getIdToken();
+      print("TOKEN: $idToken");
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Account created successfully ✅")),
+      );
+    } on FirebaseAuthException catch (e) {
+      String msg = "Something went wrong";
+
+      if (e.code == 'invalid-email') msg = "This email is invalid";
+      if (e.code == 'weak-password') msg = "Password is too weak";
+      if (e.code == 'email-already-in-use') {
+        msg = "Email already in use. Try logging in.";
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(msg)),
+      );
+    } finally {
+      setState(() => _loading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -159,18 +200,21 @@ Future<void> _signUp() async {
                     style: TextStyle(color: Colors.black87),
                   ),
                   const SizedBox(height: 40),
+
                   TextField(
                     focusNode: nameFocus,
                     controller: nameController,
                     decoration: inputDecoration("Name", Icons.person_outline),
                   ),
                   const SizedBox(height: 18),
+
                   TextField(
                     focusNode: emailFocus,
                     controller: emailController,
                     decoration: inputDecoration("Email", Icons.email_outlined),
                   ),
                   const SizedBox(height: 18),
+
                   TextField(
                     focusNode: passwordFocus,
                     controller: passwordController,
@@ -178,14 +222,16 @@ Future<void> _signUp() async {
                     decoration: inputDecoration("Password", Icons.lock_outline),
                   ),
                   const SizedBox(height: 18),
+
                   TextField(
                     focusNode: confirmPasswordFocus,
                     controller: confirmPasswordController,
                     obscureText: true,
-                    decoration:
-                        inputDecoration("Confirm Password", Icons.lock_outline),
+                    decoration: inputDecoration("Confirm Password", Icons.lock_outline),
                   ),
+
                   const SizedBox(height: 28),
+
                   _loading
                       ? const Center(child: CircularProgressIndicator())
                       : SizedBox(
@@ -209,7 +255,9 @@ Future<void> _signUp() async {
                             ),
                           ),
                         ),
+
                   const SizedBox(height: 16),
+
                   TextButton(
                     onPressed: () => Navigator.pop(context),
                     child: const Text(
