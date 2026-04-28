@@ -1,13 +1,12 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-
 import '../services/db_service.dart';
-
 import '../models/individual_report_item.dart';
 import '../models/cross_report_item.dart';
-
 import '../screens/individual_report_screen.dart';
 import '../screens/cross_report_screen.dart';
+import '../widgets/analysis_header.dart';
+import '../widgets/bottom_nav_bar.dart';
 
 class SavedReportsScreen extends StatefulWidget {
   const SavedReportsScreen({super.key});
@@ -22,6 +21,7 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
   @override
   void initState() {
     super.initState();
+
     loadReports();
   }
 
@@ -58,108 +58,247 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Saved Reports')),
+      backgroundColor: const Color(0xFFF7F8FF),
 
-      body: reports.isEmpty
-          ? const Center(child: Text('No saved reports yet'))
-          : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: reports.length,
-              itemBuilder: (context, index) {
-                final item = reports[index];
+      body: Column(
+        children: [
+          /// ===== HEADER =====
+          Stack(children: [const AnalysisHeader()]),
 
-                final title = item['title']?.toString() ?? 'Saved Report';
+          /// ===== CONTENT =====
+          Expanded(
+            child: Container(
+              transform: Matrix4.translationValues(0, -120, 0),
 
-                final jsonData = jsonDecode(item['data'].toString());
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 5),
 
-                final type = detectType(item, jsonData);
+              decoration: BoxDecoration(
+                color: Colors.white,
 
-                if (type == 'individual') {
-                  List<IndividualReportItem> reportItems = [];
+                borderRadius: BorderRadius.circular(30),
+              ),
 
-                  for (var r in jsonData) {
-                    reportItems.add(
-                      IndividualReportItem(
-                        gene: r['gene']?.toString() ?? 'Not available',
-                        disease: r['disease']?.toString() ?? 'Not available',
-                        clinicalSignificance:
-                            r['clinicalSignificance']?.toString() ??
-                            'Not available',
-                        inheritance:
-                            r['inheritance']?.toString() ?? 'Not available',
-                        confidenceLevel:
-                            r['confidenceLevel']?.toString() ?? 'Not available',
-                      ),
-                    );
-                  }
+              child: reports.isEmpty
+                  /// ===== EMPTY STATE =====
+                  ? ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
 
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    child: ListTile(
-                      leading: const Icon(Icons.person),
-                      title: Text(title),
-                      subtitle: Text('${reportItems.length} genes'),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => IndividualReportScreen(
-                              reportItems: reportItems,
-                              fileName: title,
-                              showDownload: false,
-                            ),
+                      children: [
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.55,
+
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+
+                            children: [
+                              Icon(
+                                Icons.folder_open_outlined,
+
+                                size: 90,
+
+                                color: Colors.grey.shade400,
+                              ),
+
+                              const SizedBox(height: 20),
+
+                              const Text(
+                                "No saved reports yet",
+
+                                style: TextStyle(
+                                  fontSize: 18,
+
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+
+                              const SizedBox(height: 8),
+
+                              const Text(
+                                "Your analyzed reports will appear here.",
+
+                                textAlign: TextAlign.center,
+
+                                style: TextStyle(color: Colors.grey),
+                              ),
+                            ],
                           ),
-                        );
+                        ),
+                      ],
+                    )
+                  /// ===== LIST =====
+                  : ListView.builder(
+                      itemCount: reports.length,
+
+                      itemBuilder: (context, index) {
+                        final item = reports[index];
+
+                        final title =
+                            item['title']?.toString() ?? 'Saved Report';
+
+                        final jsonData = jsonDecode(item['data'].toString());
+
+                        final type = detectType(item, jsonData);
+
+                        /// ===== INDIVIDUAL =====
+
+                        if (type == 'individual') {
+                          List<IndividualReportItem> reportItems = [];
+
+                          for (var r in jsonData) {
+                            reportItems.add(
+                              IndividualReportItem(
+                                gene: r['gene']?.toString() ?? 'Not available',
+
+                                disease:
+                                    r['disease']?.toString() ?? 'Not available',
+
+                                clinicalSignificance:
+                                    r['clinicalSignificance']?.toString() ??
+                                    'Not available',
+
+                                inheritance:
+                                    r['inheritance']?.toString() ??
+                                    'Not available',
+
+                                confidenceLevel:
+                                    r['confidenceLevel']?.toString() ??
+                                    'Not available',
+                              ),
+                            );
+                          }
+
+                          return _buildCard(
+                            icon: Icons.person,
+
+                            title: title,
+
+                            subtitle: "${reportItems.length} genes",
+
+                            onTap: () {
+                              Navigator.push(
+                                context,
+
+                                MaterialPageRoute(
+                                  builder: (_) => IndividualReportScreen(
+                                    reportItems: reportItems,
+
+                                    fileName: title,
+
+                                    showDownload: false,
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        }
+                        /// ===== CROSS =====
+                        else {
+                          List<CrossReportItem> reportItems = [];
+
+                          for (var r in jsonData) {
+                            reportItems.add(
+                              CrossReportItem(
+                                sectionTitle:
+                                    r['sectionTitle']?.toString() ?? '',
+
+                                disease: r['disease']?.toString() ?? 'Unknown',
+
+                                gene: r['gene']?.toString() ?? 'Unknown',
+
+                                inheritance:
+                                    r['inheritance']?.toString() ?? 'Unknown',
+
+                                clinicalSignificance:
+                                    r['clinicalSignificance']?.toString() ??
+                                    'Unknown',
+
+                                affectedRisk:
+                                    r['affectedRisk']?.toString() ?? '0%',
+
+                                carrierRisk:
+                                    r['carrierRisk']?.toString() ?? '0%',
+
+                                healthyRisk:
+                                    r['healthyRisk']?.toString() ?? '0%',
+
+                                explainRisk:
+                                    r['explainRisk']?.toString() ??
+                                    'No explanation available',
+                              ),
+                            );
+                          }
+
+                          return _buildCard(
+                            icon: Icons.family_restroom,
+
+                            title: title,
+
+                            subtitle: "${reportItems.length} conditions",
+
+                            onTap: () {
+                              Navigator.push(
+                                context,
+
+                                MaterialPageRoute(
+                                  builder: (_) => CrossReportScreen(
+                                    reports: reportItems,
+
+                                    fileName: title,
+
+                                    showDownload: false,
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        }
                       },
                     ),
-                  );
-                } else {
-                  List<CrossReportItem> reportItems = [];
-
-                  for (var r in jsonData) {
-                    reportItems.add(
-                      CrossReportItem(
-                        sectionTitle: r['sectionTitle']?.toString() ?? '',
-                        disease: r['disease']?.toString() ?? 'Unknown',
-                        gene: r['gene']?.toString() ?? 'Unknown',
-                        inheritance: r['inheritance']?.toString() ?? 'Unknown',
-                        clinicalSignificance:
-                            r['clinicalSignificance']?.toString() ?? 'Unknown',
-                        affectedRisk: r['affectedRisk']?.toString() ?? '0%',
-                        carrierRisk: r['carrierRisk']?.toString() ?? '0%',
-                        healthyRisk: r['healthyRisk']?.toString() ?? '0%',
-                        explainRisk:
-                            r['explainRisk']?.toString() ??
-                            'No explanation available',
-                      ),
-                    );
-                  }
-
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    child: ListTile(
-                      leading: const Icon(Icons.family_restroom),
-                      title: Text(title),
-                      subtitle: Text('${reportItems.length} conditions'),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => CrossReportScreen(
-                              reports: reportItems,
-                              fileName: title,
-                              showDownload: false,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  );
-                }
-              },
             ),
+          ),
+        ],
+      ),
+
+      /// ===== NAV BAR =====
+      bottomNavigationBar: const BottomNavBar(currentIndex: 1),
+    );
+  }
+
+  /// ===== CARD UI =====
+
+  Widget _buildCard({
+    required IconData icon,
+
+    required String title,
+
+    required String subtitle,
+
+    required VoidCallback onTap,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 15),
+
+      decoration: BoxDecoration(
+        color: const Color(0xFFC8CDFF),
+
+        borderRadius: BorderRadius.circular(18),
+
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8),
+        ],
+      ),
+
+      child: ListTile(
+        leading: Icon(icon, color: const Color(0xFF6C63FF)),
+
+        title: Text(title),
+
+        subtitle: Text(subtitle),
+
+        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+
+        onTap: onTap,
+      ),
     );
   }
 }

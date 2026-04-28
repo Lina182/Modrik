@@ -1,106 +1,41 @@
 import 'package:flutter/material.dart';
+import '../theme/app_colors.dart';
+import '../widgets/header_section.dart';
+import '../widgets/bottom_nav_bar.dart';
 import 'analysis.dart';
 import 'AI_chat_screen.dart';
 import 'Expertchat.dart';
 import 'saved_reports_screen.dart';
 import 'profile.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
-
-  static const Color mainPurple = Color(0xFF6C63FF);
-
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F8FF),
-      bottomNavigationBar: buildNavBar(context),
-
+      backgroundColor: AppColors.background,
+      bottomNavigationBar: const BottomNavBar(currentIndex: 0),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             children: [
               /// HEADER
-              Stack(
-                children: [
-                  Container(
-                    height: size.height * 0.20,
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Color(0xFFE6E7FF), Color(0xFFF7F8FF)],
-                      ),
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(40),
-                        bottomRight: Radius.circular(40),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    right: -40,
-                    top: size.height * 0.15 - 170,
-                    child: Transform.rotate(
-                      angle: 0.6, // 👈 ميلان
-                      child: FaIcon(
-                        FontAwesomeIcons.dna,
-                        size: 270,
-                        color: const Color(0xFF6C63FF).withOpacity(0.15),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 8),
-
-                        const Text(
-                          "Welcome to",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                            height: 1.5, // 👈 تقارب السطور لو فيه أكثر من سطر
-                          ),
-                        ),
-
-                        Text(
-                          "Modrik",
-                          style: TextStyle(
-                            fontSize: size.width * 0.14,
-                            fontWeight: FontWeight.bold,
-                            color: const Color(0xFF6C63FF),
-                            height: 1.0, // 👈 يخلي الاسم tight بدون فراغ زيادة
-                          ),
-                        ),
-
-                        const SizedBox(height: 4),
-
-                        const Text(
-                          "Understand your DNA better",
-                          style: TextStyle(
-                            fontSize: 16,
-                            height: 1.5, // 👈 يقلل تباعد السطور لو النص انكسر
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+              HeaderSection(
+                title: "Welcome to",
+                bigTitle: "Modrik",
+                subtitle: "Understand your DNA better",
               ),
 
-              const SizedBox(height: 10),
-
               /// HERO CARD
+              const SizedBox(height: 10),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [Color(0xFF7A7FFF), Color(0xFF5E5CE6)],
+                      colors: [Color(0xFF7A7FFF), AppColors.heroGradient2],
                     ),
                     borderRadius: BorderRadius.circular(25),
                   ),
@@ -127,7 +62,7 @@ class HomeScreen extends StatelessWidget {
                             ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.white,
-                                foregroundColor: mainPurple,
+                                foregroundColor: AppColors.primary,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(30),
                                 ),
@@ -166,7 +101,6 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
               ),
-
               const SizedBox(height: 20),
 
               /// EXPLORE
@@ -180,7 +114,6 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
               ),
-
               const SizedBox(height: 12),
 
               /// CARDS
@@ -199,9 +132,9 @@ class HomeScreen extends StatelessWidget {
                           );
                         },
                         child: buildSmallCard(
-                          Icons.chat,
+                          Icons.smart_toy_outlined,
                           "Chat",
-                          "Ask about your genetics",
+                          "Ask AI about your genetics",
                         ),
                       ),
                     ),
@@ -226,7 +159,6 @@ class HomeScreen extends StatelessWidget {
                   ],
                 ),
               ),
-
               const SizedBox(height: 20),
 
               /// SECURITY
@@ -240,10 +172,12 @@ class HomeScreen extends StatelessWidget {
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.lock, color: mainPurple, size: 50),
-
+                      const Icon(
+                        Icons.lock,
+                        color: AppColors.primary,
+                        size: 50,
+                      ),
                       const SizedBox(width: 12),
-
                       const Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -252,19 +186,13 @@ class HomeScreen extends StatelessWidget {
                               "Your data is private",
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                height: 1.1, // 👈 تقارب السطر
+                                height: 1.1,
                               ),
                             ),
-
                             SizedBox(height: 6),
-
                             Text(
                               "Your data is processed only for analysis and not stored.",
-                              style: TextStyle(
-                                fontSize: 14,
-                                height:
-                                    1.2, // 👈 يقلل المسافة بين السطور لو النص كبر
-                              ),
+                              style: TextStyle(fontSize: 14, height: 1.2),
                             ),
                           ],
                         ),
@@ -273,7 +201,6 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
               ),
-
               const SizedBox(height: 30),
             ],
           ),
@@ -282,13 +209,12 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  /// ✅ RESPONSIVE CARD (NO OVERFLOW)
+  /// SMALL CARD
   static Widget buildSmallCard(IconData icon, String title, String subtitle) {
     return Container(
       padding: const EdgeInsets.all(16),
-      constraints: const BoxConstraints(minHeight: 110),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.card,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -301,28 +227,22 @@ class HomeScreen extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          /// ICON
           Container(
             height: 40,
             width: 40,
             decoration: BoxDecoration(
-              color: mainPurple.withOpacity(0.12),
+              color: AppColors.primary.withOpacity(0.12),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: mainPurple, size: 18),
+            child: Icon(icon, color: AppColors.primary, size: 18),
           ),
           const SizedBox(width: 12),
-
-          /// TEXT
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -333,64 +253,17 @@ class HomeScreen extends StatelessWidget {
                   subtitle,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: Color.fromARGB(255, 117, 115, 115),
+                    color: AppColors.textGrey,
                     height: 1.3,
                   ),
                 ),
               ],
             ),
           ),
-
           const SizedBox(width: 6),
-
           const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
-        ],
-      ),
-    );
-  }
-
-  /// NAV BAR
-  Widget buildNavBar(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.symmetric(vertical: 14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(25),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          const Icon(Icons.home, color: mainPurple),
-          GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const SavedReportsScreen()),
-              );
-            },
-            child: const Icon(Icons.description_outlined, color: Colors.grey),
-          ),
-          GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const AnalysisScreen()),
-              );
-            },
-            child: const Icon(Icons.biotech, color: Colors.grey),
-          ),
-          GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const ProfileScreen()),
-              );
-            },
-            child: const Icon(Icons.person_outline, color: Colors.grey),
-          ),
         ],
       ),
     );

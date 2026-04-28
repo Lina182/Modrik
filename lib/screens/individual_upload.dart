@@ -6,6 +6,12 @@ import 'package:http/http.dart' as http;
 import '../models/individual_report_item.dart';
 import 'individual_report_screen.dart';
 
+// widgets
+import '../widgets/analysis_header.dart';
+import '../widgets/analysis_upload_box.dart';
+import '../widgets/analysis_button.dart';
+import '../widgets/analysis_loading.dart';
+
 class IndividualUploadScreen extends StatefulWidget {
   const IndividualUploadScreen({super.key});
 
@@ -14,37 +20,9 @@ class IndividualUploadScreen extends StatefulWidget {
 }
 
 class _IndividualUploadScreenState extends State<IndividualUploadScreen> {
-  static const Color mainPurple = Color(0xFF9DA3D9);
-
   PlatformFile? selectedFile;
 
-  void showLoading(BuildContext context) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      barrierColor: Colors.black.withOpacity(0.3),
-      builder: (_) {
-        return Center(
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: const Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CircularProgressIndicator(),
-                SizedBox(height: 15),
-                Text("Analyzing..."),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
+  /// ===== PICK FILE =====
   Future<void> pickFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -58,6 +36,7 @@ class _IndividualUploadScreenState extends State<IndividualUploadScreen> {
     }
   }
 
+  /// ===== API =====
   Future<List<IndividualReportItem>> uploadFile() async {
     var uri = Uri.parse("http://172.237.116.141:8003/analyze_vcf/");
 
@@ -94,15 +73,15 @@ class _IndividualUploadScreenState extends State<IndividualUploadScreen> {
     }
   }
 
+  /// ===== FLOW =====
   Future<void> uploadAndNavigate() async {
-    showLoading(context);
+    AnalysisLoading.show(context);
 
     try {
       final reportItems = await uploadFile();
 
-      Navigator.pop(context);
+      AnalysisLoading.hide(context);
 
-      // 👇 هذا أهم سطر (نشيل .vcf)
       String fileName = selectedFile!.name.replaceAll('.vcf', '');
 
       Navigator.push(
@@ -110,12 +89,12 @@ class _IndividualUploadScreenState extends State<IndividualUploadScreen> {
         MaterialPageRoute(
           builder: (_) => IndividualReportScreen(
             reportItems: reportItems,
-            fileName: fileName, // 👈 نمرره هنا
+            fileName: fileName,
           ),
         ),
       );
     } catch (e) {
-      Navigator.pop(context);
+      AnalysisLoading.hide(context);
 
       ScaffoldMessenger.of(
         context,
@@ -123,130 +102,95 @@ class _IndividualUploadScreenState extends State<IndividualUploadScreen> {
     }
   }
 
+  /// ===== UI =====
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F4F4),
-      body: Stack(
+      backgroundColor: const Color(0xFFF7F8FF),
+
+      body: Column(
         children: [
-          Container(
-            height: 240,
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              color: mainPurple,
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(60),
-                bottomRight: Radius.circular(60),
+          /// ===== HEADER =====
+          Stack(
+            children: [
+              const AnalysisHeader(),
+
+              SafeArea(
+                child: Row(
+                  children: [
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.arrow_back),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            child: Image.asset("assets/header_pattern.png", fit: BoxFit.cover),
+            ],
           ),
 
-          Padding(
-            padding: const EdgeInsets.only(top: 120, left: 20, right: 20),
+          /// ===== BODY =====
+          Expanded(
             child: Container(
+              transform: Matrix4.translationValues(0, -40, 0),
+
               padding: const EdgeInsets.all(20),
+
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(30),
               ),
+
               child: Column(
                 children: [
-                  Row(
-                    children: [
-                      IconButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        icon: const Icon(Icons.arrow_back),
-                      ),
-                      const Expanded(
-                        child: Text(
-                          "Individual Upload",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 48),
-                    ],
+                  const Text(
+                    "Individual Analysis",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
 
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 8),
 
-                  InkWell(
+                  const Text(
+                    "Upload your VCF file to analyze your genetic data.",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.grey),
+                  ),
+
+                  const SizedBox(height: 25),
+
+                  /// ===== UPLOAD BOX =====
+                  AnalysisUploadBox(
+                    title: "Select your VCF file",
                     onTap: pickFile,
-                    child: Container(
-                      height: 240,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF2F2F2),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: Colors.grey, width: 2),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.cloud_upload_outlined, size: 50),
-                          const SizedBox(height: 12),
-                          const Text(
-                            "Select your VCF file",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
+                  ),
 
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Row(
-                              children: [
-                                const Icon(Icons.insert_drive_file_outlined),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: Text(
-                                    selectedFile?.name ?? "No file selected",
-                                  ),
-                                ),
-                                if (selectedFile != null)
-                                  const Icon(Icons.check, color: Colors.green),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
+                  const SizedBox(height: 15),
+
+                  /// ===== FILE INFO =====
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.insert_drive_file),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(selectedFile?.name ?? "No file selected"),
+                        ),
+                        if (selectedFile != null)
+                          const Icon(Icons.check, color: Colors.green),
+                      ],
                     ),
                   ),
 
                   const Spacer(),
 
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: const Text("Cancel"),
-                        ),
-                      ),
-                      const SizedBox(width: 15),
-
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: selectedFile == null
-                              ? null
-                              : uploadAndNavigate, // 👈 ربطناها هنا
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF4F4F6F),
-                          ),
-                          child: const Text("Continue"),
-                        ),
-                      ),
-                    ],
+                  /// ===== BUTTON =====
+                  AnalysisButton(
+                    text: "Continue",
+                    onPressed: selectedFile == null ? null : uploadAndNavigate,
                   ),
                 ],
               ),
