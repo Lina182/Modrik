@@ -4,6 +4,10 @@ import 'package:cloud_firestore/cloud_firestore.dart'; // 🔹 Firestore
 import 'create_account_screen.dart';
 import 'forget_password_screen.dart';
 import 'home_screen.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'admin/admin_dash.dart';
+import 'expert/ExpertHomeScreen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -67,9 +71,50 @@ void initState() {
         password: passwordController.text.trim(),
       );
 
-      final user = userCredential.user;
-      final idToken = await user?.getIdToken();
-      print(" TOKEN: $idToken");
+final user = userCredential.user;
+final idToken = await user?.getIdToken();
+
+if (idToken == null) {
+  throw Exception("Token is null");
+}
+
+final response = await http.post(
+  Uri.parse("http://YOUR_IP:5000/verify-token"),
+  headers: {"Content-Type": "application/json"},
+  body: jsonEncode({
+    "token": idToken,
+  }),
+);
+print(response.body);
+
+if (response.statusCode == 200) {
+  final data = jsonDecode(response.body);
+
+  String role = data['role'] ?? 'user';
+
+  if (role == 'admin') {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const AdminDashScreen()),
+    );
+  } else if (role == 'expert') {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const ExpertHomeScreen()),
+    );
+  } else {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const HomeScreen()),
+    );
+  }
+} else {
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text("Token verification failed")),
+  );
+}
+
+
 
       // 🔹 تسجيل دخول المستخدم في Firestore
       if (user != null) {
@@ -82,10 +127,7 @@ void initState() {
         debugPrint("✅ Login recorded in Firestore for ${user.email}");
       }
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
-      );
+     
     } on FirebaseAuthException catch (e) {
       String msg = "Login failed";
 

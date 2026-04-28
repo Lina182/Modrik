@@ -41,7 +41,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   Future<void> updateProfile() async {
     if (user == null) return;
+          final isEmailChanged = email.text.trim() != user!.email;
+  final isPasswordChanged = password.text.isNotEmpty;
+  final isNameChanged = name.text.trim() != (user!.displayName ?? '');
 
+  if (!isEmailChanged && !isPasswordChanged && !isNameChanged) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("No changes detected")),
+    );
+    return;
+  }
     setState(() => isLoading = true);
 
     try {
