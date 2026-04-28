@@ -32,7 +32,6 @@ class CrossReportItem {
           json['inheritance_label'] ?? json['inheritance_mode'] ?? 'Unknown',
       clinicalSignificance: json['clinical_significance'] ?? 'Unknown',
 
-      // autosomal dominant / recessive
       affectedRisk:
           json['risk_affected_child'] ?? json['sons_affected'] ?? '0%',
 
@@ -47,5 +46,20 @@ class CrossReportItem {
 
       explainRisk: json['risk_explanation'] ?? 'No explanation available',
     );
+  }
+
+  // 🔥 هذا الجديد (مهم للحفظ)
+  Map<String, dynamic> toJson() {
+    return {
+      "sectionTitle": sectionTitle,
+      "disease": disease,
+      "gene": gene,
+      "inheritance": inheritance,
+      "clinicalSignificance": clinicalSignificance,
+      "affectedRisk": affectedRisk,
+      "carrierRisk": carrierRisk,
+      "healthyRisk": healthyRisk,
+      "explainRisk": explainRisk,
+    };
   }
 }

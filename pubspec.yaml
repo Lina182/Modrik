@@ -40,6 +40,7 @@ dependencies:
   http: ^1.6.0
   sqflite: ^2.4.2+1
   path: ^1.9.1
+  font_awesome_flutter: ^10.7.0
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
 
@@ -68,6 +69,11 @@ flutter:
   assets:
     - assets/modrik.jpg
     - assets/header_pattern.png
+    - assets/dnacolor.png
+    - assets/vcf-file.png
+    - assets/chat_bot.png
+    - assets/expert.png
+    - assets/security.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:

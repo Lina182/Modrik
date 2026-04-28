@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // 🔹 Firestore
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'create_account_screen.dart';
 import 'forget_password_screen.dart';
 import 'home_screen.dart';
@@ -22,26 +22,18 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController passwordController = TextEditingController();
 
   bool _loading = false;
-late final Stream<User?> _authStream;
+  late final Stream<User?> _authStream;
 
-@override
-void initState() {
-  super.initState();
+  @override
+  void initState() {
+    super.initState();
 
-  emailFocus.addListener(() => setState(() {}));
-  passwordFocus.addListener(() => setState(() {}));
+    emailFocus.addListener(() => setState(() {}));
+    passwordFocus.addListener(() => setState(() {}));
 
-  _authStream = FirebaseAuth.instance.authStateChanges();
+    _authStream = FirebaseAuth.instance.authStateChanges();
+  }
 
-  _authStream.listen((user) {
-    if (user != null) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
-      );
-    }
-  });
-}
   @override
   void dispose() {
     emailFocus.dispose();
@@ -53,62 +45,72 @@ void initState() {
 
   Future<void> _login() async {
     if (emailController.text.isEmpty || passwordController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please fill all fields")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Please fill all fields")));
       return;
     }
 
     setState(() => _loading = true);
 
     try {
-      final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: emailController.text.trim(),
-        password: passwordController.text.trim(),
-      );
+      final userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(
+            email: emailController.text.trim(),
+            password: passwordController.text.trim(),
+          );
 
       final user = userCredential.user;
-      final idToken = await user?.getIdToken();
-      print(" TOKEN: $idToken");
 
-      // 🔹 تسجيل دخول المستخدم في Firestore
       if (user != null) {
+        final idToken = await user.getIdToken();
+        print("TOKEN: $idToken");
+
         await FirebaseFirestore.instance.collection('login_activity').add({
           'userId': user.uid,
           'email': user.email,
           'timestamp': Timestamp.now(),
         });
-
-        debugPrint("✅ Login recorded in Firestore for ${user.email}");
       }
+
+      if (!mounted) return;
 
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const HomeScreen()),
       );
     } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+
       String msg = "Login failed";
 
-      if (e.code == 'user-not-found') {
-        msg = "No user found with this email";
-      } else if (e.code == 'wrong-password') {
-        msg = "Wrong password";
-      } else if (e.code == 'invalid-email') {
-        msg = "Invalid email format";
+      switch (e.code) {
+        case 'user-not-found':
+          msg = "No user found with this email";
+          break;
+        case 'wrong-password':
+          msg = "Wrong password";
+          break;
+        case 'invalid-email':
+          msg = "Invalid email format";
+          break;
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(msg)),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
 
-      debugPrint("❌ Login error: ${e.code}");
+      debugPrint("Login error: ${e.code}");
     } catch (e) {
+      if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Unexpected error occurred")),
       );
-      debugPrint("❌ Unexpected error: $e");
+
+      debugPrint("Unexpected error: $e");
     } finally {
-      setState(() => _loading = false);
+      if (mounted) {
+        setState(() => _loading = false);
+      }
     }
   }
 
@@ -159,6 +161,7 @@ void initState() {
                   style: TextStyle(color: Colors.black87),
                 ),
                 const SizedBox(height: 50),
+
                 TextField(
                   controller: emailController,
                   focusNode: emailFocus,
@@ -167,20 +170,15 @@ void initState() {
                     prefixIcon: const Icon(Icons.email_outlined),
                     filled: true,
                     fillColor: Colors.white.withOpacity(0.55),
-                    enabledBorder: OutlineInputBorder(
+                    border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
                       borderSide: BorderSide.none,
                     ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: const BorderSide(
-                        color: Colors.black,
-                        width: 1,
-                      ),
-                    ),
                   ),
                 ),
+
                 const SizedBox(height: 18),
+
                 TextField(
                   controller: passwordController,
                   focusNode: passwordFocus,
@@ -190,19 +188,13 @@ void initState() {
                     prefixIcon: const Icon(Icons.lock_outline),
                     filled: true,
                     fillColor: Colors.white.withOpacity(0.55),
-                    enabledBorder: OutlineInputBorder(
+                    border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
                       borderSide: BorderSide.none,
                     ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: const BorderSide(
-                        color: Colors.black,
-                        width: 1,
-                      ),
-                    ),
                   ),
                 ),
+
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
@@ -220,20 +212,22 @@ void initState() {
                     ),
                   ),
                 ),
+
                 const SizedBox(height: 25),
+
                 _loading
                     ? const CircularProgressIndicator()
                     : SizedBox(
                         width: double.infinity,
                         height: 55,
                         child: ElevatedButton(
+                          onPressed: _login,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(14),
                             ),
                           ),
-                          onPressed: _login,
                           child: const Text(
                             "Log in",
                             style: TextStyle(
@@ -244,7 +238,9 @@ void initState() {
                           ),
                         ),
                       ),
+
                 const SizedBox(height: 16),
+
                 TextButton(
                   onPressed: () {
                     Navigator.push(
@@ -273,12 +269,13 @@ class TopCurvePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = Colors.white
-      ..strokeWidth = 2
-      ..style = PaintingStyle.stroke;
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
 
     final path = Path();
     path.moveTo(0, size.height);
     path.quadraticBezierTo(size.width / 2, 0, size.width, size.height);
+
     canvas.drawPath(path, paint);
   }
 

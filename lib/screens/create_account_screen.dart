@@ -22,24 +22,21 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
 
   bool _loading = false;
 
   // ✅ رسالة موحدة
-void showMsg(String msg) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text(msg)),
-  );
-}
+  void showMsg(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+  }
 
-// ✅ تحقق من الإيميل
-bool isValidEmail(String email) {
-  final emailRegex = RegExp(
-    r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-  );
-  return emailRegex.hasMatch(email);
-}
+  // ✅ تحقق من الإيميل
+  bool isValidEmail(String email) {
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    return emailRegex.hasMatch(email);
+  }
 
   @override
   void initState() {
@@ -77,40 +74,40 @@ bool isValidEmail(String email) {
   }
 
   Future<void> _signUp() async {
-  if (nameController.text.trim().isEmpty ||
-    emailController.text.trim().isEmpty ||
-    passwordController.text.isEmpty ||
-    confirmPasswordController.text.isEmpty) {
-  showMsg("Please fill all fields");
-  return;
-}
+    if (nameController.text.trim().isEmpty ||
+        emailController.text.trim().isEmpty ||
+        passwordController.text.isEmpty ||
+        confirmPasswordController.text.isEmpty) {
+      showMsg("Please fill all fields");
+      return;
+    }
 
-// ✅ تحقق من الإيميل
-if (!isValidEmail(emailController.text.trim())) {
-  showMsg("Enter a valid email format");
-  return;
-}
+    // ✅ تحقق من الإيميل
+    if (!isValidEmail(emailController.text.trim())) {
+      showMsg("Enter a valid email format");
+      return;
+    }
 
-// ✅ تحقق من الباسورد
-if (passwordController.text.length < 6) {
-  showMsg("Password must be at least 6 characters");
-  return;
-}
+    // ✅ تحقق من الباسورد
+    if (passwordController.text.length < 6) {
+      showMsg("Password must be at least 6 characters");
+      return;
+    }
 
-// ✅ تطابق الباسورد
-if (passwordController.text != confirmPasswordController.text) {
-  showMsg("Passwords don't match");
-  return;
-}
+    // ✅ تطابق الباسورد
+    if (passwordController.text != confirmPasswordController.text) {
+      showMsg("Passwords don't match");
+      return;
+    }
 
     setState(() => _loading = true);
 
     try {
       final userCredential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(
-        email: emailController.text.trim(),
-        password: passwordController.text,
-      );
+            email: emailController.text.trim(),
+            password: passwordController.text,
+          );
 
       final user = userCredential.user;
 
@@ -118,10 +115,7 @@ if (passwordController.text != confirmPasswordController.text) {
       await user?.updateDisplayName(nameController.text.trim());
 
       // 🔥 حفظ البيانات في Firestore
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user!.uid)
-          .set({
+      await FirebaseFirestore.instance.collection('users').doc(user!.uid).set({
         'name': nameController.text.trim(),
         'email': emailController.text.trim(),
         'uid': user.uid,
@@ -144,9 +138,7 @@ if (passwordController.text != confirmPasswordController.text) {
         msg = "Email already in use. Try logging in.";
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(msg)),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
     } finally {
       setState(() => _loading = false);
     }
@@ -227,7 +219,10 @@ if (passwordController.text != confirmPasswordController.text) {
                     focusNode: confirmPasswordFocus,
                     controller: confirmPasswordController,
                     obscureText: true,
-                    decoration: inputDecoration("Confirm Password", Icons.lock_outline),
+                    decoration: inputDecoration(
+                      "Confirm Password",
+                      Icons.lock_outline,
+                    ),
                   ),
 
                   const SizedBox(height: 28),

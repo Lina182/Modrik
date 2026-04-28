@@ -176,7 +176,8 @@ class _CrossUploadScreenState extends State<CrossUploadScreen> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => CrossReportScreen(reports: reports),
+            builder: (_) =>
+                CrossReportScreen(reports: reports, fileName: "Cross Report"),
           ),
         );
       } else {

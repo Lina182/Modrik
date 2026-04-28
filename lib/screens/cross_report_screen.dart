@@ -2,13 +2,22 @@ import 'package:flutter/material.dart';
 import '../models/cross_report_item.dart';
 import '../widgets/cross_report_card.dart';
 import '../widgets/report_action_buttons.dart';
+import '../services/db_service.dart';
+import 'home_screen.dart';
 
 const Color mainPurple = Color(0xFF9DA3D9);
 
 class CrossReportScreen extends StatelessWidget {
   final List<CrossReportItem> reports;
+  final String fileName;
+  final bool showDownload;
 
-  const CrossReportScreen({super.key, required this.reports});
+  const CrossReportScreen({
+    super.key,
+    required this.reports,
+    required this.fileName,
+    this.showDownload = true,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -24,28 +33,28 @@ class CrossReportScreen extends StatelessWidget {
               children: [
                 IconButton(
                   onPressed: () {
-                    Navigator.pop(context);
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (_) => const HomeScreen()),
+                      (route) => false,
+                    );
                   },
                   icon: const Icon(Icons.arrow_back, color: Colors.white),
                 ),
-                const Expanded(
+
+                Expanded(
                   child: Text(
-                    "Couple Genetic Risk Report",
+                    fileName,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
                       color: Colors.white,
                     ),
                   ),
                 ),
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(
-                    Icons.ios_share_outlined,
-                    color: Colors.white,
-                  ),
-                ),
+
+                const Icon(Icons.ios_share_outlined, color: Colors.white),
               ],
             ),
           ),
@@ -61,10 +70,24 @@ class CrossReportScreen extends StatelessWidget {
             const SizedBox(height: 10),
 
             ReportActionButtons(
-              onDownloadPdf: () {},
+              onDownloadPdf: showDownload
+                  ? () async {
+                      await DBService.saveReport(
+                        items: reports.map((item) => item.toJson()).toList(),
+                        title: fileName,
+                        type: 'cross',
+                      );
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Report saved locally')),
+                      );
+                    }
+                  : null,
+
               onAskAi: () {},
               onConsultExpert: () {},
-              pdfLabel: 'Download Full Couple Report (PDF)',
+
+              pdfLabel: 'Download Full Couple Report',
               aiLabel: 'Chat with AI',
             ),
           ],

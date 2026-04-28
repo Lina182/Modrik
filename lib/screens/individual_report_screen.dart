@@ -3,38 +3,13 @@ import 'package:modik_pages/screens/home_screen.dart';
 import '../models/individual_report_item.dart';
 import '../widgets/individual_report_card.dart';
 import '../widgets/report_action_buttons.dart';
-import 'dart:convert';
-import 'package:sqflite/sqflite.dart';
+import '../services/db_service.dart';
 
 const Color mainPurple = Color(0xFF9DA3D9);
 
-Future<void> saveReport(
-  List<IndividualReportItem> items, {
-
-  required String title,
-}) async {
-  final db = await openDatabase('reports.db');
-
-  // إنشاء الجدول إذا ما كان موجود
-  await db.execute(
-    'CREATE TABLE IF NOT EXISTS reports (id INTEGER PRIMARY KEY, data TEXT)',
-  );
-
-  // 👇 هذا أهم سطر (يضيف العمود إذا مو موجود)
-  try {
-    await db.execute('ALTER TABLE reports ADD COLUMN title TEXT');
-  } catch (e) {
-    // إذا موجود خلاص ignore
-  }
-
-  String data = jsonEncode(items.map((item) => item.toJson()).toList());
-
-  await db.insert('reports', {'data': data, 'title': title});
-}
-
 class IndividualReportScreen extends StatelessWidget {
   final List<IndividualReportItem> reportItems;
-  final String fileName; // 👈 اسم التقرير
+  final String fileName;
   final bool showDownload;
 
   const IndividualReportScreen({
@@ -69,7 +44,7 @@ class IndividualReportScreen extends StatelessWidget {
 
                 Expanded(
                   child: Text(
-                    fileName, // 👈 يظهر الاسم فوق
+                    fileName,
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 18,
@@ -102,7 +77,13 @@ class IndividualReportScreen extends StatelessWidget {
             ReportActionButtons(
               onDownloadPdf: showDownload
                   ? () async {
-                      await saveReport(reportItems, title: fileName);
+                      await DBService.saveReport(
+                        items: reportItems
+                            .map((item) => item.toJson())
+                            .toList(),
+                        title: fileName,
+                        type: 'individual',
+                      );
 
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Report saved locally')),
