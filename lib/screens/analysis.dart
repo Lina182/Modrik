@@ -1,177 +1,142 @@
 import 'package:flutter/material.dart';
-import 'home_screen.dart';
+import 'package:modik_pages/widgets/header_section.dart';
+import '../widgets/analysis_header.dart';
+import '../widgets/bottom_nav_bar.dart';
+import '../theme/app_colors.dart';
 import 'individual_upload.dart';
 import 'cross_upload.dart';
 
 class AnalysisScreen extends StatelessWidget {
   const AnalysisScreen({super.key});
-
-  static const Color mainPurple = Color(0xFF9DA3D9);
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F4F4),
-
+      backgroundColor: AppColors.background,
+      bottomNavigationBar: const BottomNavBar(currentIndex: 2),
       body: Stack(
         children: [
+          /// HEADER
+          const HeaderSection(title: "", bigTitle: "", subtitle: ""),
 
-          // ===== الخلفية البنفسجية مع الصورة =====
-          Container(
-            height: 240,
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              color: mainPurple,
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(60),
-                bottomRight: Radius.circular(60),
-              ),
-            ),
-            child: Image.asset(
-              "assets/header_pattern.png",   // حطي صورة الخطوط هنا
-              fit: BoxFit.cover,
-            ),
-          ),
-
-          // ===== الكارد الأبيض =====
-          Padding(
-            padding: const EdgeInsets.only(top: 120, left: 20, right: 20),
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(30),
-              ),
+          /// CONTENT
+          SafeArea(
+            child: SingleChildScrollView(
               child: Column(
                 children: [
+                  const SizedBox(height: 140),
 
-                  const SizedBox(height: 10),
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 30,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(30),
+                      boxShadow: [
+                        BoxShadow(
+                          blurRadius: 30,
+                          color: Colors.black.withOpacity(0.08),
+                          offset: const Offset(0, 15),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        const Text(
+                          "Select how you want to\nanalyze your genetic data.",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                            height: 1.4,
+                          ),
+                        ),
+                        const SizedBox(height: 30),
 
-                  const Text(
-                    "Please select how you want to\nanalyze your genetic data.",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                        /// SINGLE
+                        buildOptionCard(
+                          icon: Icons.person_outline,
+                          title: "Individual Analysis",
+                          subtitle:
+                              "Analyze one VCF file for a single individual.",
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const IndividualUploadScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 20),
+
+                        /// CROSS
+                        buildOptionCard(
+                          icon: Icons.group_outlined,
+                          title: "Cross Analysis",
+                          subtitle:
+                              "Analyze two VCF files to compare shared or inherited variants.",
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const CrossUploadScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 30),
+                      ],
                     ),
                   ),
-
-                  const SizedBox(height: 40),
-
-                  Row(
-                    children: [
-
-                      Expanded(
-                        child: buildOptionCard(
-  icon: Icons.person_outline,
-  text: "Analyze one VCF file\nfor a single individual.",
-  onTap: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const IndividualUploadScreen(),
-      ),
-    );
-  },
-),
-                      ),
-
-                      const SizedBox(width: 20),
-
-Expanded(
-  child: buildOptionCard(
-    icon: Icons.group_outlined,
-    text: "two files to compare\nshared or inherited\nvariants.",
-    onTap: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const CrossUploadScreen(),
-        ),
-      );
-    },
-  ),
-),
-                    ],
-                  ),
-
-                  const Spacer(),
+                  const SizedBox(height: 30),
                 ],
               ),
             ),
           ),
         ],
       ),
-
-      // ===== Bottom Navigation =====
-     bottomNavigationBar: Container(
-  height: 70,
-  decoration: const BoxDecoration(
-    color: mainPurple,
-    borderRadius: BorderRadius.only(
-      topLeft: Radius.circular(25),
-      topRight: Radius.circular(25),
-    ),
-  ),
-  child: Row(
-    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-    children: [
-
-      // ===== HOME =====
-      GestureDetector(
-        onTap: () {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const HomeScreen(),
-            ),
-          );
-        },
-        child: const Icon(
-          Icons.home_outlined,
-          color: Colors.black,
-        ),
-      ),
-
-      const Icon(Icons.description_outlined, color: Colors.black),
-      const Icon(Icons.bubble_chart_outlined, color: Colors.black),
-      const Icon(Icons.person_outline, color: Colors.black),
-    ],
-  ),
-),
     );
   }
 
- Widget buildOptionCard({
-  required IconData icon,
-  required String text,
-  required VoidCallback onTap,
-}) {
-  return InkWell(
-    onTap: onTap,
-    child: Container(
-      height: 170,
-      decoration: BoxDecoration(
-        color: mainPurple,
-        borderRadius: BorderRadius.circular(25),
-      ),
-      padding: const EdgeInsets.all(15),
-      child: Column(
-        children: [
-          Icon(icon, size: 40, color: Colors.black),
-          const SizedBox(height: 15),
-          Text(
-            text,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: Colors.black,
+  Widget buildOptionCard({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 35, horizontal: 25),
+        decoration: BoxDecoration(
+          color: AppColors.softPurple,
+          borderRadius: BorderRadius.circular(25),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, size: 50, color: const Color(0xFF5E5CE6)),
+            const SizedBox(height: 16),
+            Text(
+              title,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-          ),
-        ],
+            const SizedBox(height: 10),
+            Text(
+              subtitle,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 14,
+                height: 1.5,
+                color: Color.fromARGB(255, 0, 0, 0),
+              ),
+            ),
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 }
