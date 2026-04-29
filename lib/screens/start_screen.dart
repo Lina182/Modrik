@@ -1,4 +1,4 @@
- import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'login_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'home_screen.dart';
@@ -13,42 +13,42 @@ class StartScreen extends StatefulWidget {
 class _StartScreenState extends State<StartScreen> {
   final Color lightPurple = const Color(0xFFEBEFFF);
 
-@override
-void initState() {
-  super.initState();
-  checkUserSession();
-}
+  @override
+  void initState() {
+    super.initState();
+    checkUserSession();
+  }
 
-Future<void> checkUserSession() async {
-  await Future.delayed(const Duration(seconds: 3));
+  Future<void> checkUserSession() async {
+    await Future.delayed(const Duration(seconds: 3));
 
-  try {
-    final user = FirebaseAuth.instance.currentUser;
+    try {
+      final user = FirebaseAuth.instance.currentUser;
 
-    if (user != null) {
-      // نحاول نعمل reload (نكتشف لو الباسورد اتغير)
-      await user.reload();
+      if (user != null) {
+        // نحاول نعمل reload (نكتشف لو الباسورد اتغير)
+        await user.reload();
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
-      );
-    } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+        );
+      }
+    } catch (e) {
+      // 🔥 هنا لو الباسورد اتغير
+      await FirebaseAuth.instance.signOut();
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const LoginScreen()),
       );
     }
-  } catch (e) {
-    // 🔥 هنا لو الباسورد اتغير
-    await FirebaseAuth.instance.signOut();
-
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const LoginScreen()),
-    );
   }
-}
 
   @override
   Widget build(BuildContext context) {

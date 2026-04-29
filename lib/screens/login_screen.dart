@@ -37,14 +37,6 @@ void initState() {
 
   _authStream = FirebaseAuth.instance.authStateChanges();
 
-  _authStream.listen((user) {
-    if (user != null) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
-      );
-    }
-  });
 }
   @override
   void dispose() {
@@ -72,6 +64,20 @@ void initState() {
       );
 
 final user = userCredential.user;
+
+
+
+      // 🔹 تسجيل دخول المستخدم في Firestore
+      if (user != null) {
+        await FirebaseFirestore.instance.collection('login_activity').add({
+          'userId': user.uid,
+          'email': user.email ?? emailController.text.trim(),
+          'timestamp': Timestamp.now(),
+        });
+
+        debugPrint("✅ Login recorded in Firestore for ${user.email}");
+      }
+
 final idToken = await user?.getIdToken();
 
 if (idToken == null) {
@@ -79,7 +85,7 @@ if (idToken == null) {
 }
 
 final response = await http.post(
-  Uri.parse("http://YOUR_IP:5000/verify-token"),
+  Uri.parse("http://172.237.116.141:8002/verify-token"),
   headers: {"Content-Type": "application/json"},
   body: jsonEncode({
     "token": idToken,
@@ -90,7 +96,7 @@ print(response.body);
 if (response.statusCode == 200) {
   final data = jsonDecode(response.body);
 
-  String role = data['role'] ?? 'user';
+  String role = data['role'].toString().trim().toLowerCase() ;
 
   if (role == 'admin') {
     Navigator.pushReplacement(
@@ -113,19 +119,6 @@ if (response.statusCode == 200) {
     const SnackBar(content: Text("Token verification failed")),
   );
 }
-
-
-
-      // 🔹 تسجيل دخول المستخدم في Firestore
-      if (user != null) {
-        await FirebaseFirestore.instance.collection('login_activity').add({
-          'userId': user.uid,
-          'email': user.email,
-          'timestamp': Timestamp.now(),
-        });
-
-        debugPrint("✅ Login recorded in Firestore for ${user.email}");
-      }
 
      
     } on FirebaseAuthException catch (e) {
@@ -154,13 +147,15 @@ if (response.statusCode == 200) {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: lavender,
-      body: Stack(
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    backgroundColor: lavender,
+    body: SafeArea(
+      child: Stack(
         children: [
           Container(color: lavender),
+
           Positioned(
             top: -180,
             right: -100,
@@ -173,6 +168,7 @@ if (response.statusCode == 200) {
               ),
             ),
           ),
+
           Positioned(
             top: 50,
             right: 0,
@@ -181,135 +177,146 @@ if (response.statusCode == 200) {
               painter: TopCurvePainter(),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 28),
-            child: Column(
-              children: [
-                const SizedBox(height: 120),
-                const Text(
-                  "Login",
-                  style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                const Text(
-                  "Welcome back you've\nbeen missed!",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.black87),
-                ),
-                const SizedBox(height: 50),
-                TextField(
-                  controller: emailController,
-                  focusNode: emailFocus,
-                  decoration: InputDecoration(
-                    hintText: "Email",
-                    prefixIcon: const Icon(Icons.email_outlined),
-                    filled: true,
-                    fillColor: Colors.white.withOpacity(0.55),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: BorderSide.none,
+
+          SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 28),
+              child: Column(
+                children: [
+                  const SizedBox(height: 120),
+                  const Text(
+                    "Login",
+                    style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
                     ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: const BorderSide(
-                        color: Colors.black,
-                        width: 1,
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    "Welcome back you've\nbeen missed!",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.black87),
+                  ),
+                  const SizedBox(height: 50),
+
+                  TextField(
+                    controller: emailController,
+                    focusNode: emailFocus,
+                    decoration: InputDecoration(
+                      hintText: "Email",
+                      prefixIcon: const Icon(Icons.email_outlined),
+                      filled: true,
+                      fillColor: Colors.white.withOpacity(0.55),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: const BorderSide(
+                          color: Colors.black,
+                          width: 1,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 18),
-                TextField(
-                  controller: passwordController,
-                  focusNode: passwordFocus,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    hintText: "Password",
-                    prefixIcon: const Icon(Icons.lock_outline),
-                    filled: true,
-                    fillColor: Colors.white.withOpacity(0.55),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: BorderSide.none,
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: const BorderSide(
-                        color: Colors.black,
-                        width: 1,
+
+                  const SizedBox(height: 18),
+
+                  TextField(
+                    controller: passwordController,
+                    focusNode: passwordFocus,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      hintText: "Password",
+                      prefixIcon: const Icon(Icons.lock_outline),
+                      filled: true,
+                      fillColor: Colors.white.withOpacity(0.55),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: const BorderSide(
+                          color: Colors.black,
+                          width: 1,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
+
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const ForgetPasswordScreen(),
+                          ),
+                        );
+                      },
+                      child: const Text(
+                        "Forgot Password?",
+                        style: TextStyle(color: Colors.black),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 25),
+
+                  _loading
+                      ? const CircularProgressIndicator()
+                      : SizedBox(
+                          width: double.infinity,
+                          height: 55,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                            ),
+                            onPressed: _login,
+                            child: const Text(
+                              "Log in",
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                  const SizedBox(height: 16),
+
+                  TextButton(
                     onPressed: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => const ForgetPasswordScreen(),
+                          builder: (_) => const CreateAccountScreen(),
                         ),
                       );
                     },
                     child: const Text(
-                      "Forgot Password?",
+                      "Don’t have an account ? Sign Up",
                       style: TextStyle(color: Colors.black),
                     ),
                   ),
-                ),
-                const SizedBox(height: 25),
-                _loading
-                    ? const CircularProgressIndicator()
-                    : SizedBox(
-                        width: double.infinity,
-                        height: 55,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                          ),
-                          onPressed: _login,
-                          child: const Text(
-                            "Log in",
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                      ),
-                const SizedBox(height: 16),
-                TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const CreateAccountScreen(),
-                      ),
-                    );
-                  },
-                  child: const Text(
-                    "Don’t have an account ? Sign Up",
-                    style: TextStyle(color: Colors.black),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
 }
-
+}
 class TopCurvePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
