@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../firebase_options.dart';
 import 'home_screen.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class CreateAccountScreen extends StatefulWidget {
   const CreateAccountScreen({super.key});
@@ -109,12 +111,14 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
             email: emailController.text.trim(),
             password: passwordController.text,
           );
+          
 
       final user = userCredential.user;
+      if (user == null) throw Exception("User creation failed");
 
       // Firebase Auth display name (اختياري)
       await user?.updateDisplayName(nameController.text.trim());
-
+   
       // 🔥 حفظ البيانات في Firestore
       await FirebaseFirestore.instance.collection('users').doc(user!.uid).set({
         'name': nameController.text.trim(),
@@ -126,6 +130,18 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
 
       final idToken = await user.getIdToken();
       print("TOKEN: $idToken");
+
+      await http.post(
+  Uri.parse("http://172.237.116.141:8002/register"),
+  headers: {"Content-Type": "application/json"},
+  body: jsonEncode({
+    "uid": user.uid,
+    "name": nameController.text.trim(),
+    "email": emailController.text.trim(),
+    "role": "user",
+    "token": idToken,
+  }),
+);
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Account created successfully ✅")),

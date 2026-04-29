@@ -63,9 +63,11 @@ void initState() {
         password: passwordController.text.trim(),
       );
 
+
 final user = userCredential.user;
+if (user == null) throw Exception("User is null");
 
-
+final idToken = await user.getIdToken();
 
       // 🔹 تسجيل دخول المستخدم في Firestore
       if (user != null) {
@@ -78,7 +80,26 @@ final user = userCredential.user;
         debugPrint("✅ Login recorded in Firestore for ${user.email}");
       }
 
-final idToken = await user?.getIdToken();
+
+// 1. verify token + get role
+final verifyResponse = await http.post(
+  Uri.parse("http://172.237.116.141:8002/verify-token"),
+  headers: {"Content-Type": "application/json"},
+  body: jsonEncode({"token": idToken}),
+);
+
+print("VERIFY: ${verifyResponse.body}");
+
+
+// 2. log login in MySQL
+final logResponse = await http.post(
+  Uri.parse("http://172.237.116.141:8002/login-log"),
+  headers: {"Content-Type": "application/json"},
+  body: jsonEncode({"token": idToken}),
+);
+
+print("LOG: ${logResponse.body}");
+
 
 if (idToken == null) {
   throw Exception("Token is null");

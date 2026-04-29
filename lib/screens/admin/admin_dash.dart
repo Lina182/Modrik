@@ -1,12 +1,66 @@
 import 'package:flutter/material.dart';
-import 'admin_profile.dart';  // استيراد صفحة الـ Profile الجديدة
+import 'admin_profile.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
 
-const Color mainPurple = Color(0xFFC4C8EA);  // اللون الأساسي
-const Color bgPurple = Color(0xFF9DA3D9);  // خلفية اللون البنفسجي
-const Color moviePurple = Color(0xFF7A5CC1);  // اللون الموف الجديد
+const Color mainPurple = Color(0xFFC4C8EA);
+const Color bgPurple = Color(0xFF9DA3D9);
+const Color moviePurple = Color(0xFF7A5CC1);
 
-class AdminDashScreen extends StatelessWidget {
+class AdminDashScreen extends StatefulWidget {
   const AdminDashScreen({super.key});
+
+  @override
+  State<AdminDashScreen> createState() => _AdminDashScreenState();
+}
+
+class _AdminDashScreenState extends State<AdminDashScreen> {
+Map<String, dynamic>? healthData;
+bool loading = true;
+
+@override
+void initState() {
+  super.initState();
+  loadHealth();
+}
+
+  // 🔥 API CALL
+  Future<Map<String, dynamic>> fetchSystemHealth() async {
+    final user = FirebaseAuth.instance.currentUser;
+    final token = await user!.getIdToken();
+
+    final response = await http.get(
+      Uri.parse("http://172.237.116.141:8002/system/health?token=$token"),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception("Failed to load system health");
+    }
+  }
+
+  Future<void> loadHealth() async {
+  try {
+    final data = await fetchSystemHealth();
+    setState(() {
+      healthData = data;
+      loading = false;
+    });
+  } catch (e) {
+    setState(() {
+      loading = false;
+    });
+  }
+}
+
+  // 🎨 تحديد اللون حسب الحالة
+  Color _getColor(String status) {
+    if (status == "stable") return Colors.green;
+    if (status == "unstable") return Colors.orange;
+    return Colors.red;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,11 +69,9 @@ class AdminDashScreen extends StatelessWidget {
         title: const Text('Admin Dashboard'),
         backgroundColor: moviePurple,
         actions: [
-          // إضافة أيقونة بروفايل في الجهة اليمنى
           IconButton(
             icon: const Icon(Icons.person),
             onPressed: () {
-              // عند النقر على الأيقونة، الانتقال إلى صفحة admin_profile.dart
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -30,17 +82,19 @@ class AdminDashScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: SingleChildScrollView(  
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // عرض عدد التحليلات الفردية و جميع المستخدمين و التحليلات المجمعة
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _buildDashboardCard('Individual analyses', '742', Icons.analytics),
-                _buildDashboardCard('All Users', '3478', Icons.people),
+               _buildDashboardCard('All Users',
+  loading ? '...' : (healthData?['total_users']?.toString() ?? '0'),
+  Icons.people,
+),
                 _buildDashboardCard('Cross Analyses', '1356', Icons.compare),
               ],
             ),
@@ -50,9 +104,8 @@ class AdminDashScreen extends StatelessWidget {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
-            _buildCircularChart(),  // هنا نعرض الدائرة
+            _buildCircularChart(),
             const SizedBox(height: 30),
-            // عرض النسب المئوية للفشل والنجاح
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -65,6 +118,8 @@ class AdminDashScreen extends StatelessWidget {
               'API Status',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
+
+            // 🔥 هنا الربط الحقيقي بالباك
             _buildAPIStatus(),
           ],
         ),
@@ -86,21 +141,14 @@ class AdminDashScreen extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  icon,
-                  size: 30,
-                  color: moviePurple, // تغيير اللون إلى الموف
-                ),
+                Icon(icon, size: 30, color: moviePurple),
                 const SizedBox(height: 8),
                 Text(
                   title,
                   style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  value,
-                  style: const TextStyle(fontSize: 14),
-                ),
+                Text(value, style: const TextStyle(fontSize: 14)),
               ],
             ),
           ),
@@ -112,48 +160,74 @@ class AdminDashScreen extends StatelessWidget {
   Widget _buildCircularChart() {
     return Center(
       child: Container(
-        width: 200, // زيادنا الحجم ليكون أكثر وضوحًا
+        width: 200,
         height: 200,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           border: Border.all(color: moviePurple, width: 8),
         ),
         child: CustomPaint(
-          painter: _ProgressPainter(),  // استخدام الرسام المخصص هنا
+          painter: _ProgressPainter(),
         ),
       ),
     );
-  }// إضافة الـ Widget الجديد لعرض النسب المئوية
+  }
+
   Widget _buildAnalysisStatus(String title, String value, Color color) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        // الدائرة على اليسار
-        CircleAvatar(
-          radius: 10,
-          backgroundColor: color, 
-        ),
+        CircleAvatar(radius: 10, backgroundColor: color),
         const SizedBox(width: 10),
-        // النص يكون باللون الأسود
         Text(
           '$title: $value',
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: Colors.black,  
+            color: Colors.black,
           ),
         ),
       ],
     );
   }
 
+  // 🔥 دي اللي اتعدلت
   Widget _buildAPIStatus() {
-    return Column(
-      children: [
-        _buildAPIStatusItem('OpenCARVAT API', 'Stable', Colors.green),
-        _buildAPIStatusItem('PanelApp API', 'Stable', Colors.green),
-        _buildAPIStatusItem('Gemini API', 'Unstable', Colors.red),
-      ],
+    return FutureBuilder(
+      future: fetchSystemHealth(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Padding(
+            padding: EdgeInsets.all(10),
+            child: CircularProgressIndicator(),
+          );
+        }
+
+        if (snapshot.hasError) {
+          return Text("Error: ${snapshot.error}");
+        }
+
+        final data = snapshot.data as Map<String, dynamic>;
+
+        return Column(
+          children: [
+            _buildAPIStatusItem(
+              'OpenCRAVAT API',
+              data['opencravat'],
+              _getColor(data['opencravat']),
+            ),
+            _buildAPIStatusItem(
+              'PanelApp API',
+              data['panelapp'],
+              _getColor(data['panelapp']),
+            ),
+            _buildAPIStatusItem(
+              'Gemini API',
+              data['gemini'],
+              _getColor(data['gemini']),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -166,11 +240,7 @@ class AdminDashScreen extends StatelessWidget {
           Text(apiName),
           Row(
             children: [
-              Icon(
-                Icons.circle,
-                color: color,
-                size: 12,
-              ),
+              Icon(Icons.circle, color: color, size: 12),
               const SizedBox(width: 8),
               Text(status),
             ],
@@ -186,24 +256,16 @@ class _ProgressPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final Paint paint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 12;  // زيادة سمك الخط لجعل الدائرة واضحة
+      ..strokeWidth = 12;
 
-    // رسم الجزء الفاشل باللون الأحمر
     paint.color = Colors.red;
-    canvas.drawArc(
-      Offset.zero & size,
-      -1.5708,  // الزاوية الأولية (نصف الدائرة)
-      3.1416 * 0.25,  // 25% من الدائرة (الفشل)
-      false,
-      paint,
-    );
+    canvas.drawArc(Offset.zero & size, -1.5708, 3.1416 * 0.25, false, paint);
 
-    // رسم الجزء الناجح باللون الأخضر
     paint.color = Colors.green;
     canvas.drawArc(
       Offset.zero & size,
-      -1.5708 + 3.1416 * 0.25,  // بدء من حيث انتهى الجزء الأحمر
-      3.1416 * 0.75,  // 75% من الدائرة (النجاح)
+      -1.5708 + 3.1416 * 0.25,
+      3.1416 * 0.75,
       false,
       paint,
     );
