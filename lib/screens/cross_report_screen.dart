@@ -3,6 +3,7 @@ import '../models/cross_report_item.dart';
 import '../widgets/cross_report_card.dart';
 import '../widgets/report_action_buttons.dart';
 import '../services/db_service.dart';
+import 'AI_chat_screen.dart';
 import 'home_screen.dart';
 
 const Color mainPurple = Color(0xFF9DA3D9);
@@ -84,7 +85,20 @@ class CrossReportScreen extends StatelessWidget {
                     }
                   : null,
 
-              onAskAi: () {},
+              onAskAi: () {
+                final reportData = {
+                  "title": fileName,
+                  "data": reports.map((e) => e.toJson()).toList(),
+                  "type": "cross",
+                };
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => AIChatScreen(reportData: reportData),
+                  ),
+                );
+              },
               onConsultExpert: () {},
 
               pdfLabel: 'Download Full Couple Report',

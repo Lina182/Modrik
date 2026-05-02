@@ -4,6 +4,7 @@ import '../models/individual_report_item.dart';
 import '../widgets/individual_report_card.dart';
 import '../widgets/report_action_buttons.dart';
 import '../services/db_service.dart';
+import 'AI_chat_screen.dart';
 
 const Color mainPurple = Color(0xFF9DA3D9);
 
@@ -91,7 +92,20 @@ class IndividualReportScreen extends StatelessWidget {
                     }
                   : null,
 
-              onAskAi: () {},
+              onAskAi: () {
+                final reportData = {
+                  "title": fileName,
+                  "data": reportItems.map((e) => e.toJson()).toList(),
+                  "type": "individual",
+                };
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => AIChatScreen(reportData: reportData),
+                  ),
+                );
+              },
               onConsultExpert: () {},
 
               pdfLabel: 'Download Full Report',

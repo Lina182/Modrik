@@ -10,9 +10,9 @@ import 'profile.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: AppColors.background,
       bottomNavigationBar: const BottomNavBar(currentIndex: 0),
@@ -27,15 +27,16 @@ class HomeScreen extends StatelessWidget {
                 subtitle: "Understand your DNA better",
               ),
 
-              /// HERO CARD
               const SizedBox(height: 10),
+
+              /// HERO CARD
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [Color(0xFF7A7FFF), AppColors.heroGradient2],
+                      colors: [Color(0xFF7A7FFF), Color(0xFF5E5CE6)],
                     ),
                     borderRadius: BorderRadius.circular(25),
                   ),
@@ -101,6 +102,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
               ),
+
               const SizedBox(height: 20),
 
               /// EXPLORE
@@ -114,6 +116,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
               ),
+
               const SizedBox(height: 12),
 
               /// CARDS
@@ -121,14 +124,80 @@ class HomeScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   children: [
+                    /// 🔵 CHAT CARD
                     Expanded(
                       child: GestureDetector(
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const AIChatScreen(),
+                          /// 🔥 مهم: نخزن context الأب
+                          final parentContext = context;
+
+                          showModalBottomSheet(
+                            context: context,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(20),
+                              ),
                             ),
+
+                            /// 🔥 غيرنا الاسم هنا
+                            builder: (sheetContext) {
+                              return Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Text(
+                                      "Choose chat type",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+
+                                    const SizedBox(height: 16),
+
+                                    /// 🧬 REPORT
+                                    ListTile(
+                                      leading: const Icon(Icons.description),
+                                      title: const Text("Ask about a report"),
+                                      subtitle: const Text(
+                                        "Select from saved reports",
+                                      ),
+                                      onTap: () {
+                                        Navigator.pop(
+                                          sheetContext,
+                                        ); // يقفل البوتوم شيت
+                                        openReportSelection(
+                                          parentContext,
+                                        ); // يستخدم الأب
+                                      },
+                                    ),
+
+                                    /// 💬 GENERAL
+                                    ListTile(
+                                      leading: const Icon(Icons.chat),
+                                      title: const Text(
+                                        "General genetic question",
+                                      ),
+                                      subtitle: const Text(
+                                        "Ask anything about genetics",
+                                      ),
+                                      onTap: () {
+                                        Navigator.pop(sheetContext);
+
+                                        Navigator.push(
+                                          parentContext,
+                                          MaterialPageRoute(
+                                            builder: (_) =>
+                                                const AIChatScreen(),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
                           );
                         },
                         child: buildSmallCard(
@@ -138,7 +207,10 @@ class HomeScreen extends StatelessWidget {
                         ),
                       ),
                     ),
+
                     const SizedBox(width: 12),
+
+                    /// EXPERT
                     Expanded(
                       child: GestureDetector(
                         onTap: () {
@@ -159,6 +231,7 @@ class HomeScreen extends StatelessWidget {
                   ],
                 ),
               ),
+
               const SizedBox(height: 20),
 
               /// SECURITY
@@ -184,15 +257,11 @@ class HomeScreen extends StatelessWidget {
                           children: [
                             Text(
                               "Your data is private",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                height: 1.1,
-                              ),
+                              style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                             SizedBox(height: 6),
                             Text(
                               "Your data is processed only for analysis and not stored.",
-                              style: TextStyle(fontSize: 14, height: 1.2),
                             ),
                           ],
                         ),
@@ -201,6 +270,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
               ),
+
               const SizedBox(height: 30),
             ],
           ),
@@ -209,7 +279,28 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  /// SMALL CARD
+  /// 🔥 اختيار التقرير
+  void openReportSelection(BuildContext context) async {
+    final Map<String, dynamic>? selectedReport = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const SavedReportsScreen(selectionMode: true),
+      ),
+    );
+
+    if (!context.mounted) return;
+
+    if (selectedReport != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => AIChatScreen(reportData: selectedReport),
+        ),
+      );
+    }
+  }
+
+  /// UI CARD
   static Widget buildSmallCard(IconData icon, String title, String subtitle) {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -225,7 +316,6 @@ class HomeScreen extends StatelessWidget {
         ],
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             height: 40,
@@ -243,27 +333,19 @@ class HomeScreen extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 6),
                 Text(
                   subtitle,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppColors.textGrey,
-                    height: 1.3,
-                  ),
+                  style: TextStyle(fontSize: 12, color: AppColors.textGrey),
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 6),
-          const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
+          const Icon(Icons.arrow_forward_ios, size: 14),
         ],
       ),
     );
