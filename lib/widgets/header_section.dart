@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../theme/app_colors.dart';
-import '../screens/settings_profile.dart';
 
 class HeaderSection extends StatelessWidget {
   final String title;
@@ -45,16 +44,9 @@ class HeaderSection extends StatelessWidget {
             child: FaIcon(
               FontAwesomeIcons.dna,
               size: 270,
-              color: mainPurple.withOpacity(0.15),
+              color: const Color(0xFF6C63FF).withOpacity(0.15),
             ),
           ),
-        ),
-
-        /// SETTINGS
-        Positioned(
-          top: 16,
-          right: 16,
-          child: Icon(Icons.settings_outlined, size: 24),
         ),
 
         /// TEXT
@@ -80,7 +72,7 @@ class HeaderSection extends StatelessWidget {
                   style: TextStyle(
                     fontSize: size.width * 0.14,
                     fontWeight: FontWeight.bold,
-                    color: mainPurple,
+                    color: const Color(0xFF6C63FF),
                     height: 1.1,
                   ),
                 ),
