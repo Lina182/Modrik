@@ -1,315 +1,300 @@
 import 'package:flutter/material.dart';
-import 'ExpertProfile.dart'; // استيراد صفحة ExpertProfile
-import 'EpertSettings.dart'; // استيراد صفحة ExpertSettings
+import 'ExpertProfile.dart';
+import 'EpertSettings.dart';
+import '../chat/chat_screen.dart';
 
 class ExpertHomeScreen extends StatefulWidget {
   const ExpertHomeScreen({super.key});
-
-  static const Color lightPurple = Color(0xFFC4C8EA);
 
   @override
   State<ExpertHomeScreen> createState() => _ExpertHomeScreenState();
 }
 
 class _ExpertHomeScreenState extends State<ExpertHomeScreen> {
-
   int selectedTab = 0;
 
-  List<String> requests = ["Request 1", "Request 2", "Request 3"];
-  List<String> pending = ["Pending Request 1", "Pending Request 2"];
-  List<String> approved = ["Approved Request 1", "Approved Request 2"];
+  final List<Map<String, String>> pending = [
+    {"title": "Pending 1", "date": "2026-04-18"},
+    {"title": "Pending 2", "date": "2026-04-19"},
+  ];
+
+  final List<Map<String, String>> processing = [
+    {"title": "Processing 1", "date": "2026-04-20"},
+    {"title": "Processing 2", "date": "2026-04-21"},
+  ];
+
+  final List<Map<String, String>> approved = [
+    {"title": "Done 1", "date": "2026-04-15"},
+    {"title": "Done 2", "date": "2026-04-16"},
+  ];
 
   @override
   Widget build(BuildContext context) {
-
-    List<String> currentList;
+    List<Map<String, String>> currentList;
+    String headerTitle;
+    String headerSubtitle;
+    Color statusColor;
 
     if (selectedTab == 0) {
-      currentList = requests;
-    } else if (selectedTab == 1) {
       currentList = pending;
+      headerTitle = "Pending";
+      headerSubtitle = "Review the tasks that are\nwaiting for your action.";
+      statusColor = Colors.orange;
+    } else if (selectedTab == 1) {
+      currentList = processing;
+      headerTitle = "Processing";
+      headerSubtitle = "Review the requests that\nare currently in progress.";
+      statusColor = Colors.red;
     } else {
       currentList = approved;
+      headerTitle = "Done";
+      headerSubtitle = "Completed tasks that\nhave been processed.";
+      statusColor = Colors.green;
     }
 
     return Scaffold(
-      backgroundColor: Colors.white,
-
+      backgroundColor: const Color(0xFFFBFBFF),
       body: Stack(
         children: [
-
           Container(
-            height: 200,
+            height: 300,
             width: double.infinity,
             decoration: const BoxDecoration(
-              color: ExpertHomeScreen.lightPurple,
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(90),
-                bottomRight: Radius.circular(90),
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Color(0xFFE0E2FF), Color(0xFFFBFBFF)],
               ),
             ),
           ),
 
           SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // تغيير من هنا
-                  GestureDetector(
-                    onTap: () {
-                      // عند الضغط على الأيقونة، سيتم التوجيه إلى صفحة ExpertProfile
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const ProfileExpertScreen(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _circleIcon(Icons.person, () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const ProfileExpertScreen()),
+                        );
+                      }),
+                      _circleIcon(Icons.settings_outlined, () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const SettingsProfileScreen()),
+                        );
+                      }),
+                    ],
+                  ),
+                ),
+
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        headerTitle,
+                        style: const TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF1A1A1A),
                         ),
-                      );
-                    },
-                    child: const CircleAvatar(
-                      radius: 18,
-                      backgroundColor: Colors.white,
-                      child: Icon(
-                        Icons.person,
-                        size: 20,
-                        color: Colors.black,
                       ),
-                    ),
-                  ),
-
-                  // إضافة التوجيه إلى صفحة ExpertSettings عند الضغط على الأيقونة
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const SettingsProfileScreen(),
+                      const SizedBox(height: 8),
+                      Text(
+                        headerSubtitle,
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: Colors.black.withOpacity(0.6),
+                          height: 1.4,
                         ),
-                      );
-                    },
-                    child: const Icon(
-                      Icons.settings,
-                      size: 26,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+                      ),
+                    ],),
+                ),
 
-          Column(
-            children: [
+                const SizedBox(height: 20),
 
-              const SizedBox(height: 120),
-
-              Expanded(
-                child: ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  itemCount: currentList.length,
-                  itemBuilder: (context, index) {
-
-                    return GestureDetector(
-                      onTap: () {
-                        if (selectedTab == 1) {
+                Expanded(
+                  child: ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    itemCount: currentList.length,
+                    itemBuilder: (context, index) {
+                      return GestureDetector(
+                        // ⭐⭐⭐ هذا فقط التعديل ⭐⭐⭐
+                        onTap: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => const ExpertChatScreen(),
+                              builder: (_) => ChatScreen(
+                                title: currentList[index]["title"]!,
+                              ),
                             ),
                           );
-                        }
-                      },
-                      child: Container(
-                        margin: const EdgeInsets.only(bottom: 14),
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(color: Colors.white,
-                          borderRadius: BorderRadius.circular(14),
-                          boxShadow: [
-                            BoxShadow(
-                              blurRadius: 6,
-                              color: Colors.black.withOpacity(0.1),
-                              offset: const Offset(0,3)
-                            )
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 12,
-                              height: 12,
-                              decoration: BoxDecoration(
-                                color: selectedTab == 0
-                                    ? Colors.red
-                                    : selectedTab == 1
-                                    ? Colors.orange
-                                    : Colors.green,
-                                shape: BoxShape.circle,
+                        },
+
+                        child: Container(
+                          margin: const EdgeInsets.only(bottom: 16),
+                          padding: const EdgeInsets.all(18),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                blurRadius: 15,
+                                color: Colors.black.withOpacity(0.04),
+                                offset: const Offset(0, 8),
+                              )
+                            ],
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 10,
+                                height: 10,
+                                decoration: BoxDecoration(
+                                  color: statusColor,
+                                  shape: BoxShape.circle,
+                                ),
                               ),
-                            ),const SizedBox(width: 12),
-
-                            Text(
-                              currentList[index],
-                              style: const TextStyle(
-                                fontSize: 16,
+                              const SizedBox(width: 15),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      currentList[index]["title"]!,
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.calendar_today_outlined,
+                                          size: 14,
+                                          color: Colors.grey,
+                                        ),
+                                        const SizedBox(width: 5),
+                                        Text(
+                                          currentList[index]["date"]!,
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
+                              const Icon(
+                                Icons.arrow_forward_ios,
+                                size: 16,
+                                color: Color(0xFF6C63FF),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                ),
-              ),
+                      );
+                    },
+                  ),),
 
-              Container(
-                height: 70,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      blurRadius: 8,
-                      color: Colors.black12,
-                    )
-                  ],
-                ),
-                child: Row(
-                  children: [
-
-                    tabButton("Requests", 0),
-                    tabButton("Pending", 1),
-                    tabButton("Approved", 2),
-
-                  ],
-                ),
-              )
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget tabButton(String title, int index) {
-
-    bool active = selectedTab == index;
-
-    return Expanded(
-      child: GestureDetector(
-        onTap: () {
-          setState(() {
-            selectedTab = index;
-          });
-        },
-        child: Container(
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: active ? ExpertHomeScreen.lightPurple : Colors.white,
-            border: const Border(
-              right: BorderSide(color: Colors.black12),
-            ),
-          ),
-          child: Text(
-            title,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: active ? Colors.black : Colors.black54,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class ExpertChatScreen extends StatelessWidget {
-  const ExpertChatScreen({super.key});
-
-  static const Color lightPurple = Color(0xFFC4C8EA);
-
-  @override
-  Widget build(BuildContext context) {
-
-    return Scaffold(
-      backgroundColor: Colors.white,
-
-      body: Stack(
-        children: [
-
-          Container(
-            height: 200,
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              color: lightPurple,
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(90),
-                bottomRight: Radius.circular(90),
-              ),
-            ),
-          ),SafeArea(
-            child: Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.arrow_back),
-                  onPressed: () => Navigator.pop(context),
-                ),
-                const Expanded(
-                  child: Text(
-                    "Report",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,),
-                  ),
-                ),
-                const SizedBox(width: 48),
+                _buildBottomNavBar(),
               ],
             ),
           ),
+        ],
+      ),
+    );
+  }
 
-          Column(
-            children: [
+  Widget _circleIcon(IconData icon, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, size: 22, color: const Color(0xFF6C63FF)),
+      ),
+    );
+  }
 
-              const SizedBox(height: 150),
-
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24),
-                child: Text(
-                  "The report and the user comment will be displayed here",
-                  textAlign: TextAlign.center,style: TextStyle(fontSize: 16),
-                ),
-              ),
-
-              const Spacer(),
-
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 35,
-                  vertical: 30,
-                ),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 52,
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: lightPurple,shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                    ),
-                    child: const Text(
-                      "Accept",
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              )
-            ],
+  Widget _buildBottomNavBar() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(25),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 20,
+            offset: const Offset(0, -5),
           )
         ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _navItem("Pending", Icons.access_time, 0),
+          _navItem("Processing", Icons.assignment_outlined, 1),
+          _navItem("Done", Icons.check_circle_outline, 2),
+        ],
+      ),
+    );
+  }
+
+  Widget _navItem(String label, IconData icon, int index) {
+    bool isSelected = selectedTab == index;
+
+    return GestureDetector(
+      onTap: () => setState(() => selectedTab = index),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? const Color(0xFFEDEBFF)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(15),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              color: isSelected
+                  ? const Color(0xFF6C63FF)
+                  : Colors.grey,
+              size: 24,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight:
+                    isSelected ? FontWeight.bold : FontWeight.normal,
+                color: isSelected
+                    ? const Color(0xFF6C63FF)
+                    : Colors.grey,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

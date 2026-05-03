@@ -7,7 +7,7 @@ import 'AI_chat_screen.dart';
 import 'Expertchat.dart';
 import 'saved_reports_screen.dart';
 import 'profile.dart';
-
+import 'expert/ExpertHomeScreen.dart';
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -217,7 +217,7 @@ class HomeScreen extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => const ExpertHomeScreen(),
+                              builder: (_) => Expertchat(),
                             ),
                           );
                         },
