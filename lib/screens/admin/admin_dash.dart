@@ -31,7 +31,7 @@ void initState() {
     final token = await user!.getIdToken();
 
     final response = await http.get(
-      Uri.parse("http://172.237.116.141:8002/system/health?token=$token"),
+      Uri.parse("http://172.237.116.141:8000/system/health?token=$token"),
     );
 
     if (response.statusCode == 200) {

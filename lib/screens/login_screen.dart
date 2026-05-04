@@ -93,7 +93,7 @@ print("VERIFY: ${verifyResponse.body}");
 
 // 2. log login in MySQL
 final logResponse = await http.post(
-  Uri.parse("http://172.237.116.141:8002/login-log"),
+  Uri.parse("http://172.237.116.141:8000/login-log"),
   headers: {"Content-Type": "application/json"},
   body: jsonEncode({"token": idToken}),
 );
@@ -106,7 +106,7 @@ if (idToken == null) {
 }
 
 final response = await http.post(
-  Uri.parse("http://172.237.116.141:8002/verify-token"),
+  Uri.parse("http://172.237.116.141:8000/verify-token"),
   headers: {"Content-Type": "application/json"},
   body: jsonEncode({
     "token": idToken,

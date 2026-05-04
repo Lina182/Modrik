@@ -132,7 +132,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       print("TOKEN: $idToken");
 
       await http.post(
-  Uri.parse("http://172.237.116.141:8002/register"),
+  Uri.parse("http://172.237.116.141:8000/register"),
   headers: {"Content-Type": "application/json"},
   body: jsonEncode({
     "uid": user.uid,
