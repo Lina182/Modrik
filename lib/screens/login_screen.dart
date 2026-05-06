@@ -128,10 +128,7 @@ class _LoginScreenState extends State<LoginScreen> {
         msg = "Wrong password";
       } else if (e.code == 'invalid-email') {
         msg = "Invalid email format";
-      }
-
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)),
-      );
+      }ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)),);
       debugPrint("❌ Login error: ${e.code}");
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -158,8 +155,15 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Container(
                 width: 400,
                 height: 400,
-                decoration: const BoxDecoration(
-                  color: AppColors.card,  // اللون المحدد
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      AppColors.gradientStart,  // التدرج الفاتح الأول
+                      AppColors.gradientEnd,  // التدرج الفاتح الثاني
+                    ],
+                  ),
                   shape: BoxShape.circle,
                 ),
               ),
@@ -215,7 +219,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
 
                     const SizedBox(height: 18),
-
                     TextField(
                       controller: passwordController,
                       focusNode: passwordFocus,
@@ -229,13 +232,13 @@ class _LoginScreenState extends State<LoginScreen> {
                           borderRadius: BorderRadius.circular(14),
                           borderSide: BorderSide.none,
                         ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
+                        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14),
                           borderSide: const BorderSide(color: Colors.black, width: 1),
                         ),
                       ),
                     ),
-                    Align(alignment: Alignment.centerRight,
+                    Align(
+                      alignment: Alignment.centerRight,
                       child: TextButton(
                         onPressed: () {
                           Navigator.push(

@@ -30,12 +30,12 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
 
   bool _loading = false;
 
-  // ✅ رسالة موحدة
   void showMsg(String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(msg)),
+    );
   }
 
-  // ✅ تحقق من الإيميل
   bool isValidEmail(String email) {
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     return emailRegex.hasMatch(email);
@@ -44,6 +44,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
   @override
   void initState() {
     super.initState();
+
     nameFocus.addListener(() => setState(() {}));
     emailFocus.addListener(() => setState(() {}));
     passwordFocus.addListener(() => setState(() {}));
@@ -56,13 +57,22 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     emailFocus.dispose();
     passwordFocus.dispose();
     confirmPasswordFocus.dispose();
+
+    nameController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    confirmPasswordController.dispose();
+
     super.dispose();
   }
 
   InputDecoration inputDecoration(String hint, IconData icon) {
     return InputDecoration(
       hintText: hint,
-      prefixIcon: Icon(icon, color: AppColors.primary),  // تغيير لون الأيقونات
+      prefixIcon: Icon(
+        icon,
+        color: AppColors.primary,
+      ),
       filled: true,
       fillColor: AppColors.card.withOpacity(0.55),
       enabledBorder: OutlineInputBorder(
@@ -71,7 +81,10 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: Colors.black, width: 1),
+        borderSide: const BorderSide(
+          color: Colors.black,
+          width: 1,
+        ),
       ),
     );
   }
@@ -85,19 +98,16 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       return;
     }
 
-    // ✅ تحقق من الإيميل
     if (!isValidEmail(emailController.text.trim())) {
       showMsg("Enter a valid email format");
       return;
     }
 
-    // ✅ تحقق من الباسورد
     if (passwordController.text.length < 6) {
       showMsg("Password must be at least 6 characters");
       return;
     }
 
-    // ✅ تطابق الباسورد
     if (passwordController.text != confirmPasswordController.text) {
       showMsg("Passwords don't match");
       return;
@@ -106,20 +116,26 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     setState(() => _loading = true);
 
     try {
-      final userCredential = await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(
-            email: emailController.text.trim(),
-            password: passwordController.text,
-          );
+      final userCredential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text,
+      );
 
       final user = userCredential.user;
-      if (user == null) throw Exception("User creation failed");
 
-      // Firebase Auth display name (اختياري)
-      await user?.updateDisplayName(nameController.text.trim());
+      if (user == null) {
+        throw Exception("User creation failed");
+      }
 
-      // 🔥 حفظ البيانات في Firestore
-      await FirebaseFirestore.instance.collection('users').doc(user!.uid).set({
+      await user.updateDisplayName(
+        nameController.text.trim(),
+      );
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .set({
         'name': nameController.text.trim(),
         'email': emailController.text.trim(),
         'uid': user.uid,
@@ -128,8 +144,12 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       });
 
       final idToken = await user.getIdToken();
-      await http.post(Uri.parse("http://172.237.116.141:8002/register"),
-        headers: {"Content-Type": "application/json"},
+
+      await http.post(
+        Uri.parse("http://172.237.116.141:8002/register"),
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: jsonEncode({
           "uid": user.uid,
           "name": nameController.text.trim(),
@@ -140,23 +160,35 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Account created successfully ✅")),
+        const SnackBar(
+          content: Text("Account created successfully ✅"),
+        ),
       );
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
+        MaterialPageRoute(
+          builder: (_) => const HomeScreen(),
+        ),
       );
     } on FirebaseAuthException catch (e) {
       String msg = "Something went wrong";
 
-      if (e.code == 'invalid-email') msg = "This email is invalid";
-      if (e.code == 'weak-password') msg = "Password is too weak";
+      if (e.code == 'invalid-email') {
+        msg = "This email is invalid";
+      }
+
+      if (e.code == 'weak-password') {
+        msg = "Password is too weak";
+      }
+
       if (e.code == 'email-already-in-use') {
         msg = "Email already in use. Try logging in.";
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(msg)),
+      );
     } finally {
       setState(() => _loading = false);
     }
@@ -166,119 +198,157 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: Stack(
-        children: [
-          Container(color: AppColors.background),
-          Positioned(
-            top: -180,
-            right: -100,
-            child: Container(
-              width: 400,
-              height: 400,
-              decoration: const BoxDecoration(
-                color: AppColors.card,
-                shape: BoxShape.circle,
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Container(
+              color: AppColors.background,
+            ),
+
+            // نفس خلفية اللوق إن بالضبط
+            Positioned(
+              top: -180,
+              right: -100,
+              child: Container(
+                width: 400,
+                height: 400,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      AppColors.gradientStart,
+                      AppColors.gradientEnd,
+                    ],
+                  ),
+                  shape: BoxShape.circle,
+                ),
               ),
             ),
-          ),
-          Positioned(
-            top: 50,
-            right: 0,
-            child: CustomPaint(
-              size: const Size(200, 100),
-              painter: TopCurvePainter(),
+
+            // نفس الـ curve
+            Positioned(
+              top: 50,
+              right: 0,
+              child: CustomPaint(
+                size: const Size(200, 100),
+                painter: TopCurvePainter(),
+              ),
             ),
-          ),
-          SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 28),
-              child: Column(
-                children: [
-                  const SizedBox(height: 110),
-                  Text(
-                    "Create Account",
-                    style: AppTextStyles.title.copyWith(
-                      fontSize: 36, // تكبير حجم الخط
-                      color: AppColors.primary, // نفس لون الأزرار
+
+            SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 28),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 120),
+
+                    Text(
+                      "Create Account",
+                      style: AppTextStyles.title.copyWith(
+                        fontSize: 30,
+                        color: AppColors.primary,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    "Create your account\nand get started!",
-                    textAlign: TextAlign.center,
-                    style: AppTextStyles.subtitle,
-                  ),
-                  const SizedBox(height: 40),
 
-                  TextField(
-                    focusNode: nameFocus,
-                    controller: nameController,
-                    decoration: inputDecoration("Full Name", Icons.person_outline),
-                  ),
-                  const SizedBox(height: 18),
+                    const SizedBox(height: 10),
 
-                  TextField(
-                    focusNode: emailFocus,
-                    controller: emailController,
-                    decoration: inputDecoration("Email", Icons.email_outlined),
-                  ),
-                  const SizedBox(height: 18),
-
-                  TextField(
-                    focusNode: passwordFocus,
-                    controller: passwordController,
-                    obscureText: true,
-                    decoration: inputDecoration("Password", Icons.lock_outline),
-                  ),
-                  const SizedBox(height: 18),
-
-                  TextField(
-                    focusNode: confirmPasswordFocus,
-                    controller: confirmPasswordController,
-                    obscureText: true,
-                    decoration: inputDecoration(
-                      "Confirm Password",
-                      Icons.lock_outline,
+                    const Text(
+                      "Create your account\nand get started!",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: AppColors.textGrey,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 28),
-                  _loading
-                      ? const Center(child: CircularProgressIndicator())
-                      : SizedBox(
-                          width: double.infinity,height: 55,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
+
+                    const SizedBox(height: 50),
+
+                    TextField(
+                      focusNode: nameFocus,
+                      controller: nameController,
+                      decoration: inputDecoration(
+                        "Full Name",
+                        Icons.person_outline,
+                      ),
+                    ),
+
+                    const SizedBox(height: 18),
+
+                    TextField(
+                      focusNode: emailFocus,
+                      controller: emailController,
+                      decoration: inputDecoration(
+                        "Email",
+                        Icons.email_outlined,
+                      ),
+                    ),
+
+                    const SizedBox(height: 18),
+
+                    TextField(
+                      focusNode: passwordFocus,controller: passwordController,
+                      obscureText: true,
+                      decoration: inputDecoration(
+                        "Password",
+                        Icons.lock_outline,
+                      ),
+                    ),
+
+                    const SizedBox(height: 18),
+
+                    TextField(
+                      focusNode: confirmPasswordFocus,
+                      controller: confirmPasswordController,
+                      obscureText: true,
+                      decoration: inputDecoration(
+                        "Confirm Password",
+                        Icons.lock_outline,
+                      ),
+                    ),
+
+                    const SizedBox(height: 25),
+
+                    _loading
+                        ? const CircularProgressIndicator()
+                        : SizedBox(
+                            width: double.infinity,
+                            height: 55,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
                               ),
-                            ),
-                            onPressed: _signUp,
-                            child: const Text(
-                              "Sign Up",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                              onPressed: _signUp,
+                              child: const Text(
+                                "Sign Up",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
                           ),
+
+                    const SizedBox(height: 16),
+
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text(
+                        "Already have an account? Log in",
+                        style: TextStyle(
+                          color: AppColors.primary,
                         ),
-
-                  const SizedBox(height: 16),
-
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: Text(
-                      "Already have an account? Log in",
-                      style: TextStyle(color: AppColors.primary),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -293,8 +363,16 @@ class TopCurvePainter extends CustomPainter {
       ..style = PaintingStyle.stroke;
 
     final path = Path();
+
     path.moveTo(0, size.height);
-    path.quadraticBezierTo(size.width / 2, 0, size.width, size.height);
+
+    path.quadraticBezierTo(
+      size.width / 2,
+      0,
+      size.width,
+      size.height,
+    );
+
     canvas.drawPath(path, paint);
   }
 
