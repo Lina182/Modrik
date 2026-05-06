@@ -6,6 +6,8 @@ import '../firebase_options.dart';
 import 'home_screen.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../theme/app_colors.dart';
+import '../theme/app_text_styles.dart';
 
 class CreateAccountScreen extends StatefulWidget {
   const CreateAccountScreen({super.key});
@@ -15,8 +17,6 @@ class CreateAccountScreen extends StatefulWidget {
 }
 
 class _CreateAccountScreenState extends State<CreateAccountScreen> {
-  final Color lavender = const Color(0xFF9DA3D9);
-
   final FocusNode nameFocus = FocusNode();
   final FocusNode emailFocus = FocusNode();
   final FocusNode passwordFocus = FocusNode();
@@ -62,9 +62,9 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
   InputDecoration inputDecoration(String hint, IconData icon) {
     return InputDecoration(
       hintText: hint,
-      prefixIcon: Icon(icon),
+      prefixIcon: Icon(icon, color: AppColors.primary),  // تغيير لون الأيقونات
       filled: true,
-      fillColor: Colors.white.withOpacity(0.55),
+      fillColor: AppColors.card.withOpacity(0.55),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
         borderSide: BorderSide.none,
@@ -111,14 +111,13 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
             email: emailController.text.trim(),
             password: passwordController.text,
           );
-          
 
       final user = userCredential.user;
       if (user == null) throw Exception("User creation failed");
 
       // Firebase Auth display name (اختياري)
       await user?.updateDisplayName(nameController.text.trim());
-   
+
       // 🔥 حفظ البيانات في Firestore
       await FirebaseFirestore.instance.collection('users').doc(user!.uid).set({
         'name': nameController.text.trim(),
@@ -129,19 +128,16 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       });
 
       final idToken = await user.getIdToken();
-      print("TOKEN: $idToken");
-
-      await http.post(
-  Uri.parse("http://172.237.116.141:8002/register"),
-  headers: {"Content-Type": "application/json"},
-  body: jsonEncode({
-    "uid": user.uid,
-    "name": nameController.text.trim(),
-    "email": emailController.text.trim(),
-    "role": "user",
-    "token": idToken,
-  }),
-);
+      await http.post(Uri.parse("http://172.237.116.141:8002/register"),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "uid": user.uid,
+          "name": nameController.text.trim(),
+          "email": emailController.text.trim(),
+          "role": "user",
+          "token": idToken,
+        }),
+      );
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Account created successfully ✅")),
@@ -169,10 +165,10 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: lavender,
+      backgroundColor: AppColors.background,
       body: Stack(
         children: [
-          Container(color: lavender),
+          Container(color: AppColors.background),
           Positioned(
             top: -180,
             right: -100,
@@ -180,7 +176,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
               width: 400,
               height: 400,
               decoration: const BoxDecoration(
-                color: Colors.white,
+                color: AppColors.card,
                 shape: BoxShape.circle,
               ),
             ),
@@ -199,26 +195,25 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
               child: Column(
                 children: [
                   const SizedBox(height: 110),
-                  const Text(
+                  Text(
                     "Create Account",
-                    style: TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                    style: AppTextStyles.title.copyWith(
+                      fontSize: 36, // تكبير حجم الخط
+                      color: AppColors.primary, // نفس لون الأزرار
                     ),
                   ),
                   const SizedBox(height: 10),
-                  const Text(
+                  Text(
                     "Create your account\nand get started!",
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.black87),
+                    style: AppTextStyles.subtitle,
                   ),
                   const SizedBox(height: 40),
 
                   TextField(
                     focusNode: nameFocus,
                     controller: nameController,
-                    decoration: inputDecoration("Name", Icons.person_outline),
+                    decoration: inputDecoration("Full Name", Icons.person_outline),
                   ),
                   const SizedBox(height: 18),
 
@@ -246,17 +241,14 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                       Icons.lock_outline,
                     ),
                   ),
-
                   const SizedBox(height: 28),
-
                   _loading
                       ? const Center(child: CircularProgressIndicator())
                       : SizedBox(
-                          width: double.infinity,
-                          height: 55,
+                          width: double.infinity,height: 55,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
+                              backgroundColor: AppColors.primary,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
                               ),
@@ -267,7 +259,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.black,
+                                color: Colors.white,
                               ),
                             ),
                           ),
@@ -277,9 +269,9 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
 
                   TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text(
+                    child: Text(
                       "Already have an account? Log in",
-                      style: TextStyle(color: Colors.black),
+                      style: TextStyle(color: AppColors.primary),
                     ),
                   ),
                 ],

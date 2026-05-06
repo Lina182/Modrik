@@ -8,6 +8,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'admin/admin_dash.dart';
 import 'expert/ExpertHomeScreen.dart';
+import '../theme/app_colors.dart';
+import '../theme/app_text_styles.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -17,8 +19,6 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  
-  final Color lavender = const Color(0xFF9DA3D9);
 
   final FocusNode emailFocus = FocusNode();
   final FocusNode passwordFocus = FocusNode();
@@ -28,15 +28,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool _loading = false;
 
-@override
+  @override
+  void initState() {
+    super.initState();
 
-void initState() {
-  super.initState();
+    emailFocus.addListener(() => setState(() {}));
+    passwordFocus.addListener(() => setState(() {}));
+  }
 
-  emailFocus.addListener(() => setState(() {}));
-  passwordFocus.addListener(() => setState(() {}));
-
-}
   @override
   void dispose() {
     emailFocus.dispose();
@@ -57,17 +56,15 @@ void initState() {
     setState(() => _loading = true);
 
     try {
-
       final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
 
+      final user = userCredential.user;
+      if (user == null) throw Exception("User is null");
 
-final user = userCredential.user;
-if (user == null) throw Exception("User is null");
-
-final idToken = await user.getIdToken();
+      final idToken = await user.getIdToken();
 
       // 🔹 تسجيل دخول المستخدم في Firestore
       if (user != null) {
@@ -80,50 +77,48 @@ final idToken = await user.getIdToken();
         debugPrint("✅ Login recorded in Firestore for ${user.email}");
       }
 
-//verify token,set role, and navigate
-final response = await http.post(
-  Uri.parse("http://172.237.116.141:8002/verify-token"),
-  headers: {"Content-Type": "application/json"},
-  body: jsonEncode({"token": idToken}),
-);
+      //verify token,set role, and navigate
+      final response = await http.post(
+        Uri.parse("http://172.237.116.141:8002/verify-token"),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"token": idToken}),
+      );
 
-print("VERIFY: ${response.body}");
+      print("VERIFY: ${response.body}");
 
-if (response.statusCode == 200) {
-  final data = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final role = (data['role'] ?? 'user').toString().trim().toLowerCase();
 
-  final role =
-      (data['role'] ?? 'user').toString().trim().toLowerCase();
+        await http.post(
+          Uri.parse("http://172.237.116.141:8002/login-log"),
+          headers: {"Content-Type": "application/json"},
+          body: jsonEncode({"token": idToken}),
+        );
 
-      await http.post(
-    Uri.parse("http://172.237.116.141:8002/login-log"),
-    headers: {"Content-Type": "application/json"},
-    body: jsonEncode({"token": idToken}),
-  );
+        if (!mounted) return;
 
-  if (!mounted) return;
-
-  if (role == 'admin') {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const AdminDashScreen()),
-    );
-  } else if (role == 'expert') {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const ExpertHomeScreen()),
-    );
-  } else {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const HomeScreen()),
-    );
-  }
-} else {
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(content: Text("Token verification failed")),
-  );
-}
+        if (role == 'admin') {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const AdminDashScreen()),
+          );
+        } else if (role == 'expert') {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const ExpertHomeScreen()),
+          );
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const HomeScreen()),
+          );
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Token verification failed")),
+        );
+      }
     } on FirebaseAuthException catch (e) {
       String msg = "Login failed";
 
@@ -135,10 +130,8 @@ if (response.statusCode == 200) {
         msg = "Invalid email format";
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(msg)),
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)),
       );
-
       debugPrint("❌ Login error: ${e.code}");
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -150,176 +143,168 @@ if (response.statusCode == 200) {
     }
   }
 
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    backgroundColor: lavender,
-    body: SafeArea(
-      child: Stack(
-        children: [
-          Container(color: lavender),
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.background,  // استخدام اللون المحدد
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Container(color: AppColors.background), // الخلفية
 
-          Positioned(
-            top: -180,
-            right: -100,
-            child: Container(
-              width: 400,
-              height: 400,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
+            Positioned(
+              top: -180,
+              right: -100,
+              child: Container(
+                width: 400,
+                height: 400,
+                decoration: const BoxDecoration(
+                  color: AppColors.card,  // اللون المحدد
+                  shape: BoxShape.circle,
+                ),
               ),
             ),
-          ),
 
-          Positioned(
-            top: 50,
-            right: 0,
-            child: CustomPaint(
-              size: const Size(200, 100),
-              painter: TopCurvePainter(),
+            Positioned(
+              top: 50,
+              right: 0,
+              child: CustomPaint(
+                size: const Size(200, 100),
+                painter: TopCurvePainter(),
+              ),
             ),
-          ),
 
-          SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 28),
-              child: Column(
-                children: [
-                  const SizedBox(height: 120),
-                  const Text(
-                    "Login",
-                    style: TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    "Welcome back you've\nbeen missed!",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.black87),
-                  ),
-                  const SizedBox(height: 50),
-
-                  TextField(
-                    controller: emailController,
-                    focusNode: emailFocus,
-                    decoration: InputDecoration(
-                      hintText: "Email",
-                      prefixIcon: const Icon(Icons.email_outlined),
-                      filled: true,
-                      fillColor: Colors.white.withOpacity(0.55),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
-                        borderSide: BorderSide.none,
+            SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 28),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 120),
+                    Text(
+                      "Login",
+                      style: AppTextStyles.title.copyWith(
+                        fontSize: 30,  // تكبير حجم الخط
+                        color: AppColors.primary,  // استخدام اللون الأساسي
                       ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
-                        borderSide: const BorderSide(
-                          color: Colors.black,
-                          width: 1,
+                    ),
+                    const SizedBox(height: 10),
+                    const Text(
+                      "Welcome back you've\nbeen missed!",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: AppColors.textGrey),  // استخدام اللون الرمادي للنص
+                    ),
+                    const SizedBox(height: 50),
+
+                    TextField(
+                      controller: emailController,
+                      focusNode: emailFocus,
+                      decoration: InputDecoration(
+                        hintText: "Email",
+                        prefixIcon: const Icon(Icons.email_outlined, color: AppColors.primary),
+                        filled: true,
+                        fillColor: AppColors.card.withOpacity(0.55),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide: BorderSide.none,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide: const BorderSide(color: Colors.black, width: 1),
                         ),
                       ),
                     ),
-                  ),
 
-                  const SizedBox(height: 18),
+                    const SizedBox(height: 18),
 
-                  TextField(
-                    controller: passwordController,
-                    focusNode: passwordFocus,
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      hintText: "Password",
-                      prefixIcon: const Icon(Icons.lock_outline),
-                      filled: true,
-                      fillColor: Colors.white.withOpacity(0.55),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
-                        borderSide: BorderSide.none,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
-                        borderSide: const BorderSide(
-                          color: Colors.black,
-                          width: 1,
+                    TextField(
+                      controller: passwordController,
+                      focusNode: passwordFocus,
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        hintText: "Password",
+                        prefixIcon: const Icon(Icons.lock_outline, color: AppColors.primary),
+                        filled: true,
+                        fillColor: AppColors.card.withOpacity(0.55),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide: BorderSide.none,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide: const BorderSide(color: Colors.black, width: 1),
                         ),
                       ),
                     ),
-                  ),
+                    Align(alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const ForgetPasswordScreen(),
+                            ),
+                          );
+                        },
+                        child: const Text(
+                          "Forgot Password?",
+                          style: TextStyle(color: AppColors.primary),
+                        ),
+                      ),
+                    ),
 
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
+                    const SizedBox(height: 25),
+
+                    _loading
+                        ? const CircularProgressIndicator()
+                        : SizedBox(
+                            width: double.infinity,
+                            height: 55,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,  // استخدام اللون الأساسي
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                              ),
+                              onPressed: _login,
+                              child: const Text(
+                                "Log in",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+
+                    const SizedBox(height: 16),
+
+                    TextButton(
                       onPressed: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => const ForgetPasswordScreen(),
+                            builder: (_) => const CreateAccountScreen(),
                           ),
                         );
                       },
                       child: const Text(
-                        "Forgot Password?",
-                        style: TextStyle(color: Colors.black),
+                        "Don’t have an account ? Sign Up",
+                        style: TextStyle(color: AppColors.primary),  // استخدام اللون الأساسي
                       ),
                     ),
-                  ),
-
-                  const SizedBox(height: 25),
-
-                  _loading
-                      ? const CircularProgressIndicator()
-                      : SizedBox(
-                          width: double.infinity,
-                          height: 55,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                            ),
-                            onPressed: _login,
-                            child: const Text(
-                              "Log in",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                        ),
-
-                  const SizedBox(height: 16),
-
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const CreateAccountScreen(),
-                        ),
-                      );
-                    },
-                    child: const Text(
-                      "Don’t have an account ? Sign Up",
-                      style: TextStyle(color: Colors.black),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
-}
+
 class TopCurvePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {

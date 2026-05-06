@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../theme/app_colors.dart';
+import '../theme/app_text_styles.dart';
 
 class ForgetPasswordScreen extends StatefulWidget {
   const ForgetPasswordScreen({super.key});
@@ -9,7 +11,6 @@ class ForgetPasswordScreen extends StatefulWidget {
 }
 
 class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
-  final Color lavender = const Color(0xFF9DA3D9);
 
   final TextEditingController emailController = TextEditingController();
   bool _loading = false;
@@ -55,9 +56,9 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
   InputDecoration inputDecoration(String hint, IconData icon) {
     return InputDecoration(
       hintText: hint,
-      prefixIcon: Icon(icon),
+      prefixIcon: Icon(icon, color: AppColors.primary),
       filled: true,
-      fillColor: Colors.white.withOpacity(0.55),
+      fillColor: AppColors.card.withOpacity(0.55),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
         borderSide: BorderSide.none,
@@ -72,10 +73,10 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: lavender,
+      backgroundColor: AppColors.background,
       body: Stack(
         children: [
-          Container(color: lavender),
+          Container(color: AppColors.background),
           Positioned(
             top: -180,
             right: -100,
@@ -83,7 +84,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
               width: 400,
               height: 400,
               decoration: const BoxDecoration(
-                color: Colors.white,
+                color: AppColors.card,
                 shape: BoxShape.circle,
               ),
             ),
@@ -103,12 +104,11 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const SizedBox(height: 120),
-                  const Text(
+                  Text(
                     "Forgot Password",
-                    style: TextStyle(
+                    style: AppTextStyles.title.copyWith(
                       fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                      color: AppColors.primary,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -116,7 +116,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                   const Text(
                     "Enter your email and we will send you a link to reset your password.",
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.black87),
+                    style: TextStyle(color: AppColors.textGrey),
                   ),
                   const SizedBox(height: 50),
 
@@ -126,15 +126,13 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                   ),
 
                   const SizedBox(height: 30),
-
                   _loading
-                      ? const Center(child: CircularProgressIndicator())
-                      : SizedBox(
+                      ? const Center(child: CircularProgressIndicator()): SizedBox(
                           width: double.infinity,
                           height: 55,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
+                              backgroundColor: AppColors.primary,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
                               ),
@@ -145,7 +143,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.black,
+                                color: Colors.white,
                               ),
                             ),
                           ),
