@@ -17,6 +17,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  
   final Color lavender = const Color(0xFF9DA3D9);
 
   final FocusNode emailFocus = FocusNode();
@@ -26,16 +27,14 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController passwordController = TextEditingController();
 
   bool _loading = false;
-late final Stream<User?> _authStream;
 
 @override
+
 void initState() {
   super.initState();
 
   emailFocus.addListener(() => setState(() {}));
   passwordFocus.addListener(() => setState(() {}));
-
-  _authStream = FirebaseAuth.instance.authStateChanges();
 
 }
   @override
@@ -58,6 +57,7 @@ void initState() {
     setState(() => _loading = true);
 
     try {
+
       final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
@@ -80,44 +80,28 @@ final idToken = await user.getIdToken();
         debugPrint("✅ Login recorded in Firestore for ${user.email}");
       }
 
-
-// 1. verify token + get role
-final verifyResponse = await http.post(
-  Uri.parse("http://172.237.116.141:8002/verify-token"),
-  headers: {"Content-Type": "application/json"},
-  body: jsonEncode({"token": idToken}),
-);
-
-print("VERIFY: ${verifyResponse.body}");
-
-
-// 2. log login in MySQL
-final logResponse = await http.post(
-  Uri.parse("http://172.237.116.141:8002/login-log"),
-  headers: {"Content-Type": "application/json"},
-  body: jsonEncode({"token": idToken}),
-);
-
-print("LOG: ${logResponse.body}");
-
-
-if (idToken == null) {
-  throw Exception("Token is null");
-}
-
+//verify token,set role, and navigate
 final response = await http.post(
   Uri.parse("http://172.237.116.141:8002/verify-token"),
   headers: {"Content-Type": "application/json"},
-  body: jsonEncode({
-    "token": idToken,
-  }),
+  body: jsonEncode({"token": idToken}),
 );
-print(response.body);
+
+print("VERIFY: ${response.body}");
 
 if (response.statusCode == 200) {
   final data = jsonDecode(response.body);
 
-  String role = data['role'].toString().trim().toLowerCase() ;
+  final role =
+      (data['role'] ?? 'user').toString().trim().toLowerCase();
+
+      await http.post(
+    Uri.parse("http://172.237.116.141:8002/login-log"),
+    headers: {"Content-Type": "application/json"},
+    body: jsonEncode({"token": idToken}),
+  );
+
+  if (!mounted) return;
 
   if (role == 'admin') {
     Navigator.pushReplacement(
@@ -140,8 +124,6 @@ if (response.statusCode == 200) {
     const SnackBar(content: Text("Token verification failed")),
   );
 }
-
-     
     } on FirebaseAuthException catch (e) {
       String msg = "Login failed";
 

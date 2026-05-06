@@ -1,12 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../login_screen.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-class ProfileAdminScreen extends StatelessWidget {
+class ProfileAdminScreen extends StatefulWidget {
   const ProfileAdminScreen({super.key});
+
+  @override
+  State<ProfileAdminScreen> createState() => _ProfileAdminScreenState();
+}
+
+class _ProfileAdminScreenState extends State<ProfileAdminScreen> {
+
 
   static const Color lightPurple = Color(0xFFC4C8EA);
 
   @override
   Widget build(BuildContext context) {
+       final user = FirebaseAuth.instance.currentUser;
     return Scaffold(
       backgroundColor: Colors.white,
 
@@ -91,9 +103,9 @@ class ProfileAdminScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: Column(
-                    children: const [
+                    children: [
                       Text(
-                        "Adminname",
+                        user?.displayName ?? "No Name",
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -101,7 +113,7 @@ class ProfileAdminScreen extends StatelessWidget {
                       ),
                       SizedBox(height: 4),
                       Text(
-                        "adminemail@gmail.com",
+                        user?.email ?? "No Email",
                         style: TextStyle(
                           fontSize: 13,
                           color: Colors.black54,
@@ -122,7 +134,23 @@ class ProfileAdminScreen extends StatelessWidget {
                   width: double.infinity,
                   height: 52,
                   child: ElevatedButton(
-                    onPressed: () {},
+                   onPressed: () async {
+  try {
+ 
+    // 2. Firebase sign out
+    await FirebaseAuth.instance.signOut();
+
+    // 3. go back to login
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const LoginScreen()),
+      (route) => false,
+    );
+
+  } catch (e) {
+    debugPrint("Admin logout error: $e");
+  }
+},
                     style: ElevatedButton.styleFrom(backgroundColor: lightPurple,
                       elevation: 4,
                       shadowColor: Colors.black.withOpacity(0.25),

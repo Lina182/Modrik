@@ -1,12 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../login_screen.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-class ProfileExpertScreen extends StatelessWidget {
+class ProfileExpertScreen extends StatefulWidget {
   const ProfileExpertScreen({super.key});
+
+  @override
+  State<ProfileExpertScreen> createState() => _ProfileExpertScreenState();
+}
+
+class _ProfileExpertScreenState extends State<ProfileExpertScreen> {
 
   static const Color lightPurple = Color(0xFFC4C8EA);
 
   @override
   Widget build(BuildContext context) {
+        final user = FirebaseAuth.instance.currentUser;
     return Scaffold(
       backgroundColor: Colors.white,
 
@@ -91,9 +102,9 @@ class ProfileExpertScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: Column(
-                    children: const [
+                    children: [
                       Text(
-                        "Expert Name",  // تغيير النص إلى اسم الـ Expert
+                         user?.displayName ?? "No Name",  // تغيير النص إلى اسم الـ Expert
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -101,7 +112,7 @@ class ProfileExpertScreen extends StatelessWidget {
                       ),
                       SizedBox(height: 4),
                       Text(
-                        "expertemail@example.com",  // تغيير البريد الإلكتروني
+                          user?.email ?? "No Email", // تغيير البريد الإلكتروني
                         style: TextStyle(
                           fontSize: 13,
                           color: Colors.black54,
@@ -121,7 +132,25 @@ class ProfileExpertScreen extends StatelessWidget {
                   width: double.infinity,
                   height: 52,
                   child: ElevatedButton(
-                    onPressed: () {},style: ElevatedButton.styleFrom(backgroundColor: lightPurple,
+                    
+                  onPressed: () async {
+  try {
+    // 2. Firebase sign out
+    await FirebaseAuth.instance.signOut();
+
+    // 3. navigate
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
+      (route) => false,
+    );
+
+  } catch (e) {
+    debugPrint("Logout error: $e");
+  }
+},
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: lightPurple,
                       elevation: 4,
                       shadowColor: Colors.black.withOpacity(0.25),
                       shape: RoundedRectangleBorder(

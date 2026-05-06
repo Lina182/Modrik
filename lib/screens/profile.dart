@@ -7,6 +7,7 @@ import '../widgets/bottom_nav_bar.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 
+
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
@@ -23,15 +24,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool contactExpanded = false;
   bool aboutExpanded = false;
 
-  Future<void> _logout(BuildContext context) async {
+Future<void> _logout(BuildContext context) async {
+  try {
+
+    // 2) Firebase sign out
     await FirebaseAuth.instance.signOut();
 
+    // 3) navigate
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (_) => const LoginScreen()),
       (route) => false,
     );
+
+  } catch (e) {
+    debugPrint("Logout error: $e");
   }
+}
 
   @override
   Widget build(BuildContext context) {

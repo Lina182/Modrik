@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'login_screen.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 const mainPurple = Color(0xFFC4C8EA);
 const bgPurple = Color(0xFF9DA3D9);
@@ -40,6 +42,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Future<void> updateProfile() async {
+    
     if (user == null) return;
           final isEmailChanged = email.text.trim() != user!.email;
   final isPasswordChanged = password.text.isNotEmpty;
@@ -130,47 +133,48 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       setState(() => isLoading = false);
     }
   }
+Future<void> deleteAccount() async {
+  if (user == null) return;
 
-  Future<void> deleteAccount() async {
-    if (user == null) return;
-
-    try {
-      if (currentPassword.text.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text("Enter current password to delete account")),
-        );
-        return;
-      }
-
-      await reAuthenticate();
-
-      final uid = user!.uid;
-
-      await FirebaseFirestore.instance.collection('users').doc(uid).delete();
-      await user!.delete();
-      await FirebaseAuth.instance.signOut();
-
-      if (mounted) {
-        Navigator.pushAndRemoveUntil(
-  context,
-  MaterialPageRoute(builder: (_) => const LoginScreen()),
-  (route) => false,
-);
-      }
-    } on FirebaseAuthException catch (e) {
-      String msg = "Error deleting account";
-
-      if (e.code == 'wrong-password') {
-        msg = "Wrong password";
-      } else if (e.code == 'requires-recent-login') {
-        msg = "Please login again";
-      }
-
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(msg)));
+  try {
+    if (currentPassword.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Enter current password to delete account")),
+      );
+      return;
     }
+
+    await reAuthenticate();
+
+    final uid = user!.uid;
+
+    // ⭐ هنا تحطيه
+    final token = await user!.getIdToken();
+
+    await http.post(
+      Uri.parse("http://172.237.116.141:8002/delete-account"),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"token": token}),
+    );
+
+    // بعد ما الباك يحذف من MySQL
+
+    await FirebaseFirestore.instance.collection('users').doc(uid).delete();
+    await user!.delete();
+    await FirebaseAuth.instance.signOut();
+
+    if (mounted) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        (route) => false,
+      );
+    }
+
+  } catch (e) {
+    debugPrint("Delete account error: $e");
   }
+}
 
   @override
   Widget build(BuildContext context) {

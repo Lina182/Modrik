@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'login_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'home_screen.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+import 'admin/admin_dash.dart';
+import 'expert/ExpertHomeScreen.dart';
 
 class StartScreen extends StatefulWidget {
   const StartScreen({super.key});
@@ -25,14 +30,44 @@ class _StartScreenState extends State<StartScreen> {
     try {
       final user = FirebaseAuth.instance.currentUser;
 
-      if (user != null) {
-        // نحاول نعمل reload (نكتشف لو الباسورد اتغير)
-        await user.reload();
-
+      if (user == null) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const HomeScreen()),
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
         );
+        return;
+      }
+
+      final token = await user.getIdToken();
+
+      final response = await http.post(
+        Uri.parse("http://172.237.116.141:8002/verify-token"),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"token": token}),
+      );
+
+      if (!mounted) return;
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final role = (data['role'] ?? 'user').toLowerCase();
+
+        if (role == 'admin') {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const AdminDashScreen()),
+          );
+        } else if (role == 'expert') {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const ExpertHomeScreen()),
+          );
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const HomeScreen()),
+          );
+        }
       } else {
         Navigator.pushReplacement(
           context,
@@ -40,9 +75,6 @@ class _StartScreenState extends State<StartScreen> {
         );
       }
     } catch (e) {
-      // 🔥 هنا لو الباسورد اتغير
-      await FirebaseAuth.instance.signOut();
-
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const LoginScreen()),
