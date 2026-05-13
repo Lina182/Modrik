@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import '../theme/app_colors.dart';
-import '../widgets/header_section.dart';
-import '../widgets/bottom_nav_bar.dart';
+import '../../theme/app_colors.dart';
+import '../../widgets/header_section.dart';
+import '../../widgets/bottom_nav_bar.dart';
 import 'analysis.dart';
 import 'AI_chat_screen.dart';
-import 'Expertchat.dart';
+import 'my_consultations.dart';
 import 'saved_reports_screen.dart';
-import 'profile.dart';
-import 'expert/ExpertHomeScreen.dart';
+
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -216,9 +215,7 @@ class HomeScreen extends StatelessWidget {
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(
-                              builder: (_) => Expertchat(),
-                            ),
+                            MaterialPageRoute(builder: (_) => Expertchat()),
                           );
                         },
                         child: buildSmallCard(

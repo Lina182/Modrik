@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../firebase_options.dart';
-import 'home_screen.dart';
+import '../../firebase_options.dart';
+import '../users/home_screen.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../theme/app_colors.dart';
-import '../theme/app_text_styles.dart';
+import '../../theme/app_colors.dart';
+import '../../theme/app_text_styles.dart';
 
 class CreateAccountScreen extends StatefulWidget {
   const CreateAccountScreen({super.key});
@@ -31,9 +31,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
   bool _loading = false;
 
   void showMsg(String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(msg)),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
   bool isValidEmail(String email) {
@@ -69,10 +67,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
   InputDecoration inputDecoration(String hint, IconData icon) {
     return InputDecoration(
       hintText: hint,
-      prefixIcon: Icon(
-        icon,
-        color: AppColors.primary,
-      ),
+      prefixIcon: Icon(icon, color: AppColors.primary),
       filled: true,
       fillColor: AppColors.card.withOpacity(0.55),
       enabledBorder: OutlineInputBorder(
@@ -81,10 +76,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(
-          color: Colors.black,
-          width: 1,
-        ),
+        borderSide: const BorderSide(color: Colors.black, width: 1),
       ),
     );
   }
@@ -116,11 +108,11 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     setState(() => _loading = true);
 
     try {
-      final userCredential =
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: emailController.text.trim(),
-        password: passwordController.text,
-      );
+      final userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+            email: emailController.text.trim(),
+            password: passwordController.text,
+          );
 
       final user = userCredential.user;
 
@@ -128,14 +120,9 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
         throw Exception("User creation failed");
       }
 
-      await user.updateDisplayName(
-        nameController.text.trim(),
-      );
+      await user.updateDisplayName(nameController.text.trim());
 
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .set({
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
         'name': nameController.text.trim(),
         'email': emailController.text.trim(),
         'uid': user.uid,
@@ -146,10 +133,8 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       final idToken = await user.getIdToken();
 
       await http.post(
-        Uri.parse("http://172.237.116.141:8002/register"),
-        headers: {
-          "Content-Type": "application/json",
-        },
+        Uri.parse("http://172.237.116.141:8003/register"),
+        headers: {"Content-Type": "application/json"},
         body: jsonEncode({
           "uid": user.uid,
           "name": nameController.text.trim(),
@@ -160,16 +145,12 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Account created successfully ✅"),
-        ),
+        const SnackBar(content: Text("Account created successfully ✅")),
       );
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-          builder: (_) => const HomeScreen(),
-        ),
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
       );
     } on FirebaseAuthException catch (e) {
       String msg = "Something went wrong";
@@ -186,9 +167,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
         msg = "Email already in use. Try logging in.";
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(msg)),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
     } finally {
       setState(() => _loading = false);
     }
@@ -201,9 +180,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       body: SafeArea(
         child: Stack(
           children: [
-            Container(
-              color: AppColors.background,
-            ),
+            Container(color: AppColors.background),
 
             // نفس خلفية اللوق إن بالضبط
             Positioned(
@@ -216,10 +193,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [
-                      AppColors.gradientStart,
-                      AppColors.gradientEnd,
-                    ],
+                    colors: [AppColors.gradientStart, AppColors.gradientEnd],
                   ),
                   shape: BoxShape.circle,
                 ),
@@ -256,9 +230,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                     const Text(
                       "Create your account\nand get started!",
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: AppColors.textGrey,
-                      ),
+                      style: TextStyle(color: AppColors.textGrey),
                     ),
 
                     const SizedBox(height: 50),
@@ -286,7 +258,8 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                     const SizedBox(height: 18),
 
                     TextField(
-                      focusNode: passwordFocus,controller: passwordController,
+                      focusNode: passwordFocus,
+                      controller: passwordController,
                       obscureText: true,
                       decoration: inputDecoration(
                         "Password",
@@ -338,9 +311,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                       onPressed: () => Navigator.pop(context),
                       child: const Text(
                         "Already have an account? Log in",
-                        style: TextStyle(
-                          color: AppColors.primary,
-                        ),
+                        style: TextStyle(color: AppColors.primary),
                       ),
                     ),
                   ],
@@ -366,12 +337,7 @@ class TopCurvePainter extends CustomPainter {
 
     path.moveTo(0, size.height);
 
-    path.quadraticBezierTo(
-      size.width / 2,
-      0,
-      size.width,
-      size.height,
-    );
+    path.quadraticBezierTo(size.width / 2, 0, size.width, size.height);
 
     canvas.drawPath(path, paint);
   }

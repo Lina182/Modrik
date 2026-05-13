@@ -1,21 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../theme/app_colors.dart';
-import '../theme/app_text_styles.dart';
+import '../../theme/app_colors.dart';
+import '../../theme/app_text_styles.dart';
 
 class ForgetPasswordScreen extends StatefulWidget {
   const ForgetPasswordScreen({super.key});
 
   @override
-  State<ForgetPasswordScreen> createState() =>
-      _ForgetPasswordScreenState();
+  State<ForgetPasswordScreen> createState() => _ForgetPasswordScreenState();
 }
 
-class _ForgetPasswordScreenState
-    extends State<ForgetPasswordScreen> {
-
-  final TextEditingController emailController =
-      TextEditingController();
+class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
+  final TextEditingController emailController = TextEditingController();
 
   bool _loading = false;
 
@@ -23,28 +19,22 @@ class _ForgetPasswordScreenState
     final email = emailController.text.trim();
 
     if (email.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Please enter your email"),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Please enter your email")));
       return;
     }
 
     setState(() => _loading = true);
 
     try {
-      await FirebaseAuth.instance
-          .sendPasswordResetEmail(email: email);
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Reset link sent to your email ✅"),
-        ),
+        const SnackBar(content: Text("Reset link sent to your email ✅")),
       );
 
       Navigator.pop(context);
-
     } on FirebaseAuthException catch (e) {
       String msg = "Something went wrong";
 
@@ -54,24 +44,16 @@ class _ForgetPasswordScreenState
         msg = "Invalid email format";
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(msg)),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
     } finally {
       setState(() => _loading = false);
     }
   }
 
-  InputDecoration inputDecoration(
-    String hint,
-    IconData icon,
-  ) {
+  InputDecoration inputDecoration(String hint, IconData icon) {
     return InputDecoration(
       hintText: hint,
-      prefixIcon: Icon(
-        icon,
-        color: AppColors.primary,
-      ),
+      prefixIcon: Icon(icon, color: AppColors.primary),
       filled: true,
       fillColor: AppColors.card.withOpacity(0.55),
       enabledBorder: OutlineInputBorder(
@@ -80,10 +62,7 @@ class _ForgetPasswordScreenState
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(
-          color: Colors.black,
-          width: 1,
-        ),
+        borderSide: const BorderSide(color: Colors.black, width: 1),
       ),
     );
   }
@@ -95,11 +74,8 @@ class _ForgetPasswordScreenState
       body: SafeArea(
         child: Stack(
           children: [
-
             // نفس خلفية اللوق إن
-            Container(
-              color: AppColors.background,
-            ),
+            Container(color: AppColors.background),
 
             Positioned(
               top: -180,
@@ -111,10 +87,7 @@ class _ForgetPasswordScreenState
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [
-                      AppColors.gradientStart,
-                      AppColors.gradientEnd,
-                    ],
+                    colors: [AppColors.gradientStart, AppColors.gradientEnd],
                   ),
                   shape: BoxShape.circle,
                 ),
@@ -133,13 +106,10 @@ class _ForgetPasswordScreenState
 
             SingleChildScrollView(
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 28),
+                padding: const EdgeInsets.symmetric(horizontal: 28),
                 child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.stretch,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-
                     const SizedBox(height: 120),
 
                     Text(
@@ -151,12 +121,11 @@ class _ForgetPasswordScreenState
                       ),
                     ),
 
-                    const SizedBox(height: 10),const Text(
+                    const SizedBox(height: 10),
+                    const Text(
                       "Enter your email and we will\nsend you a reset link.",
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: AppColors.textGrey,
-                      ),
+                      style: TextStyle(color: AppColors.textGrey),
                     ),
 
                     const SizedBox(height: 50),
@@ -172,23 +141,15 @@ class _ForgetPasswordScreenState
                     const SizedBox(height: 30),
 
                     _loading
-                        ? const Center(
-                            child:
-                                CircularProgressIndicator(),
-                          )
+                        ? const Center(child: CircularProgressIndicator())
                         : SizedBox(
                             width: double.infinity,
                             height: 55,
                             child: ElevatedButton(
-                              style:
-                                  ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    AppColors.primary,
-                                shape:
-                                    RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.circular(
-                                          14),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
                                 ),
                               ),
                               onPressed: resetPassword,
@@ -196,8 +157,7 @@ class _ForgetPasswordScreenState
                                 "Reset Password",
                                 style: TextStyle(
                                   fontSize: 18,
-                                  fontWeight:
-                                      FontWeight.bold,
+                                  fontWeight: FontWeight.bold,
                                   color: Colors.white,
                                 ),
                               ),
@@ -226,19 +186,11 @@ class TopCurvePainter extends CustomPainter {
 
     path.moveTo(0, size.height);
 
-    path.quadraticBezierTo(
-      size.width / 2,
-      0,
-      size.width,
-      size.height,
-    );
+    path.quadraticBezierTo(size.width / 2, 0, size.width, size.height);
 
     canvas.drawPath(path, paint);
   }
 
   @override
-  bool shouldRepaint(
-    covariant CustomPainter oldDelegate,
-  ) =>
-      false;
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

@@ -3,13 +3,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart'; // 🔹 Firestore
 import 'create_account_screen.dart';
 import 'forget_password_screen.dart';
-import 'home_screen.dart';
+import '../users/home_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'admin/admin_dash.dart';
-import 'expert/ExpertHomeScreen.dart';
-import '../theme/app_colors.dart';
-import '../theme/app_text_styles.dart';
+import '../admin/admin_dash.dart';
+import '../expert/ExpertHomeScreen.dart';
+import '../../theme/app_colors.dart';
+import '../../theme/app_text_styles.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -19,7 +19,6 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-
   final FocusNode emailFocus = FocusNode();
   final FocusNode passwordFocus = FocusNode();
 
@@ -47,19 +46,20 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _login() async {
     if (emailController.text.isEmpty || passwordController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please fill all fields")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Please fill all fields")));
       return;
     }
 
     setState(() => _loading = true);
 
     try {
-      final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: emailController.text.trim(),
-        password: passwordController.text.trim(),
-      );
+      final userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(
+            email: emailController.text.trim(),
+            password: passwordController.text.trim(),
+          );
 
       final user = userCredential.user;
       if (user == null) throw Exception("User is null");
@@ -79,7 +79,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       //verify token,set role, and navigate
       final response = await http.post(
-        Uri.parse("http://172.237.116.141:8002/verify-token"),
+        Uri.parse("http://172.237.116.141:8003/verify-token"),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({"token": idToken}),
       );
@@ -91,7 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
         final role = (data['role'] ?? 'user').toString().trim().toLowerCase();
 
         await http.post(
-          Uri.parse("http://172.237.116.141:8002/login-log"),
+          Uri.parse("http://172.237.116.141:8003/login-log"),
           headers: {"Content-Type": "application/json"},
           body: jsonEncode({"token": idToken}),
         );
@@ -128,7 +128,8 @@ class _LoginScreenState extends State<LoginScreen> {
         msg = "Wrong password";
       } else if (e.code == 'invalid-email') {
         msg = "Invalid email format";
-      }ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)),);
+      }
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
       debugPrint("❌ Login error: ${e.code}");
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -143,7 +144,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,  // استخدام اللون المحدد
+      backgroundColor: AppColors.background, // استخدام اللون المحدد
       body: SafeArea(
         child: Stack(
           children: [
@@ -160,8 +161,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      AppColors.gradientStart,  // التدرج الفاتح الأول
-                      AppColors.gradientEnd,  // التدرج الفاتح الثاني
+                      AppColors.gradientStart, // التدرج الفاتح الأول
+                      AppColors.gradientEnd, // التدرج الفاتح الثاني
                     ],
                   ),
                   shape: BoxShape.circle,
@@ -187,15 +188,17 @@ class _LoginScreenState extends State<LoginScreen> {
                     Text(
                       "Login",
                       style: AppTextStyles.title.copyWith(
-                        fontSize: 30,  // تكبير حجم الخط
-                        color: AppColors.primary,  // استخدام اللون الأساسي
+                        fontSize: 30, // تكبير حجم الخط
+                        color: AppColors.primary, // استخدام اللون الأساسي
                       ),
                     ),
                     const SizedBox(height: 10),
                     const Text(
                       "Welcome back you've\nbeen missed!",
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: AppColors.textGrey),  // استخدام اللون الرمادي للنص
+                      style: TextStyle(
+                        color: AppColors.textGrey,
+                      ), // استخدام اللون الرمادي للنص
                     ),
                     const SizedBox(height: 50),
 
@@ -204,7 +207,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       focusNode: emailFocus,
                       decoration: InputDecoration(
                         hintText: "Email",
-                        prefixIcon: const Icon(Icons.email_outlined, color: AppColors.primary),
+                        prefixIcon: const Icon(
+                          Icons.email_outlined,
+                          color: AppColors.primary,
+                        ),
                         filled: true,
                         fillColor: AppColors.card.withOpacity(0.55),
                         enabledBorder: OutlineInputBorder(
@@ -213,7 +219,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
-                          borderSide: const BorderSide(color: Colors.black, width: 1),
+                          borderSide: const BorderSide(
+                            color: Colors.black,
+                            width: 1,
+                          ),
                         ),
                       ),
                     ),
@@ -225,15 +234,22 @@ class _LoginScreenState extends State<LoginScreen> {
                       obscureText: true,
                       decoration: InputDecoration(
                         hintText: "Password",
-                        prefixIcon: const Icon(Icons.lock_outline, color: AppColors.primary),
+                        prefixIcon: const Icon(
+                          Icons.lock_outline,
+                          color: AppColors.primary,
+                        ),
                         filled: true,
                         fillColor: AppColors.card.withOpacity(0.55),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
                           borderSide: BorderSide.none,
                         ),
-                        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14),
-                          borderSide: const BorderSide(color: Colors.black, width: 1),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide: const BorderSide(
+                            color: Colors.black,
+                            width: 1,
+                          ),
                         ),
                       ),
                     ),
@@ -264,7 +280,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             height: 55,
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.primary,  // استخدام اللون الأساسي
+                                backgroundColor:
+                                    AppColors.primary, // استخدام اللون الأساسي
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(14),
                                 ),
@@ -294,7 +311,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       },
                       child: const Text(
                         "Don’t have an account ? Sign Up",
-                        style: TextStyle(color: AppColors.primary),  // استخدام اللون الأساسي
+                        style: TextStyle(
+                          color: AppColors.primary,
+                        ), // استخدام اللون الأساسي
                       ),
                     ),
                   ],

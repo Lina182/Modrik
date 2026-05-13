@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
-import '../models/cross_report_item.dart';
-import '../widgets/cross_report_card.dart';
-import '../widgets/report_action_buttons.dart';
-import '../services/db_service.dart';
+import 'package:modik_pages/screens/users/home_screen.dart';
+import '../../models/individual_report_item.dart';
+import '../../widgets/individual_report_card.dart';
+import '../../widgets/report_action_buttons.dart';
+import '../../services/db_service.dart';
 import 'AI_chat_screen.dart';
-import 'home_screen.dart';
+import '../../services/consultation_service.dart';
 
 const Color mainPurple = Color(0xFF9DA3D9);
 
-class CrossReportScreen extends StatelessWidget {
-  final List<CrossReportItem> reports;
+class IndividualReportScreen extends StatelessWidget {
+  final List<IndividualReportItem> reportItems;
   final String fileName;
   final bool showDownload;
 
-  const CrossReportScreen({
+  const IndividualReportScreen({
     super.key,
-    required this.reports,
+    required this.reportItems,
     required this.fileName,
     this.showDownload = true,
   });
@@ -66,17 +67,24 @@ class CrossReportScreen extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            ...reports.map((item) => CrossReportCard(item: item)),
+            ...reportItems.map(
+              (item) => Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: IndividualReportCard(item: item),
+              ),
+            ),
 
-            const SizedBox(height: 10),
+            const SizedBox(height: 20),
 
             ReportActionButtons(
               onDownloadPdf: showDownload
                   ? () async {
                       await DBService.saveReport(
-                        items: reports.map((item) => item.toJson()).toList(),
+                        items: reportItems
+                            .map((item) => item.toJson())
+                            .toList(),
                         title: fileName,
-                        type: 'cross',
+                        type: 'individual',
                       );
 
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -88,8 +96,8 @@ class CrossReportScreen extends StatelessWidget {
               onAskAi: () {
                 final reportData = {
                   "title": fileName,
-                  "data": reports.map((e) => e.toJson()).toList(),
-                  "type": "cross",
+                  "data": reportItems.map((e) => e.toJson()).toList(),
+                  "type": "individual",
                 };
 
                 Navigator.push(
@@ -99,10 +107,36 @@ class CrossReportScreen extends StatelessWidget {
                   ),
                 );
               },
-              onConsultExpert: () {},
+              onConsultExpert: (question) async {
+                final success = await ConsultationService.createConsultation(
+                  userId: 1,
 
-              pdfLabel: 'Download Full Couple Report',
-              aiLabel: 'Chat with AI',
+                  type: 'individual',
+
+                  reportName: fileName,
+
+                  data: reportItems.map((e) => e.toJson()).toList(),
+
+                  userQuestion: question,
+                );
+
+                if (success) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Consultation sent successfully'),
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Failed to send consultation'),
+                    ),
+                  );
+                }
+              },
+
+              pdfLabel: 'Download Full Report',
+              aiLabel: 'Ask AI about results',
             ),
           ],
         ),

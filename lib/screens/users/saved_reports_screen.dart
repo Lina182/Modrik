@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import '../services/db_service.dart';
-import '../models/individual_report_item.dart';
-import '../models/cross_report_item.dart';
-import '../screens/individual_report_screen.dart';
-import '../screens/cross_report_screen.dart';
-import '../widgets/analysis_header.dart';
-import '../widgets/bottom_nav_bar.dart';
+import '../../services/db_service.dart';
+import '../../models/individual_report_item.dart';
+import '../../models/cross_report_item.dart';
+import 'individual_report_screen.dart';
+import 'cross_report_screen.dart';
+import '../../widgets/analysis_header.dart';
+import '../../widgets/bottom_nav_bar.dart';
 
 class SavedReportsScreen extends StatefulWidget {
   final bool selectionMode;

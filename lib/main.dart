@@ -3,7 +3,6 @@ import 'package:firebase_core/firebase_core.dart';
 
 import 'firebase_options.dart';
 import 'screens/start_screen.dart';
-import 'screens/cross_report_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

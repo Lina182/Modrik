@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
-import '../screens/home_screen.dart';
-import '../screens/analysis.dart';
-import '../screens/saved_reports_screen.dart';
-import '../screens/profile.dart';
+import '../screens/users/home_screen.dart';
+import '../screens/users/analysis.dart';
+import '../screens/users/saved_reports_screen.dart';
+import '../screens/shared/profile.dart';
 
 class BottomNavBar extends StatelessWidget {
   final int currentIndex;
