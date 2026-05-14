@@ -5,6 +5,7 @@ import '../../widgets/individual_report_card.dart';
 import '../../widgets/report_action_buttons.dart';
 import '../../services/db_service.dart';
 import 'AI_chat_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/consultation_service.dart';
 
 const Color mainPurple = Color(0xFF9DA3D9);
@@ -108,15 +109,15 @@ class IndividualReportScreen extends StatelessWidget {
                 );
               },
               onConsultExpert: (question) async {
+                final prefs = await SharedPreferences.getInstance();
+
+                final userId = int.parse(prefs.getString('user_id') ?? '0');
+
                 final success = await ConsultationService.createConsultation(
-                  userId: 1,
-
+                  userId: userId,
                   type: 'individual',
-
                   reportName: fileName,
-
                   data: reportItems.map((e) => e.toJson()).toList(),
-
                   userQuestion: question,
                 );
 

@@ -5,6 +5,7 @@ import '../../widgets/report_action_buttons.dart';
 import '../../services/db_service.dart';
 import 'AI_chat_screen.dart';
 import 'home_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/consultation_service.dart';
 
 const Color mainPurple = Color(0xFF9DA3D9);
@@ -101,15 +102,22 @@ class CrossReportScreen extends StatelessWidget {
                 );
               },
               onConsultExpert: (question) async {
+                final prefs = await SharedPreferences.getInstance();
+
+                final userId = int.parse(prefs.getString('user_id') ?? '0');
+
+                if (userId == 0) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('User not logged in')),
+                  );
+                  return;
+                }
+
                 final success = await ConsultationService.createConsultation(
-                  userId: 1,
-
+                  userId: userId,
                   type: 'cross',
-
                   reportName: fileName,
-
                   data: reports.map((e) => e.toJson()).toList(),
-
                   userQuestion: question,
                 );
 

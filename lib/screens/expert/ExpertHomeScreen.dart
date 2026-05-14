@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../widgets/header_section.dart';
 import '../../widgets/ExpertBottomNavBar.dart';
 import '../../services/expert_consultation_service.dart';
@@ -10,7 +11,7 @@ class ExpertHomeScreen extends StatefulWidget {
   const ExpertHomeScreen({super.key, this.initialTab = 0});
 
   @override
-  State createState() => _ExpertHomeScreenState();
+  State<ExpertHomeScreen> createState() => _ExpertHomeScreenState();
 }
 
 class _ExpertHomeScreenState extends State<ExpertHomeScreen> {
@@ -19,6 +20,13 @@ class _ExpertHomeScreenState extends State<ExpertHomeScreen> {
   List consultations = [];
 
   bool isLoading = true;
+
+  /// 🔥 نجيب ايدي الخبير من SharedPreferences
+  Future<int> getExpertId() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    return int.parse(prefs.getString('expert_id') ?? '0');
+  }
 
   @override
   void initState() {
@@ -35,6 +43,8 @@ class _ExpertHomeScreenState extends State<ExpertHomeScreen> {
     });
 
     try {
+      final expertId = await getExpertId();
+
       /// WAITING
       if (selectedTab == 0) {
         consultations =
@@ -43,13 +53,13 @@ class _ExpertHomeScreenState extends State<ExpertHomeScreen> {
       /// ACTIVE
       else if (selectedTab == 1) {
         consultations = await ExpertConsultationService.getActiveConsultations(
-          2,
+          expertId,
         );
       }
       /// COMPLETED
       else {
         consultations =
-            await ExpertConsultationService.getCompletedConsultations(2);
+            await ExpertConsultationService.getCompletedConsultations(expertId);
       }
     } catch (e) {
       print(e);
@@ -104,7 +114,7 @@ class _ExpertHomeScreenState extends State<ExpertHomeScreen> {
               itemCount: isLoading ? 1 : currentList.length,
 
               itemBuilder: (context, index) {
-                /// LOADING
+                /// 🔥 LOADING
                 if (isLoading) {
                   return const Center(
                     child: Padding(
@@ -125,6 +135,7 @@ class _ExpertHomeScreenState extends State<ExpertHomeScreen> {
                   onTap: () {
                     Navigator.push(
                       context,
+
                       MaterialPageRoute(
                         builder: (_) =>
                             ExpertRequestDetailsScreen(consultation: item),
@@ -136,6 +147,7 @@ class _ExpertHomeScreenState extends State<ExpertHomeScreen> {
                     margin: const EdgeInsets.only(bottom: 18),
 
                     padding: const EdgeInsets.all(18),
+
                     decoration: BoxDecoration(
                       color: Colors.white,
 
@@ -189,7 +201,7 @@ class _ExpertHomeScreenState extends State<ExpertHomeScreen> {
 
                             const SizedBox(width: 14),
 
-                            /// TEXTS
+                            /// ===== TEXTS =====
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -238,13 +250,16 @@ class _ExpertHomeScreenState extends State<ExpertHomeScreen> {
 
                                       const SizedBox(width: 5),
 
-                                      Text(
-                                        item["created_at"].toString(),
+                                      Expanded(
+                                        child: Text(
+                                          item["created_at"].toString(),
+                                          overflow: TextOverflow.ellipsis,
 
-                                        style: TextStyle(
-                                          fontSize: 12,
+                                          style: TextStyle(
+                                            fontSize: 12,
 
-                                          color: Colors.grey.shade600,
+                                            color: Colors.grey.shade600,
+                                          ),
                                         ),
                                       ),
                                     ],
