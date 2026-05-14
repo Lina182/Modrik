@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:modik_pages/widgets/header_section.dart';
-import '../widgets/analysis_header.dart';
-import '../widgets/bottom_nav_bar.dart';
-import '../theme/app_colors.dart';
+import '../../widgets/analysis_header.dart';
+import '../../widgets/bottom_nav_bar.dart';
+import '../../theme/app_colors.dart';
 import 'individual_upload.dart';
 import 'cross_upload.dart';
 

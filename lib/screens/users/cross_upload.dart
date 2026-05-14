@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
 
-import '../models/cross_report_item.dart';
+import '../../models/cross_report_item.dart';
 import 'cross_report_screen.dart';
 
 // widgets
-import '../widgets/analysis_header.dart';
-import '../widgets/analysis_upload_box.dart';
-import '../widgets/analysis_button.dart';
-import '../widgets/analysis_loading.dart';
+import '../../widgets/analysis_header.dart';
+import '../../widgets/analysis_upload_box.dart';
+import '../../widgets/analysis_button.dart';
+import '../../widgets/analysis_loading.dart';
 
 class CrossUploadScreen extends StatefulWidget {
   const CrossUploadScreen({super.key});

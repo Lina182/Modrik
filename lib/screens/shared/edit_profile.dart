@@ -42,18 +42,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Future<void> updateProfile() async {
-    
     if (user == null) return;
-          final isEmailChanged = email.text.trim() != user!.email;
-  final isPasswordChanged = password.text.isNotEmpty;
-  final isNameChanged = name.text.trim() != (user!.displayName ?? '');
+    final isEmailChanged = email.text.trim() != user!.email;
+    final isPasswordChanged = password.text.isNotEmpty;
+    final isNameChanged = name.text.trim() != (user!.displayName ?? '');
 
-  if (!isEmailChanged && !isPasswordChanged && !isNameChanged) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("No changes detected")),
-    );
-    return;
-  }
+    if (!isEmailChanged && !isPasswordChanged && !isNameChanged) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("No changes detected")));
+      return;
+    }
     setState(() => isLoading = true);
 
     try {
@@ -84,9 +83,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         await user!.verifyBeforeUpdateEmail(email.text.trim());
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Check your new email to confirm 📩"),
-          ),
+          const SnackBar(content: Text("Check your new email to confirm 📩")),
         );
       }
 
@@ -95,9 +92,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         await user!.updatePassword(password.text.trim());
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Password updated successfully 🔒"),
-          ),
+          const SnackBar(content: Text("Password updated successfully 🔒")),
         );
       }
 
@@ -127,29 +122,31 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         msg = "Current password is incorrect";
       }
 
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(msg)));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
     } finally {
       setState(() => isLoading = false);
     }
   }
-Future<void> deleteAccount() async {
-  if (user == null) return;
 
-  try {
-    if (currentPassword.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Enter current password to delete account")),
-      );
-      return;
-    }
+  Future<void> deleteAccount() async {
+    if (user == null) return;
 
-    await reAuthenticate();
+    try {
+      if (currentPassword.text.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Enter current password to delete account"),
+          ),
+        );
+        return;
+      }
 
-    final uid = user!.uid;
+      await reAuthenticate();
 
-    // ⭐ هنا تحطيه
-    final token = await user!.getIdToken();
+      final uid = user!.uid;
+
+      // ⭐ هنا تحطيه
+      final token = await user!.getIdToken();
 
     await http.post(
       Uri.parse("http://172.237.116.141:8003/delete-user"),
@@ -159,18 +156,17 @@ Future<void> deleteAccount() async {
 
     await FirebaseAuth.instance.signOut();
 
-    if (mounted) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-        (route) => false,
-      );
+      if (mounted) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+          (route) => false,
+        );
+      }
+    } catch (e) {
+      debugPrint("Delete account error: $e");
     }
-
-  } catch (e) {
-    debugPrint("Delete account error: $e");
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -186,8 +182,7 @@ Future<void> deleteAccount() async {
         iconTheme: const IconThemeData(color: Colors.black),
         title: const Text(
           'Edit Profile',
-          style: TextStyle(
-              color: Colors.black, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
         actions: [
           IconButton(
@@ -241,8 +236,9 @@ Future<void> deleteAccount() async {
                             Text(
                               user?.displayName ?? "No Username",
                               style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold),
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             const SizedBox(height: 4),
                             Text(
@@ -264,8 +260,12 @@ Future<void> deleteAccount() async {
                 _field('Email', 'Enter your new email', email),
                 const SizedBox(height: 20),
 
-                _field('New Password', 'Leave empty if no change', password,
-                    isPassword: true),
+                _field(
+                  'New Password',
+                  'Leave empty if no change',
+                  password,
+                  isPassword: true,
+                ),
                 const SizedBox(height: 20),
 
                 _field(
@@ -287,8 +287,9 @@ Future<void> deleteAccount() async {
                     child: const Text(
                       'Delete Account',
                       style: TextStyle(
-                          color: Colors.red,
-                          fontWeight: FontWeight.bold),
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
@@ -306,15 +307,19 @@ Future<void> deleteAccount() async {
     );
   }
 
-  Widget _field(String title, String hint,
-      TextEditingController controller,
-      {bool isPassword = false}) {
+  Widget _field(
+    String title,
+    String hint,
+    TextEditingController controller, {
+    bool isPassword = false,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title,
-            style:
-                const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        Text(
+          title,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+        ),
         const SizedBox(height: 6),
         TextFormField(
           controller: controller,
@@ -323,8 +328,7 @@ Future<void> deleteAccount() async {
             hintText: hint,
             filled: true,
             fillColor: mainPurple,
-            border:
-                OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
           ),
         ),
       ],

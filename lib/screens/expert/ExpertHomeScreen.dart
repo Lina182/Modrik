@@ -1,301 +1,327 @@
 import 'package:flutter/material.dart';
-import 'ExpertProfile.dart';
-import 'EpertSettings.dart';
-import '../chat/chat_screen.dart';
+import '../../widgets/header_section.dart';
+import '../../widgets/ExpertBottomNavBar.dart';
+import '../../services/expert_consultation_service.dart';
+import 'ExpertRequestDetailsScreen.dart';
 
 class ExpertHomeScreen extends StatefulWidget {
-  const ExpertHomeScreen({super.key});
+  final int initialTab;
+
+  const ExpertHomeScreen({super.key, this.initialTab = 0});
 
   @override
-  State<ExpertHomeScreen> createState() => _ExpertHomeScreenState();
+  State createState() => _ExpertHomeScreenState();
 }
 
 class _ExpertHomeScreenState extends State<ExpertHomeScreen> {
-  int selectedTab = 0;
+  late int selectedTab;
 
-  final List<Map<String, String>> pending = [
-    {"title": "Pending 1", "date": "2026-04-18"},
-    {"title": "Pending 2", "date": "2026-04-19"},
-  ];
+  List consultations = [];
 
-  final List<Map<String, String>> processing = [
-    {"title": "Processing 1", "date": "2026-04-20"},
-    {"title": "Processing 2", "date": "2026-04-21"},
-  ];
+  bool isLoading = true;
 
-  final List<Map<String, String>> approved = [
-    {"title": "Done 1", "date": "2026-04-15"},
-    {"title": "Done 2", "date": "2026-04-16"},
-  ];
+  @override
+  void initState() {
+    super.initState();
+
+    selectedTab = widget.initialTab;
+
+    loadConsultations();
+  }
+
+  Future loadConsultations() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      /// WAITING
+      if (selectedTab == 0) {
+        consultations =
+            await ExpertConsultationService.getWaitingConsultations();
+      }
+      /// ACTIVE
+      else if (selectedTab == 1) {
+        consultations = await ExpertConsultationService.getActiveConsultations(
+          2,
+        );
+      }
+      /// COMPLETED
+      else {
+        consultations =
+            await ExpertConsultationService.getCompletedConsultations(2);
+      }
+    } catch (e) {
+      print(e);
+    }
+
+    setState(() {
+      isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    List<Map<String, String>> currentList;
-    String headerTitle;
-    String headerSubtitle;
-    Color statusColor;
-
-    if (selectedTab == 0) {
-      currentList = pending;
-      headerTitle = "Pending";
-      headerSubtitle = "Review the tasks that are\nwaiting for your action.";
-      statusColor = Colors.orange;
-    } else if (selectedTab == 1) {
-      currentList = processing;
-      headerTitle = "Processing";
-      headerSubtitle = "Review the requests that\nare currently in progress.";
-      statusColor = Colors.red;
-    } else {
-      currentList = approved;
-      headerTitle = "Done";
-      headerSubtitle = "Completed tasks that\nhave been processed.";
-      statusColor = Colors.green;
-    }
+    List currentList = consultations;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFBFBFF),
-      body: Stack(
+      backgroundColor: const Color(0xFFF6F7FB),
+
+      body: Column(
         children: [
-          Container(
-            height: 300,
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [Color(0xFFE0E2FF), Color(0xFFFBFBFF)],
-              ),
-            ),
+          /// ===== HEADER =====
+          HeaderSection(
+            title: "",
+
+            bigTitle: selectedTab == 0
+                ? "New Requests"
+                : selectedTab == 1
+                ? "Active Consultations"
+                : "Completed Consultations",
+
+            subtitle: selectedTab == 0
+                ? "Review incoming consultation requests."
+                : selectedTab == 1
+                ? "Continue active consultations."
+                : "View completed consultations.",
+
+            bigTitleSize: 30,
+
+            subtitleSize: 15,
+
+            headerHeight: 170,
+
+            customPadding: const EdgeInsets.only(left: 24, right: 24, top: 60),
           ),
 
-          SafeArea(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _circleIcon(Icons.person, () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => const ProfileExpertScreen()),
-                        );
-                      }),
-                      _circleIcon(Icons.settings_outlined, () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => const SettingsProfileScreen()),
-                        );
-                      }),
-                    ],
-                  ),
-                ),
+          const SizedBox(height: 22),
 
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        headerTitle,
-                        style: const TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF1A1A1A),
-                        ),
+          /// ===== BODY =====
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 120),
+
+              itemCount: isLoading ? 1 : currentList.length,
+
+              itemBuilder: (context, index) {
+                /// LOADING
+                if (isLoading) {
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(40),
+
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                }
+
+                bool isWaiting = selectedTab == 0;
+
+                bool isActive = selectedTab == 1;
+
+                var item = currentList[index];
+
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            ExpertRequestDetailsScreen(consultation: item),
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        headerSubtitle,
-                        style: TextStyle(
-                          fontSize: 15,
-                          color: Colors.black.withOpacity(0.6),
-                          height: 1.4,
+                    );
+                  },
+
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: 18),
+
+                    padding: const EdgeInsets.all(18),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+
+                      borderRadius: BorderRadius.circular(30),
+
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.04),
+
+                          blurRadius: 20,
+
+                          offset: const Offset(0, 10),
                         ),
-                      ),
-                    ],),
-                ),
+                      ],
+                    ),
 
-                const SizedBox(height: 20),
+                    child: Column(
+                      children: [
+                        /// ===== TOP ROW =====
+                        Row(
+                          children: [
+                            /// ICON
+                            Container(
+                              width: 58,
+                              height: 58,
 
-                Expanded(
-                  child: ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    itemCount: currentList.length,
-                    itemBuilder: (context, index) {
-                      return GestureDetector(
-                        // ⭐⭐⭐ هذا فقط التعديل ⭐⭐⭐
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => ChatScreen(
-                                title: currentList[index]["title"]!,
+                              decoration: BoxDecoration(
+                                color: isWaiting
+                                    ? const Color(0xFFFFF3E6)
+                                    : isActive
+                                    ? const Color(0xFFEDEBFF)
+                                    : const Color(0xFFEAF8EE),
+
+                                borderRadius: BorderRadius.circular(18),
+                              ),
+
+                              child: Center(
+                                child: Icon(
+                                  Icons.description_outlined,
+
+                                  color: isWaiting
+                                      ? Colors.orange
+                                      : isActive
+                                      ? const Color(0xFF6C63FF)
+                                      : Colors.green,
+
+                                  size: 28,
+                                ),
                               ),
                             ),
-                          );
-                        },
 
-                        child: Container(
-                          margin: const EdgeInsets.only(bottom: 16),
-                          padding: const EdgeInsets.all(18),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                blurRadius: 15,
-                                color: Colors.black.withOpacity(0.04),
-                                offset: const Offset(0, 8),
-                              )
-                            ],
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 10,
-                                height: 10,
-                                decoration: BoxDecoration(
-                                  color: statusColor,
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                              const SizedBox(width: 15),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      currentList[index]["title"]!,
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
+                            const SizedBox(width: 14),
+
+                            /// TEXTS
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+
+                                children: [
+                                  /// CASE ID
+                                  Text(
+                                    "Case #${item["id"]}",
+
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+
+                                      fontSize: 17,
+                                    ),
+                                  ),
+
+                                  const SizedBox(height: 4),
+
+                                  /// REPORT TYPE
+                                  Text(
+                                    item["report_type"] == "cross"
+                                        ? "Cross Analysis Report"
+                                        : "Individual Analysis",
+
+                                    style: const TextStyle(
+                                      color: Color(0xFF6C63FF),
+
+                                      fontWeight: FontWeight.w600,
+
+                                      fontSize: 13,
+                                    ),
+                                  ),
+
+                                  const SizedBox(height: 8),
+
+                                  /// DATE
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.calendar_today_outlined,
+
+                                        size: 13,
+
+                                        color: Colors.grey.shade500,
                                       ),
-                                    ),
-                                    const SizedBox(height: 6),
-                                    Row(
-                                      children: [
-                                        const Icon(
-                                          Icons.calendar_today_outlined,
-                                          size: 14,
-                                          color: Colors.grey,
-                                        ),
-                                        const SizedBox(width: 5),
-                                        Text(
-                                          currentList[index]["date"]!,
-                                          style: const TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.grey,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const Icon(
-                                Icons.arrow_forward_ios,
-                                size: 16,
-                                color: Color(0xFF6C63FF),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),),
 
-                _buildBottomNavBar(),
-              ],
+                                      const SizedBox(width: 5),
+
+                                      Text(
+                                        item["created_at"].toString(),
+
+                                        style: TextStyle(
+                                          fontSize: 12,
+
+                                          color: Colors.grey.shade600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        /// ===== MESSAGE BOX =====
+                        if (selectedTab != 2) ...[
+                          const SizedBox(height: 18),
+
+                          Container(
+                            width: double.infinity,
+
+                            padding: const EdgeInsets.all(15),
+
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF8F8FC),
+
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    item["user_question"] ??
+                                        "No question provided",
+
+                                    style: TextStyle(
+                                      color: Colors.grey.shade800,
+
+                                      fontSize: 13,
+
+                                      height: 1.4,
+                                    ),
+                                  ),
+                                ),
+
+                                const SizedBox(width: 12),
+
+                                Container(
+                                  width: 38,
+                                  height: 38,
+
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+
+                                  child: const Icon(
+                                    Icons.chat_bubble_outline,
+
+                                    color: Color(0xFF6C63FF),
+
+                                    size: 19,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
           ),
         ],
       ),
-    );
-  }
 
-  Widget _circleIcon(IconData icon, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          shape: BoxShape.circle,
-        ),
-        child: Icon(icon, size: 22, color: const Color(0xFF6C63FF)),
-      ),
-    );
-  }
-
-  Widget _buildBottomNavBar() {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(25),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 20,
-            offset: const Offset(0, -5),
-          )
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _navItem("Pending", Icons.access_time, 0),
-          _navItem("Processing", Icons.assignment_outlined, 1),
-          _navItem("Done", Icons.check_circle_outline, 2),
-        ],
-      ),
-    );
-  }
-
-  Widget _navItem(String label, IconData icon, int index) {
-    bool isSelected = selectedTab == index;
-
-    return GestureDetector(
-      onTap: () => setState(() => selectedTab = index),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? const Color(0xFFEDEBFF)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(15),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              color: isSelected
-                  ? const Color(0xFF6C63FF)
-                  : Colors.grey,
-              size: 24,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight:
-                    isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected
-                    ? const Color(0xFF6C63FF)
-                    : Colors.grey,
-              ),
-            ),
-          ],
-        ),
-      ),
+      bottomNavigationBar: ExpertBottomNavBar(currentIndex: selectedTab),
     );
   }
 }
