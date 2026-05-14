@@ -18,11 +18,14 @@ class AdminDashScreen extends StatefulWidget {
 class _AdminDashScreenState extends State<AdminDashScreen> {
 Map<String, dynamic>? healthData;
 bool loading = true;
+int individualCount = 0;
+int crossCount = 0;
 
 @override
 void initState() {
   super.initState();
   loadHealth();
+  fetchAnalysisCounts();
 }
 
   // 🔥 API CALL
@@ -31,7 +34,7 @@ void initState() {
     final token = await user!.getIdToken();
 
     final response = await http.get(
-      Uri.parse("http://172.237.116.141:8002/system/health?token=$token"),
+      Uri.parse("http://172.237.116.141:8003/system/health?token=$token"),
     );
 
     if (response.statusCode == 200) {
@@ -40,6 +43,23 @@ void initState() {
       throw Exception("Failed to load system health");
     }
   }
+
+  Future<void> fetchAnalysisCounts() async {
+
+  final response = await http.get(
+    Uri.parse("http://172.237.116.141:8003/analysis-count"),
+  );
+
+  if (response.statusCode == 200) {
+
+    final data = jsonDecode(response.body);
+
+    setState(() {
+      individualCount = data['individual'];
+      crossCount = data['cross'];
+    });
+  }
+}
 
   Future<void> loadHealth() async {
   try {
@@ -90,12 +110,12 @@ void initState() {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildDashboardCard('Individual analyses', '742', Icons.analytics),
-               _buildDashboardCard('All Users',
-  loading ? '...' : (healthData?['total_users']?.toString() ?? '0'),
-  Icons.people,
-),
-                _buildDashboardCard('Cross Analyses', '1356', Icons.compare),
+                _buildDashboardCard('Individual analyses', individualCount.toString(), Icons.analytics),
+                _buildDashboardCard('All Users',
+                  loading ? '...' : (healthData?['total_users']?.toString() ?? '0'),
+                  Icons.people,
+                ),
+                _buildDashboardCard('Cross Analyses', crossCount.toString(), Icons.compare),
               ],
             ),
             const SizedBox(height: 30),

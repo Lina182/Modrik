@@ -144,9 +144,10 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       });
 
       final idToken = await user.getIdToken();
+      print("Firebase ID Token: $idToken");
 
       await http.post(
-        Uri.parse("http://172.237.116.141:8002/register"),
+        Uri.parse("http://172.237.116.141:8003/register"),
         headers: {
           "Content-Type": "application/json",
         },

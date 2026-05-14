@@ -41,7 +41,7 @@ class _StartScreenState extends State<StartScreen> {
       final token = await user.getIdToken();
 
       final response = await http.post(
-        Uri.parse("http://172.237.116.141:8002/verify-token"),
+        Uri.parse("http://172.237.116.141:8003/verify-token"),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({"token": token}),
       );

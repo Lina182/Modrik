@@ -152,15 +152,11 @@ Future<void> deleteAccount() async {
     final token = await user!.getIdToken();
 
     await http.post(
-      Uri.parse("http://172.237.116.141:8002/delete-account"),
+      Uri.parse("http://172.237.116.141:8003/delete-user"),
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({"token": token}),
     );
 
-    // بعد ما الباك يحذف من MySQL
-
-    await FirebaseFirestore.instance.collection('users').doc(uid).delete();
-    await user!.delete();
     await FirebaseAuth.instance.signOut();
 
     if (mounted) {

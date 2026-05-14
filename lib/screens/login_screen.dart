@@ -1,10 +1,11 @@
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart'; // 🔹 Firestore
 import 'create_account_screen.dart';
 import 'forget_password_screen.dart';
 import 'home_screen.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'admin/admin_dash.dart';
 import 'expert/ExpertHomeScreen.dart';
@@ -65,6 +66,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (user == null) throw Exception("User is null");
 
       final idToken = await user.getIdToken();
+      print("Firebase ID Token: $idToken");
 
       // 🔹 تسجيل دخول المستخدم في Firestore
       if (user != null) {
@@ -79,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       //verify token,set role, and navigate
       final response = await http.post(
-        Uri.parse("http://172.237.116.141:8002/verify-token"),
+        Uri.parse("http://172.237.116.141:8003/verify-token"),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({"token": idToken}),
       );
@@ -88,13 +90,25 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
+        final user_id = data['user_id'];
+        final uid = data['uid'];
         final role = (data['role'] ?? 'user').toString().trim().toLowerCase();
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('uid', uid);
+        await prefs.setString('role', (data['role'] ?? 'user').toString().trim().toLowerCase());
+        await prefs.setString('user_id', user_id.toString());
 
-        await http.post(
-          Uri.parse("http://172.237.116.141:8002/login-log"),
+        print("firebase uid: $uid");
+        print("role: $role");
+
+
+        final logResponse= await http.post(
+          Uri.parse("http://172.237.116.141:8003/login-log"),
           headers: {"Content-Type": "application/json"},
           body: jsonEncode({"token": idToken}),
         );
+        print(logResponse.statusCode);
+        print("Login log response: ${logResponse.body}");
 
         if (!mounted) return;
 
