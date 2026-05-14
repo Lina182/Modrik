@@ -95,7 +95,8 @@ class _LoginScreenState extends State<LoginScreen> {
         final uid = data['uid'];
         final role = (data['role'] ?? 'user').toString().trim().toLowerCase();
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('uid', uid);
+
+        await prefs.setString('firebase_uid', uid);
         await prefs.setString('role', (data['role'] ?? 'user').toString().trim().toLowerCase());
         await prefs.setString('user_id', user_id.toString());
 

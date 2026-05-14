@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ConsultationService {
   static const String baseUrl = 'http://172.237.116.141:8003';
@@ -53,4 +54,9 @@ class ConsultationService {
       return [];
     }
   }
+
+   Future<int> getUserId() async {
+  final prefs = await SharedPreferences.getInstance();
+  return int.parse(prefs.getString('user_id') ?? '0');
+}
 }
