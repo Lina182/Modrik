@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/consultation_service.dart';
 import '../shared/chat_screen.dart';
 
@@ -26,8 +25,7 @@ class _ExpertchatState extends State<Expertchat> {
   }
 
   Future<void> loadConsultations() async {
-    final prefs = await SharedPreferences.getInstance();
-    final userId = int.parse(prefs.getString('user_id') ?? '0');
+    final userId = await getUserId();
     final data = await ConsultationService.getUserConsultations(userId: userId);
 
     setState(() {

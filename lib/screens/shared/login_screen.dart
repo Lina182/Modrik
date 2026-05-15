@@ -98,7 +98,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
         await prefs.setString('firebase_uid', uid);
         await prefs.setString('role', (data['role'] ?? 'user').toString().trim().toLowerCase());
-        await prefs.setString('user_id', user_id.toString());
+        if (user_id != null) {
+            await prefs.setString('user_id', user_id.toString(),);}
 
         print("firebase uid: $uid");
         print("role: $role");

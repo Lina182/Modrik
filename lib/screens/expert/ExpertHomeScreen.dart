@@ -4,6 +4,7 @@ import '../../widgets/header_section.dart';
 import '../../widgets/ExpertBottomNavBar.dart';
 import '../../services/expert_consultation_service.dart';
 import 'ExpertRequestDetailsScreen.dart';
+import '../../services/consultation_service.dart';
 
 class ExpertHomeScreen extends StatefulWidget {
   final int initialTab;
@@ -21,13 +22,6 @@ class _ExpertHomeScreenState extends State<ExpertHomeScreen> {
 
   bool isLoading = true;
 
-  /// 🔥 نجيب ايدي الخبير من SharedPreferences
-  Future<int> getExpertId() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    return int.parse(prefs.getString('expert_id') ?? '0');
-  }
-
   @override
   void initState() {
     super.initState();
@@ -43,7 +37,7 @@ class _ExpertHomeScreenState extends State<ExpertHomeScreen> {
     });
 
     try {
-      final expertId = await getExpertId();
+      final expertId = await getUserId();
 
       /// WAITING
       if (selectedTab == 0) {

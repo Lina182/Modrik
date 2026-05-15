@@ -102,9 +102,7 @@ class CrossReportScreen extends StatelessWidget {
                 );
               },
               onConsultExpert: (question) async {
-                final prefs = await SharedPreferences.getInstance();
-
-                final userId = int.parse(prefs.getString('user_id') ?? '0');
+                final userId = await getUserId();
 
                 if (userId == 0) {
                   ScaffoldMessenger.of(context).showSnackBar(
