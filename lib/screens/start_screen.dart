@@ -22,16 +22,19 @@ class _StartScreenState extends State<StartScreen> {
   Future<void> checkUserSession() async {
     await Future.delayed(const Duration(seconds: 3));
 
+    if (!mounted) return;
+
     try {
       final user = FirebaseAuth.instance.currentUser;
 
       if (user != null) {
-        // نحاول نعمل reload (نكتشف لو الباسورد اتغير)
         await user.reload();
 
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const HomeScreen()),
+          MaterialPageRoute(
+            builder: (_) => const HomeScreen(),
+          ),
         );
       } else {
         Navigator.pushReplacement(
@@ -40,7 +43,6 @@ class _StartScreenState extends State<StartScreen> {
         );
       }
     } catch (e) {
-      // 🔥 هنا لو الباسورد اتغير
       await FirebaseAuth.instance.signOut();
 
       Navigator.pushReplacement(

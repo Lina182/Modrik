@@ -8,7 +8,10 @@ import '../screens/profile.dart';
 class BottomNavBar extends StatelessWidget {
   final int currentIndex;
 
-  const BottomNavBar({super.key, required this.currentIndex});
+  const BottomNavBar({
+    super.key,
+    required this.currentIndex,
+  });
 
   void _go(BuildContext context, int index) {
     if (index == currentIndex) return;
@@ -19,20 +22,27 @@ class BottomNavBar extends StatelessWidget {
       case 0:
         page = const HomeScreen();
         break;
+
       case 1:
         page = const SavedReportsScreen();
         break;
+
       case 2:
         page = const AnalysisScreen();
         break;
+
       case 3:
         page = const ProfileScreen();
         break;
+
       default:
         page = const HomeScreen();
     }
 
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => page));
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => page),
+    );
   }
 
   @override
