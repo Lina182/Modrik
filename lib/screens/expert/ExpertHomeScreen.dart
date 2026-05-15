@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../widgets/header_section.dart';
 import '../../widgets/ExpertBottomNavBar.dart';
 import '../../services/expert_consultation_service.dart';
@@ -152,7 +151,6 @@ class _ExpertHomeScreenState extends State<ExpertHomeScreen> {
                           color: Colors.black.withOpacity(0.04),
 
                           blurRadius: 20,
-
                           offset: const Offset(0, 10),
                         ),
                       ],

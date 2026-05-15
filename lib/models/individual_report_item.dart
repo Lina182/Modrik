@@ -34,20 +34,29 @@ class IndividualReportItem {
     Map<String, dynamic>? panelInfo,
   ) {
     return IndividualReportItem(
-      gene: json['base__hugo']?.toString() ?? 'Not available',
+      gene:
+          json['gene']?.toString() ??
+          json['base__hugo']?.toString() ??
+          'Not available',
 
-      // 👇 هنا التعديل
-      disease: cleanDiseaseName(
-        json['clinvar__disease_names']?.toString() ?? '',
-      ),
+      disease:
+          json['disease']?.toString() ??
+          cleanDiseaseName(json['clinvar__disease_names']?.toString() ?? ''),
 
-      clinicalSignificance: json['clinvar__sig']?.toString() ?? 'Not available',
+      clinicalSignificance:
+          json['clinicalSignificance']?.toString() ??
+          json['clinvar__sig']?.toString() ??
+          'Not available',
 
       inheritance:
-          panelInfo?['mode_of_inheritance']?.toString() ?? 'Not available',
+          json['inheritance']?.toString() ??
+          panelInfo?['mode_of_inheritance']?.toString() ??
+          'Not available',
 
       confidenceLevel:
-          panelInfo?['confidence_level']?.toString() ?? 'Not available',
+          json['confidenceLevel']?.toString() ??
+          panelInfo?['confidence_level']?.toString() ??
+          'Not available',
     );
   }
 

@@ -5,7 +5,6 @@ import '../../widgets/report_action_buttons.dart';
 import '../../services/db_service.dart';
 import 'AI_chat_screen.dart';
 import 'home_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/consultation_service.dart';
 
 const Color mainPurple = Color(0xFF9DA3D9);

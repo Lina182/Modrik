@@ -104,8 +104,7 @@ class _LoginScreenState extends State<LoginScreen> {
         print("firebase uid: $uid");
         print("role: $role");
 
-
-        final logResponse= await http.post(
+        final logResponse = await http.post(
           Uri.parse("http://172.237.116.141:8003/login-log"),
           headers: {"Content-Type": "application/json"},
           body: jsonEncode({"token": idToken}),

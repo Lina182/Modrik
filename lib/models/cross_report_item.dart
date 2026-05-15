@@ -25,30 +25,49 @@ class CrossReportItem {
 
   factory CrossReportItem.fromJson(Map<String, dynamic> json, String section) {
     return CrossReportItem(
-      sectionTitle: section,
-      disease: json['disease'] ?? 'Unknown',
-      gene: json['gene'] ?? 'Unknown',
+      sectionTitle: json['sectionTitle']?.toString() ?? section,
+
+      disease: json['disease']?.toString() ?? 'Unknown',
+
+      gene: json['gene']?.toString() ?? 'Unknown',
+
       inheritance:
-          json['inheritance_label'] ?? json['inheritance_mode'] ?? 'Unknown',
-      clinicalSignificance: json['clinical_significance'] ?? 'Unknown',
+          json['inheritance']?.toString() ??
+          json['inheritance_label']?.toString() ??
+          json['inheritance_mode']?.toString() ??
+          'Unknown',
+
+      clinicalSignificance:
+          json['clinicalSignificance']?.toString() ??
+          json['clinical_significance']?.toString() ??
+          'Unknown',
 
       affectedRisk:
-          json['risk_affected_child'] ?? json['sons_affected'] ?? '0%',
-
-      carrierRisk:
-          json['risk_carrier_child'] ?? json['daughters_carrier'] ?? '0%',
-
-      healthyRisk:
-          json['risk_unaffected_child'] ??
-          json['sons_healthy'] ??
-          json['daughters_healthy'] ??
+          json['affectedRisk']?.toString() ??
+          json['risk_affected_child']?.toString() ??
+          json['sons_affected']?.toString() ??
           '0%',
 
-      explainRisk: json['risk_explanation'] ?? 'No explanation available',
+      carrierRisk:
+          json['carrierRisk']?.toString() ??
+          json['risk_carrier_child']?.toString() ??
+          json['daughters_carrier']?.toString() ??
+          '0%',
+
+      healthyRisk:
+          json['healthyRisk']?.toString() ??
+          json['risk_unaffected_child']?.toString() ??
+          json['sons_healthy']?.toString() ??
+          json['daughters_healthy']?.toString() ??
+          '0%',
+
+      explainRisk:
+          json['explainRisk']?.toString() ??
+          json['risk_explanation']?.toString() ??
+          'No explanation available',
     );
   }
 
-  // 🔥 هذا الجديد (مهم للحفظ)
   Map<String, dynamic> toJson() {
     return {
       "sectionTitle": sectionTitle,
