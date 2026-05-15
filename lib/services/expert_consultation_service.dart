@@ -36,4 +36,25 @@ class ExpertConsultationService {
 
     return data['consultations'];
   }
+
+  static Future<bool> acceptConsultation({
+    required int consultationId,
+    required int expertId,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse("$baseUrl/consultations/$consultationId/accept"),
+
+        headers: {"Content-Type": "application/json"},
+
+        body: jsonEncode({"expert_id": expertId}),
+      );
+
+      return response.statusCode == 200;
+    } catch (e) {
+      print(e);
+
+      return false;
+    }
+  }
 }

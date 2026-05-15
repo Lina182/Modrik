@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import '../../services/expert_consultation_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../users/individual_report_screen.dart';
+import '../users/cross_report_screen.dart';
+import '../../models/individual_report_item.dart';
+import '../../models/cross_report_item.dart';
 
 class ExpertRequestDetailsScreen extends StatelessWidget {
   final Map consultation;
@@ -161,16 +167,75 @@ class ExpertRequestDetailsScreen extends StatelessWidget {
                     ),
 
                     /// VIEW REPORT
+                    /// VIEW REPORT
                     OutlinedButton(
                       onPressed: () {
-                        /// 🔥 بعدين بنفتح التقرير الحقيقي هنا
+                        final reportData = consultation["report_data"];
+
+                        if (reportData == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Report data is missing"),
+                            ),
+                          );
+                          return;
+                        }
+
+                        /// ===== CROSS REPORT =====
+                        if (consultation["report_type"] == "cross") {
+                          final reports = (reportData as List)
+                              .map(
+                                (e) => CrossReportItem.fromJson(
+                                  Map<String, dynamic>.from(e),
+                                  consultation["report_name"] ?? "",
+                                ),
+                              )
+                              .cast<CrossReportItem>()
+                              .toList();
+
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => CrossReportScreen(
+                                reports: reports,
+                                fileName:
+                                    consultation["report_name"] ??
+                                    "Cross Report",
+                                showDownload: false,
+                              ),
+                            ),
+                          );
+                        }
+                        /// ===== INDIVIDUAL REPORT =====
+                        else {
+                          final reports = (reportData as List)
+                              .map(
+                                (e) => IndividualReportItem.fromJson(
+                                  Map<String, dynamic>.from(e),
+                                  null,
+                                ),
+                              )
+                              .cast<IndividualReportItem>()
+                              .toList();
+
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => IndividualReportScreen(
+                                reportItems: reports,
+                                fileName:
+                                    consultation["report_name"] ??
+                                    "Individual Report",
+                                showDownload: false,
+                              ),
+                            ),
+                          );
+                        }
                       },
 
                       style: OutlinedButton.styleFrom(
                         foregroundColor: const Color(0xFF6C63FF),
-
                         side: const BorderSide(color: Color(0xFF6C63FF)),
-
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
                         ),
@@ -302,9 +367,40 @@ class ExpertRequestDetailsScreen extends StatelessWidget {
                   height: 58,
 
                   child: ElevatedButton(
-                    onPressed: () {
-                      /// 🔥 الخطوة الجاية:
-                      /// accept consultation
+                    onPressed: () async {
+                      final prefs = await SharedPreferences.getInstance();
+                      final expertIdString = prefs.getString('user_id');
+
+                      if (expertIdString == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("User not found")),
+                        );
+                        return;
+                      }
+
+                      final expertId = int.parse(expertIdString);
+
+                      final success =
+                          await ExpertConsultationService.acceptConsultation(
+                            consultationId: consultation["id"],
+                            expertId: expertId,
+                          );
+
+                      if (success) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Consultation accepted"),
+                          ),
+                        );
+
+                        Navigator.pop(context);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Failed to accept consultation"),
+                          ),
+                        );
+                      }
                     },
 
                     style: ElevatedButton.styleFrom(

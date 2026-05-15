@@ -97,14 +97,16 @@ class _LoginScreenState extends State<LoginScreen> {
         final prefs = await SharedPreferences.getInstance();
 
         await prefs.setString('firebase_uid', uid);
-        await prefs.setString('role', (data['role'] ?? 'user').toString().trim().toLowerCase());
+        await prefs.setString(
+          'role',
+          (data['role'] ?? 'user').toString().trim().toLowerCase(),
+        );
         await prefs.setString('user_id', user_id.toString());
 
         print("firebase uid: $uid");
         print("role: $role");
 
-
-        final logResponse= await http.post(
+        final logResponse = await http.post(
           Uri.parse("http://172.237.116.141:8003/login-log"),
           headers: {"Content-Type": "application/json"},
           body: jsonEncode({"token": idToken}),
