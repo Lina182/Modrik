@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../models/individual_report_item.dart';
 import 'individual_report_screen.dart';
@@ -41,6 +42,8 @@ class _IndividualUploadScreenState extends State<IndividualUploadScreen> {
     var uri = Uri.parse("http://172.237.116.141:8003/analyze_vcf/");
 
     var request = http.MultipartRequest('POST', uri);
+    request.fields['uid'] =
+    FirebaseAuth.instance.currentUser!.uid;
 
     request.files.add(
       await http.MultipartFile.fromPath('file', selectedFile!.path!),
@@ -103,18 +106,17 @@ class _IndividualUploadScreenState extends State<IndividualUploadScreen> {
   }
 
   /// ===== UI =====
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF7F8FF),
-
-      body: Column(
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    backgroundColor: const Color(0xFFF7F8FF),
+    body: SingleChildScrollView(
+      child: Column(
         children: [
           /// ===== HEADER =====
           Stack(
             children: [
               const AnalysisHeader(),
-
               SafeArea(
                 child: Row(
                   children: [
@@ -129,75 +131,88 @@ class _IndividualUploadScreenState extends State<IndividualUploadScreen> {
           ),
 
           /// ===== BODY =====
-          Expanded(
-            child: Container(
-              transform: Matrix4.translationValues(0, -40, 0),
+          Container(
+            transform: Matrix4.translationValues(0, -40, 0),
+            padding: const EdgeInsets.all(20),
 
-              padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(30),
+            ),
 
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(30),
-              ),
+            child: Column(
+              children: [
+                const Text(
+                  "Individual Analysis",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
 
-              child: Column(
-                children: [
-                  const Text(
-                    "Individual Analysis",
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                const SizedBox(height: 8),
+
+                const Text(
+                  "Upload your VCF file to analyze your genetic data.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey),
+                ),
+
+                const SizedBox(height: 25),
+
+                /// ===== UPLOAD BOX =====
+                AnalysisUploadBox(
+                  title: "Select your VCF file",
+                  onTap: pickFile,
+                ),
+
+                const SizedBox(height: 15),
+
+                /// ===== FILE INFO =====
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(15),
                   ),
 
-                  const SizedBox(height: 8),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.insert_drive_file),
+                      const SizedBox(width: 10),
 
-                  const Text(
-                    "Upload your VCF file to analyze your genetic data.",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.grey),
-                  ),
-
-                  const SizedBox(height: 25),
-
-                  /// ===== UPLOAD BOX =====
-                  AnalysisUploadBox(
-                    title: "Select your VCF file",
-                    onTap: pickFile,
-                  ),
-
-                  const SizedBox(height: 15),
-
-                  /// ===== FILE INFO =====
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.insert_drive_file),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(selectedFile?.name ?? "No file selected"),
+                      Expanded(
+                        child: Text(
+                          selectedFile?.name ??
+                              "No file selected",
                         ),
-                        if (selectedFile != null)
-                          const Icon(Icons.check, color: Colors.green),
-                      ],
-                    ),
-                  ),
+                      ),
 
-                  const Spacer(),
-
-                  /// ===== BUTTON =====
-                  AnalysisButton(
-                    text: "Continue",
-                    onPressed: selectedFile == null ? null : uploadAndNavigate,
+                      if (selectedFile != null)
+                        const Icon(
+                          Icons.check,
+                          color: Colors.green,
+                        ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+
+                const SizedBox(height: 30),
+
+                /// ===== BUTTON =====
+                AnalysisButton(
+                  text: "Continue",
+                  onPressed:
+                      selectedFile == null
+                          ? null
+                          : uploadAndNavigate,
+                ),
+              ],
             ),
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 }

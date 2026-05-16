@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../models/cross_report_item.dart';
 import 'cross_report_screen.dart';
@@ -63,6 +64,8 @@ class _CrossUploadScreenState extends State<CrossUploadScreen> {
 
     try {
       var request = http.MultipartRequest("POST", Uri.parse(apiUrl));
+      request.fields['uid'] =
+    FirebaseAuth.instance.currentUser!.uid;
 
       request.files.add(
         http.MultipartFile.fromBytes(

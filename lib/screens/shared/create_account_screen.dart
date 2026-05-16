@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import '../../firebase_options.dart';
 import '../users/home_screen.dart';
 import 'dart:convert';
@@ -146,6 +147,25 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
           "token": idToken,
         }),
       );
+
+
+final fcmToken = await FirebaseMessaging.instance.getToken();
+
+print("FCM TOKEN: $fcmToken");
+
+await http.post(
+  Uri.parse("http://172.237.116.141:8003/save-fcm-token"),
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: jsonEncode({
+    "uid": user.uid,
+    "fcm_token": fcmToken,
+  }),
+);
+
+print("FCM TOKEN SAVED");
+
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Account created successfully ✅")),

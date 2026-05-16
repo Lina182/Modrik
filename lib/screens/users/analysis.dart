@@ -23,6 +23,7 @@ class AnalysisScreen extends StatelessWidget {
             child: SingleChildScrollView(
               child: Column(
                 children: [
+                  
                   const SizedBox(height: 140),
 
                   Container(

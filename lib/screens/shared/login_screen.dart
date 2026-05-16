@@ -3,6 +3,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart'; // 🔹 Firestore
+import 'package:firebase_messaging/firebase_messaging.dart';
+
 import 'create_account_screen.dart';
 import 'forget_password_screen.dart';
 import '../users/home_screen.dart';
@@ -68,6 +70,19 @@ class _LoginScreenState extends State<LoginScreen> {
 
       final idToken = await user.getIdToken();
       print("Firebase ID Token: $idToken");
+
+      final fcmToken = await FirebaseMessaging.instance.getToken();
+
+await http.post(
+  Uri.parse("http://172.237.116.141:8003/save-fcm-token"),
+  headers: {"Content-Type": "application/json"},
+  body: jsonEncode({
+    "uid": user.uid,
+    "fcm_token": fcmToken,
+  }),
+);
+
+print("FCM TOKEN SAVED");
 
       // 🔹 تسجيل دخول المستخدم في Firestore
       if (user != null) {
