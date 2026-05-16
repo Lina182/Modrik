@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+
 import '../shared/edit_profile.dart';
 import '../shared/login_screen.dart';
+
 import '../../widgets/header_section.dart';
 import '../../widgets/bottom_nav_bar.dart';
+
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
+
+import '../../l10n/app_localizations.dart';
+
+/// مهم
+import '../../main.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -16,8 +24,6 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   bool notifications = true;
-  String language = 'English';
-  String mode = 'Light';
 
   bool privacyExpanded = false;
   bool contactExpanded = false;
@@ -25,10 +31,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _logout(BuildContext context) async {
     try {
-      // 2) Firebase sign out
       await FirebaseAuth.instance.signOut();
 
-      // 3) navigate
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (_) => const LoginScreen()),
@@ -43,17 +47,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
 
+    final t = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: AppColors.background,
 
       body: Column(
         children: [
           /// ===== HEADER =====
-          const HeaderSection(
+          HeaderSection(
             title: "",
-            bigTitle: "Account",
-            subtitle: "Manage your account and preferences",
+            bigTitle: t.account,
+            subtitle: t.manageAccount,
           ),
+
           const SizedBox(height: 20),
 
           /// ===== BODY =====
@@ -79,6 +86,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ],
                     ),
+
                     child: Row(
                       children: [
                         const CircleAvatar(
@@ -87,9 +95,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           child: Icon(
                             Icons.person,
                             size: 40,
-                            color: const Color(0xFF6C63FF),
+                            color: Color(0xFF6C63FF),
                           ),
                         ),
+
                         const SizedBox(width: 14),
 
                         Expanded(
@@ -97,14 +106,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                user?.displayName ?? 'No Username',
+                                user?.displayName ?? t.noUsername,
                                 style: AppTextStyles.title,
                               ),
+
                               const SizedBox(height: 4),
+
                               Text(
-                                user?.email ?? 'No Email',
+                                user?.email ?? t.noEmail,
                                 style: AppTextStyles.subtitle,
                               ),
+
                               const SizedBox(height: 10),
 
                               GestureDetector(
@@ -112,32 +124,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (_) => const EditProfileScreen(),
+                                      builder: (_) =>
+                                          const EditProfileScreen(),
                                     ),
-                                  );
-                                },
+                                  );},
+
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 18,
                                     vertical: 10,
                                   ),
+
                                   decoration: BoxDecoration(
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(12),
                                   ),
+
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Icon(
+                                      const Icon(
                                         Icons.edit,
                                         size: 16,
-                                        color: const Color(0xFF6C63FF),
+                                        color: Color(0xFF6C63FF),
                                       ),
+
                                       const SizedBox(width: 6),
+
                                       Text(
-                                        "Edit Profile",
-                                        style: TextStyle(
-                                          color: const Color(0xFF6C63FF),
+                                        t.editProfile,
+                                        style: const TextStyle(
+                                          color: Color(0xFF6C63FF),
                                           fontSize: 14,
                                         ),
                                       ),
@@ -155,23 +172,78 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 22),
 
                   /// ===== GENERAL =====
-                  _sectionTitle("General"),
+                  _sectionTitle(t.general),
+
                   _card(
                     child: Column(
                       children: [
-                        _rowItem(
-                          icon: Icons.language,
-                          title: "Language",
-                          trailing: const Text("English"),
-                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: AppColors.softPurple,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.language,
+                                  color: AppColors.primary,
+                                  size: 18,
+                                ),
+                              ),
+
+                              const SizedBox(width: 10),
+
+                              Text(
+                                t.language,
+                                style: const TextStyle(fontSize: 14),
+                              ),
+
+                              const Spacer(),
+
+                              DropdownButton<String>(
+                                value: appLocale.value.languageCode,
+
+                                underline: const SizedBox(),
+
+                                items: const [
+                                  DropdownMenuItem(
+                                    value: 'en',
+                                    child: Text("English"),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'ar',
+                                    child: Text("العربية"),
+                                  ),
+                                ],
+
+                                onChanged: (value) {
+                                  if (value != null) {
+                                    appLocale.value = Locale(value);
+                                  }
+                                },
+                              ),
+                            ],
+                          ),),
 
                         const _line(),
+
                         _rowItem(
                           icon: Icons.notifications,
-                          title: "Notifications",
+                          title: t.notifications,
                           trailing: Switch(
                             value: notifications,
-                            onChanged: (v) => setState(() => notifications = v),
+                            onChanged: (v) {
+                              setState(() {
+                                notifications = v;
+                              });
+                            },
                           ),
                         ),
                       ],
@@ -181,17 +253,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 18),
 
                   /// ===== PRIVACY =====
-                  _sectionTitle("Privacy"),
+                  _sectionTitle(t.privacy),
+
                   _card(
                     child: Column(
                       children: [
                         GestureDetector(
                           onTap: () {
-                            setState(() => privacyExpanded = !privacyExpanded);
+                            setState(() {
+                              privacyExpanded = !privacyExpanded;
+                            });
                           },
+
                           child: _rowItem(
                             icon: Icons.verified_user,
-                            title: "Privacy",
+                            title: t.privacy,
                             trailing: Icon(
                               privacyExpanded
                                   ? Icons.keyboard_arrow_up
@@ -203,11 +279,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                         if (privacyExpanded)
                           Padding(
-                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                            padding: const EdgeInsets.fromLTRB(
+                              16,
+                              0,
+                              16,
+                              12,
+                            ),
+
                             child: Text(
-                              "Your genetic data is processed only for analysis and is not stored on our servers.\n"
-                              "We do not share your data with any third parties.\n"
-                              "All analysis is handled securely and privately.",
+                              t.privacyText,
                               style: TextStyle(
                                 fontSize: 13,
                                 color: Colors.grey[700],
@@ -222,18 +302,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 18),
 
                   /// ===== SUPPORT =====
-                  _sectionTitle("Support"),
+                  _sectionTitle(t.support),
+
                   _card(
                     child: Column(
                       children: [
                         /// CONTACT
                         GestureDetector(
                           onTap: () {
-                            setState(() => contactExpanded = !contactExpanded);
+                            setState(() {
+                              contactExpanded = !contactExpanded;
+                            });
                           },
+
                           child: _rowItem(
                             icon: Icons.headphones,
-                            title: "Contact Us",
+                            title: t.contactUs,
                             trailing: Icon(
                               contactExpanded
                                   ? Icons.keyboard_arrow_up
@@ -245,10 +329,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                         if (contactExpanded)
                           Padding(
-                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                            padding: const EdgeInsets.fromLTRB(
+                              16,
+                              0,
+                              16,
+                              12,
+                            ),
+
                             child: Text(
-                              "Email: supportmodrik@gmail.com\n"
-                              "We are here to help you anytime.",
+                              t.contactText,
                               style: TextStyle(
                                 fontSize: 13,
                                 color: Colors.grey[700],
@@ -257,16 +346,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           ),
 
-                        const _line(),
-
-                        /// ABOUT
+                        const _line(),/// ABOUT
                         GestureDetector(
                           onTap: () {
-                            setState(() => aboutExpanded = !aboutExpanded);
+                            setState(() {
+                              aboutExpanded = !aboutExpanded;
+                            });
                           },
+
                           child: _rowItem(
                             icon: Icons.info,
-                            title: "About App",
+                            title: t.aboutApp,
                             trailing: Icon(
                               aboutExpanded
                                   ? Icons.keyboard_arrow_up
@@ -278,11 +368,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                         if (aboutExpanded)
                           Padding(
-                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                            padding: const EdgeInsets.fromLTRB(
+                              16,
+                              0,
+                              16,
+                              12,
+                            ),
+
                             child: Text(
-                              "Modrik helps you understand your genetic data in a simple and clear way.\n"
-                              "We analyze your DNA file and provide easy-to-read insights using AI.\n"
-                              "Your data remains private and is not stored after analysis.",
+                              t.aboutText,
                               style: TextStyle(
                                 fontSize: 13,
                                 color: Colors.grey[700],
@@ -300,11 +394,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   _card(
                     child: InkWell(
                       onTap: () => _logout(context),
+
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16,
                           vertical: 12,
                         ),
+
                         child: Row(
                           children: [
                             Container(
@@ -313,19 +409,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 color: Colors.red.withOpacity(0.12),
                                 shape: BoxShape.circle,
                               ),
+
                               child: const Icon(
                                 Icons.logout,
                                 color: Colors.red,
                                 size: 18,
                               ),
                             ),
+
                             const SizedBox(width: 10),
-                            const Text(
-                              "Log out",
-                              style: TextStyle(color: Colors.red, fontSize: 14),
+
+                            Text(
+                              t.logout,
+                              style: const TextStyle(
+                                color: Colors.red,
+                                fontSize: 14,
+                              ),
                             ),
+
                             const Spacer(),
-                            const Icon(Icons.arrow_forward_ios, size: 14),
+
+                            const Icon(
+                              Icons.arrow_forward_ios,
+                              size: 14,
+                            ),
                           ],
                         ),
                       ),
@@ -347,6 +454,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _sectionTitle(String text) {
     return Padding(
       padding: const EdgeInsets.only(left: 4, bottom: 8),
+
       child: Text(
         text,
         style: TextStyle(
@@ -361,13 +469,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _card({required Widget child}) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 6),
+
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),blurRadius: 10,
+          ),
         ],
       ),
+
       child: child,
     );
   }
@@ -379,6 +491,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+
       child: Row(
         children: [
           Container(
@@ -387,11 +500,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
               color: AppColors.softPurple,
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: AppColors.primary, size: 18),
+            child: Icon(
+              icon,
+              color: AppColors.primary,
+              size: 18,
+            ),
           ),
+
           const SizedBox(width: 10),
-          Text(title, style: const TextStyle(fontSize: 14)),
+
+          Text(
+            title,
+            style: const TextStyle(fontSize: 14),
+          ),
+
           const Spacer(),
+
           trailing,
         ],
       ),

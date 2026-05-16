@@ -1,0 +1,190 @@
+{
+  "@@locale": "en",
+
+  "account": "Account",
+  "manageAccount": "Manage your account and preferences",
+  "editProfile": "Edit Profile",
+
+  "general": "General",
+  "language": "Language",
+  "notifications": "Notifications",
+
+  "privacy": "Privacy",
+  "privacyText": "Your genetic data is processed only for analysis and is not stored on our servers.\nWe do not share your data with any third parties.\nAll analysis is handled securely and privately.",
+
+  "support": "Support",
+  "contactUs": "Contact Us",
+  "contactText": "Email: supportmodrik@gmail.com\nWe are here to help you anytime.",
+
+  "aboutApp": "About App",
+  "aboutText": "Modrik helps you understand your genetic data in a simple and clear way.\nWe analyze your DNA file and provide easy-to-read insights using AI.\nYour data remains private and is not stored after analysis.",
+
+  "logout": "Log out",
+  "noUsername": "No Username",
+  "noEmail": "No Email",
+
+  "welcomeTo": "Welcome to",
+  "appName": "Modrik",
+
+  "understandDNA": "Understand your DNA better",
+  "analyzeDNA": "Analyze Your DNA",
+  "uploadVCF": "Upload your VCF file and get clear insights.",
+  "startAnalysis": "Start Analysis",
+  "exploreMore": "Explore more",
+
+  "chooseChatType": "Choose chat type",
+  "askAboutReport": "Ask about a report",
+  "selectSavedReports": "Select from saved reports",
+  "generalGeneticQuestion": "General genetic question",
+  "askAnythingGenetics": "Ask anything about genetics",
+
+  "chat": "Chat",
+  "chatSubtitle": "Ask AI about your genetics",
+
+  "expert": "Contact Expert",
+  "expertSubtitle": "Consult with our experts",
+
+  "yourDataPrivate": "Your data is private",
+  "yourDataPrivateText": "Your data is processed only for analysis and not stored.",
+
+  "selectAnalysisType": "Select how you want to analyze your genetic data.",
+
+  "individualAnalysis": "Individual Analysis",
+  "individualAnalysisText": "Analyze one VCF file for a single individual.",
+
+  "crossAnalysis": "Cross Analysis",
+  "crossAnalysisText": "Analyze two VCF files to compare shared or inherited variants.",
+
+  "crossUpload": "Cross Upload",
+  "crossUploadDesc": "Upload two VCF files to compare shared or inherited variants.",
+
+  "selectFiles": "Select your VCF files",
+  "selectSingleFile": "Select VCF file",
+  "noFileSelected": "No file selected",
+  "uploadFailed": "Upload failed",
+
+  "chooseFatherFile": "Choose Father File",
+  "chooseMotherFile": "Choose Mother File",
+
+  "continueBtn": "Continue",
+
+  "error": "Error",
+  "ok": "OK",
+
+  "failedToAnalyze": "Failed to analyze files",
+  "somethingWentWrong": "Something went wrong",
+
+  "noSavedReports": "No saved reports yet",
+  "savedReportsDesc": "Your analyzed reports will appear here.",
+  "savedReports": "Saved Reports",
+  "savedReport": "Saved Report",
+
+  "genesCount": "{count} genes",
+  "@genesCount": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+
+  "conditionsCount": "{count} conditions",
+  "@conditionsCount": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+
+  "notAvailable": "Not available",
+  "unknown": "Unknown",
+  "noExplanation": "No explanation available",
+
+  "chatTitleReport": "Report Chat",
+  "chatTitleGeneral": "General Chat",
+
+  "reportModeBanner": "You are asking about a report",
+  "messageHint": "Type your message...",
+  "typing": "Typing...",
+
+  "welcomeBot": "Hi! I'm Modrik 👋\nAsk me about your report or general genetics.",
+  "reportReceived": "I have received your report. You can now ask about it.",
+  "serverError": "Server error",
+  "connectionError": "Connection error",
+  
+  "fullName": "Full Name",
+  "enterName": "Enter your name",
+  "enterEmail": "Enter your email",
+
+  "newPassword": "New Password",
+  "leaveEmpty": "Leave empty if you don't want to change it",
+
+  "currentPassword": "Current Password",
+  "requiredPassword": "Required to change email or password",
+
+  "securityNotice": "For your security, please enter your current password to save any changes.",
+
+  "deleteAccount": "Delete Account",
+  "profileUpdated": "Profile updated successfully ✅",
+  "noChanges": "No changes detected",
+
+  "wrongPassword": "Current password is incorrect",
+  "errorUpdate": "Error updating profile",
+
+  "confirmEmail": "Check your new email to confirm 📩",
+
+  "enterCurrentPassword": "Enter current password to change email or password",
+
+  "deletePassword": "Enter current password to delete account",
+  "email": "Email",
+
+  "login": "Login",
+  "welcomeBack": "Welcome back you've\nbeen missed!",
+  "email": "Email",
+  "password": "Password",
+  "forgotPassword": "Forgot Password?",
+  "logIn": "Log in",
+  "dontHaveAccount": "Don’t have an account ? Sign Up",
+
+  "pleaseFillFields": "Please fill all fields",
+  "userNull": "User is null",
+  "tokenVerificationFailed": "Token verification failed",
+  "loginFailed": "Login failed",
+  "noUserFound": "No user found with this email",
+  "wrongPassword": "Wrong password",
+  "invalidEmail": "Invalid email format",
+  "unexpectedError": "Unexpected error occurred",
+  "noAccount": "Don’t have an account ? Sign Up",
+  "fillAllFields": "Please fill all fields",
+  "createAccount": "Create Account",
+  "createAccountSubtitle": "Create your account\nand get started!",
+
+  "fullName": "Full Name",
+  "email": "Email",
+  "password": "Password",
+  "confirmPassword": "Confirm Password",
+
+  "signUp": "Sign Up",
+  "alreadyHaveAccount": "Already have an account? Log in",
+
+  "pleaseFillFields": "Please fill all fields",
+  "invalidEmail": "Enter a valid email format",
+  "weakPassword": "Password must be at least 6 characters",
+  "passwordsDontMatch": "Passwords don't match",
+
+  "accountCreated": "Account created successfully",
+  "userCreationFailed": "User creation failed",
+  "somethingWentWrong": "Something went wrong",
+  "emailInUse": "Email already in use. Try logging in.",
+  "forgotPassword": "Forgot Password",
+  "forgotPasswordDesc": "Enter your email and we will send you a reset link.",
+  "email": "Email",
+  "enterEmail": "Please enter your email",
+  "resetPassword": "Reset Password",
+  "resetLinkSent": "Reset link sent to your email",
+  "noAccountFound": "No account found with this email",
+  "invalidEmail": "Invalid email format",
+  "somethingWentWrong": "Something went wrong"
+
+}

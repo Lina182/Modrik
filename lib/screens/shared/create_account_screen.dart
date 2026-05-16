@@ -6,8 +6,10 @@ import '../../firebase_options.dart';
 import '../users/home_screen.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
+import '../../l10n/app_localizations.dart';
 
 class CreateAccountScreen extends StatefulWidget {
   const CreateAccountScreen({super.key});
@@ -82,26 +84,28 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
   }
 
   Future<void> _signUp() async {
+    final t = AppLocalizations.of(context)!;
+
     if (nameController.text.trim().isEmpty ||
         emailController.text.trim().isEmpty ||
         passwordController.text.isEmpty ||
         confirmPasswordController.text.isEmpty) {
-      showMsg("Please fill all fields");
+      showMsg(t.pleaseFillFields);
       return;
     }
 
     if (!isValidEmail(emailController.text.trim())) {
-      showMsg("Enter a valid email format");
+      showMsg(t.invalidEmail);
       return;
     }
 
     if (passwordController.text.length < 6) {
-      showMsg("Password must be at least 6 characters");
+      showMsg(t.weakPassword);
       return;
     }
 
     if (passwordController.text != confirmPasswordController.text) {
-      showMsg("Passwords don't match");
+      showMsg(t.passwordsDontMatch);
       return;
     }
 
@@ -110,9 +114,9 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     try {
       final userCredential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(
-            email: emailController.text.trim(),
-            password: passwordController.text,
-          );
+        email: emailController.text.trim(),
+        password: passwordController.text,
+      );
 
       final user = userCredential.user;
 
@@ -131,13 +135,10 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       });
 
       final idToken = await user.getIdToken();
-      print("Firebase ID Token: $idToken");
 
       await http.post(
         Uri.parse("http://172.237.116.141:8003/register"),
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: {"Content-Type": "application/json"},
         body: jsonEncode({
           "uid": user.uid,
           "name": nameController.text.trim(),
@@ -148,7 +149,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Account created successfully ✅")),
+        SnackBar(content: Text(t.accountCreated)),
       );
 
       Navigator.pushReplacement(
@@ -156,18 +157,14 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
         MaterialPageRoute(builder: (_) => const HomeScreen()),
       );
     } on FirebaseAuthException catch (e) {
-      String msg = "Something went wrong";
+      String msg = t.somethingWentWrong;
 
       if (e.code == 'invalid-email') {
-        msg = "This email is invalid";
-      }
-
-      if (e.code == 'weak-password') {
-        msg = "Password is too weak";
-      }
-
-      if (e.code == 'email-already-in-use') {
-        msg = "Email already in use. Try logging in.";
+        msg = t.invalidEmail;
+      } else if (e.code == 'weak-password') {
+        msg = t.weakPassword;
+      } else if (e.code == 'email-already-in-use') {
+        msg = t.emailInUse;
       }
 
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
@@ -178,6 +175,8 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -185,7 +184,6 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
           children: [
             Container(color: AppColors.background),
 
-            // نفس خلفية اللوق إن بالضبط
             Positioned(
               top: -180,
               right: -100,
@@ -203,7 +201,6 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
               ),
             ),
 
-            // نفس الـ curve
             Positioned(
               top: 50,
               right: 0,
@@ -221,7 +218,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                     const SizedBox(height: 120),
 
                     Text(
-                      "Create Account",
+                      t.createAccount,
                       style: AppTextStyles.title.copyWith(
                         fontSize: 30,
                         color: AppColors.primary,
@@ -230,10 +227,10 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
 
                     const SizedBox(height: 10),
 
-                    const Text(
-                      "Create your account\nand get started!",
+                    Text(
+                      t.createAccountSubtitle,
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: AppColors.textGrey),
+                      style: const TextStyle(color: AppColors.textGrey),
                     ),
 
                     const SizedBox(height: 50),
@@ -241,10 +238,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                     TextField(
                       focusNode: nameFocus,
                       controller: nameController,
-                      decoration: inputDecoration(
-                        "Full Name",
-                        Icons.person_outline,
-                      ),
+                      decoration: inputDecoration(t.fullName, Icons.person_outline),
                     ),
 
                     const SizedBox(height: 18),
@@ -252,10 +246,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                     TextField(
                       focusNode: emailFocus,
                       controller: emailController,
-                      decoration: inputDecoration(
-                        "Email",
-                        Icons.email_outlined,
-                      ),
+                      decoration: inputDecoration(t.email, Icons.email_outlined),
                     ),
 
                     const SizedBox(height: 18),
@@ -264,10 +255,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                       focusNode: passwordFocus,
                       controller: passwordController,
                       obscureText: true,
-                      decoration: inputDecoration(
-                        "Password",
-                        Icons.lock_outline,
-                      ),
+                      decoration: inputDecoration(t.password, Icons.lock_outline),
                     ),
 
                     const SizedBox(height: 18),
@@ -276,10 +264,8 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                       focusNode: confirmPasswordFocus,
                       controller: confirmPasswordController,
                       obscureText: true,
-                      decoration: inputDecoration(
-                        "Confirm Password",
-                        Icons.lock_outline,
-                      ),
+                      decoration:
+                          inputDecoration(t.confirmPassword, Icons.lock_outline),
                     ),
 
                     const SizedBox(height: 25),
@@ -297,9 +283,9 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                                 ),
                               ),
                               onPressed: _signUp,
-                              child: const Text(
-                                "Sign Up",
-                                style: TextStyle(
+                              child: Text(
+                                t.signUp,
+                                style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
@@ -312,9 +298,9 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
 
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text(
-                        "Already have an account? Log in",
-                        style: TextStyle(color: AppColors.primary),
+                      child: Text(
+                        t.alreadyHaveAccount,
+                        style: const TextStyle(color: AppColors.primary),
                       ),
                     ),
                   ],
@@ -336,11 +322,9 @@ class TopCurvePainter extends CustomPainter {
       ..strokeWidth = 2
       ..style = PaintingStyle.stroke;
 
-    final path = Path();
-
-    path.moveTo(0, size.height);
-
-    path.quadraticBezierTo(size.width / 2, 0, size.width, size.height);
+    final path = Path()
+      ..moveTo(0, size.height)
+      ..quadraticBezierTo(size.width / 2, 0, size.width, size.height);
 
     canvas.drawPath(path, paint);
   }

@@ -6,11 +6,13 @@ import 'package:http/http.dart' as http;
 import '../../models/cross_report_item.dart';
 import 'cross_report_screen.dart';
 
-// widgets
+/// widgets
 import '../../widgets/analysis_header.dart';
 import '../../widgets/analysis_upload_box.dart';
 import '../../widgets/analysis_button.dart';
 import '../../widgets/analysis_loading.dart';
+
+import '../../l10n/app_localizations.dart';
 
 class CrossUploadScreen extends StatefulWidget {
   const CrossUploadScreen({super.key});
@@ -25,7 +27,7 @@ class _CrossUploadScreenState extends State<CrossUploadScreen> {
 
   final String apiUrl = "http://172.237.116.141:8003/analyze_cross/";
 
-  // اختيار الأب
+  /// اختيار ملف الأب
   Future<void> pickMaleFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -40,7 +42,7 @@ class _CrossUploadScreenState extends State<CrossUploadScreen> {
     }
   }
 
-  // اختيار الأم
+  /// اختيار ملف الأم
   Future<void> pickFemaleFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -55,14 +57,19 @@ class _CrossUploadScreenState extends State<CrossUploadScreen> {
     }
   }
 
-  // التحليل (بدون تعديل)
+  /// التحليل
   Future<void> analyzeCrossFiles() async {
+    final t = AppLocalizations.of(context)!;
+
     if (maleFile == null || femaleFile == null) return;
 
     AnalysisLoading.show(context);
 
     try {
-      var request = http.MultipartRequest("POST", Uri.parse(apiUrl));
+      var request = http.MultipartRequest(
+        "POST",
+        Uri.parse(apiUrl),
+      );
 
       request.files.add(
         http.MultipartFile.fromBytes(
@@ -93,76 +100,96 @@ class _CrossUploadScreenState extends State<CrossUploadScreen> {
 
         for (var item in crossResults['autosomal_dominant']) {
           reports.add(
-            CrossReportItem.fromJson(item, "Autosomal Dominant Risks"),
+            CrossReportItem.fromJson(
+              item,
+              "Autosomal Dominant Risks",
+            ),
           );
         }
 
         for (var item in crossResults['autosomal_recessive']) {
           reports.add(
-            CrossReportItem.fromJson(item, "Autosomal Recessive Risks"),
+            CrossReportItem.fromJson(
+              item,
+              "Autosomal Recessive Risks",
+            ),
           );
         }
 
         for (var item in crossResults['x_linked_recessive']) {
           reports.add(
-            CrossReportItem.fromJson(item, "X-Linked Recessive Risks"),
+            CrossReportItem.fromJson(
+              item,
+              "X-Linked Recessive Risks",
+            ),
           );
         }
 
         for (var item in crossResults['x_linked_dominant']) {
           reports.add(
-            CrossReportItem.fromJson(item, "X-Linked Dominant Risks"),
+            CrossReportItem.fromJson(
+              item,
+              "X-Linked Dominant Risks",
+            ),
           );
         }
 
         for (var item in crossResults['both_uncertain']) {
           reports.add(
-            CrossReportItem.fromJson(item, "Uncertain / Both Pattern Risks"),
+            CrossReportItem.fromJson(
+              item,
+              "Uncertain / Both Pattern Risks",
+            ),
           );
         }
 
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) =>
-                CrossReportScreen(reports: reports, fileName: "Cross Report"),
+            builder: (_) => CrossReportScreen(
+              reports: reports,
+              fileName: "Cross Report",
+            ),
           ),
         );
       } else {
-        showError("Failed to analyze files");
+        showError(t.failedToAnalyze);
       }
     } catch (e) {
       AnalysisLoading.hide(context);
-      showError("Something went wrong");
+      showError(t.somethingWentWrong);
     }
   }
 
-  // الخطأ
-  void showError(String message) {
+  /// الخطأ
+  void showError(String message) {final t = AppLocalizations.of(context)!;
+
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text("Error"),
+        title: Text(t.error),
         content: Text(message),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("OK"),
+            child: Text(t.ok),
           ),
         ],
       ),
     );
   }
 
-  // UI
+  /// UI
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FF),
 
       body: Column(
         children: [
-          /// ===== HEADER =====
+          /// HEADER
           Stack(
             children: [
               const AnalysisHeader(),
@@ -193,49 +220,68 @@ class _CrossUploadScreenState extends State<CrossUploadScreen> {
 
               child: Column(
                 children: [
-                  const Text(
-                    "Cross Upload",
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  Text(
+                    t.crossUpload,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
 
                   const SizedBox(height: 8),
 
-                  const Text(
-                    "Upload two VCF files to compare shared or inherited variants.",
+                  Text(
+                    t.crossUploadDesc,
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.grey),
+                    style: const TextStyle(
+                      color: Colors.grey,
+                    ),
                   ),
 
                   const SizedBox(height: 25),
 
                   AnalysisUploadBox(
-                    title: "Select your VCF files",
+                    title: t.selectFiles,
                     onTap: () {},
 
                     children: [
                       /// الأب
                       OutlinedButton(
                         onPressed: pickMaleFile,
+
                         style: OutlinedButton.styleFrom(
-                          minimumSize: const Size(double.infinity, 48),
+                          minimumSize:
+                              const Size(double.infinity, 48),
+
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius:
+                                BorderRadius.circular(14),
                           ),
                         ),
+
                         child: Row(
                           children: [
-                            const Icon(Icons.insert_drive_file_outlined),
+                            const Icon(
+                              Icons.insert_drive_file_outlined,
+                            ),
+
                             const SizedBox(width: 10),
+
                             Expanded(
                               child: Text(
                                 maleFile == null
-                                    ? "Choose Father File"
+                                    ? t.chooseFatherFile
                                     : maleFile!.name,
+
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
+
                             if (maleFile != null)
-                              const Icon(Icons.check, color: Colors.green),
+                              const Icon(
+                                Icons.check,
+                                color: Colors.green,
+                              ),
                           ],
                         ),
                       ),
@@ -245,26 +291,39 @@ class _CrossUploadScreenState extends State<CrossUploadScreen> {
                       /// الأم
                       OutlinedButton(
                         onPressed: pickFemaleFile,
+
                         style: OutlinedButton.styleFrom(
-                          minimumSize: const Size(double.infinity, 48),
+                          minimumSize:
+                              const Size(double.infinity, 48),
+
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                        ),
+                            borderRadius:
+                                BorderRadius.circular(14),
+                          ),),
+
                         child: Row(
                           children: [
-                            const Icon(Icons.insert_drive_file_outlined),
+                            const Icon(
+                              Icons.insert_drive_file_outlined,
+                            ),
+
                             const SizedBox(width: 10),
+
                             Expanded(
                               child: Text(
                                 femaleFile == null
-                                    ? "Choose Mother File"
+                                    ? t.chooseMotherFile
                                     : femaleFile!.name,
+
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
+
                             if (femaleFile != null)
-                              const Icon(Icons.check, color: Colors.green),
+                              const Icon(
+                                Icons.check,
+                                color: Colors.green,
+                              ),
                           ],
                         ),
                       ),
@@ -273,12 +332,14 @@ class _CrossUploadScreenState extends State<CrossUploadScreen> {
 
                   const Spacer(),
 
-                  ///  BUTTON
+                  /// BUTTON
                   AnalysisButton(
-                    text: "Continue",
-                    onPressed: (maleFile == null || femaleFile == null)
-                        ? null
-                        : analyzeCrossFiles,
+                    text: t.continueBtn,
+
+                    onPressed:
+                        (maleFile == null || femaleFile == null)
+                            ? null
+                            : analyzeCrossFiles,
                   ),
                 ],
               ),

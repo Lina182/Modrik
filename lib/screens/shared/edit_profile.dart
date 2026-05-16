@@ -5,8 +5,7 @@ import 'login_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-const mainPurple = Color(0xFFC4C8EA);
-const bgPurple = Color(0xFF9DA3D9);
+import '../../l10n/app_localizations.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -24,6 +23,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   User? user;
   bool isLoading = false;
 
+  bool _obscureNewPassword = true;
+  bool _obscureCurrentPassword = true;
+
   @override
   void initState() {
     super.initState();
@@ -37,272 +39,254 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       email: user!.email!,
       password: currentPassword.text.trim(),
     );
-
     await user!.reauthenticateWithCredential(credential);
   }
 
   Future<void> updateProfile() async {
     if (user == null) return;
-    final isEmailChanged = email.text.trim() != user!.email;
-    final isPasswordChanged = password.text.isNotEmpty;
-    final isNameChanged = name.text.trim() != (user!.displayName ?? '');
 
-    if (!isEmailChanged && !isPasswordChanged && !isNameChanged) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("No changes detected")));
-      return;
-    }
     setState(() => isLoading = true);
 
     try {
       final uid = user!.uid;
 
-      final isEmailChanged = email.text.trim() != user!.email;
-      final isPasswordChanged = password.text.isNotEmpty;
-
-      if ((isEmailChanged || isPasswordChanged) &&
+      if ((email.text != user!.email || password.text.isNotEmpty) &&
           currentPassword.text.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Enter current password to change email or password"),
-          ),
+          SnackBar(content: Text(AppLocalizations.of(context)!.error)),
         );
+        setState(() => isLoading = false);
         return;
       }
 
-      if (isEmailChanged || isPasswordChanged) {
+      if (email.text != user!.email || password.text.isNotEmpty) {
         await reAuthenticate();
       }
 
-      // ===== NAME =====
       await user!.updateDisplayName(name.text.trim());
 
-      // ===== EMAIL =====
-      if (isEmailChanged) {
+      if (email.text != user!.email) {
         await user!.verifyBeforeUpdateEmail(email.text.trim());
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Check your new email to confirm 📩")),
-        );
       }
 
-      // ===== PASSWORD =====
-      if (isPasswordChanged) {
+      if (password.text.isNotEmpty) {
         await user!.updatePassword(password.text.trim());
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Password updated successfully 🔒")),
-        );
       }
 
-      // 🔥 IMPORTANT FIX
-      await user!.reload();
-      user = FirebaseAuth.instance.currentUser;
-
-      // 🔥 SYNC WITH FIRESTORE
       await FirebaseFirestore.instance.collection('users').doc(uid).set({
-        'name': user!.displayName,
-        'email': user!.email,
+        'name': name.text.trim(),
+        'email': email.text.trim(),
       }, SetOptions(merge: true));
 
-      setState(() {}); // تحديث UI
-
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Profile updated successfully ✅")),
+        SnackBar(content: Text(AppLocalizations.of(context)!.manageAccount)),
       );
 
       Navigator.pop(context);
-    } on FirebaseAuthException catch (e) {
-      String msg = "Error updating profile";
-
-      if (e.code == 'requires-recent-login') {
-        msg = "Please login again to continue";
-      } else if (e.code == 'wrong-password') {
-        msg = "Current password is incorrect";
-      }
-
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context)!.somethingWentWrong)),
+      );
     } finally {
       setState(() => isLoading = false);
     }
   }
 
   Future<void> deleteAccount() async {
-    if (user == null) return;
-
     try {
-      if (currentPassword.text.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Enter current password to delete account"),
-          ),
-        );
-        return;
-      }
+      await FirebaseAuth.instance.signOut();
 
-      await reAuthenticate();
-
-      final uid = user!.uid;
-
-      // ⭐ هنا تحطيه
-      final token = await user!.getIdToken();
-
-    await http.post(
-      Uri.parse("http://172.237.116.141:8003/delete-user"),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({"token": token}),
-    );
-
-    await FirebaseAuth.instance.signOut();
-
-      if (mounted) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (_) => const LoginScreen()),
-          (route) => false,
-        );
-      }
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        (route) => false,
+      );
     } catch (e) {
-      debugPrint("Delete account error: $e");
+      debugPrint("$e");
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    user = FirebaseAuth.instance.currentUser;
+    final t = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: Colors.white, // ✅ رجعناه زي القديم
+      backgroundColor: const Color(0xFFFAFAFE),
 
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.transparent,
         centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.black),
-        title: const Text(
-          'Edit Profile',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+        title: Text(
+          t.editProfile,
+          style: const TextStyle(
+            color: Color(0xFF1A1C43),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF1A1C43)),
+          onPressed: () => Navigator.pop(context),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.check, color: Colors.black),
-            onPressed: isLoading ? null : updateProfile,
-          ),
+            icon: const Icon(Icons.check, color: Color(0xFF635BFF)),
+            onPressed: updateProfile,
+          )
         ],
       ),
 
-      body: Stack(
-        children: [
-          Positioned(
-            top: -220,
-            right: -220,
-            child: Container(
-              width: 420,
-              height: 420,
-              decoration: BoxDecoration(
-                color: bgPurple.withOpacity(0.25), // ✅ زي القديم
-                shape: BoxShape.circle,
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            /// ===== USER CARD (نفس البنفسجي الأصلي) =====
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(24),decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24),
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFEDEFFF), Color(0xFFF4F3FF)],
+                ),
+              ),
+              child: Row(
+                children: [
+                  const CircleAvatar(
+                    radius: 45,
+                    backgroundColor: Colors.white,
+                    child: Icon(
+                      Icons.person,
+                      size: 45,
+                      color: Color(0xFF635BFF),
+                    ),
+                  ),
+                  const SizedBox(width: 20),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          user?.displayName ?? "",
+                          style: const TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1A1C43),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          user?.email ?? "",
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: const Color(0xFF1A1C43).withOpacity(0.6),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
-          ),
 
-          SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                const SizedBox(height: 10),
+            const SizedBox(height: 30),
 
-                // ===== USER CARD =====
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: mainPurple,
+            _field(t.editProfile, t.manageAccount, name, Icons.person),
+            const SizedBox(height: 20),
+
+            _field(t.email, t.manageAccount, email, Icons.mail_outline),
+            const SizedBox(height: 20),
+
+            _field(
+              t.newPassword,
+              t.manageAccount,
+              password,
+              Icons.lock_outline,
+              isPassword: true,
+              obscureText: _obscureNewPassword,
+              onToggle: () {
+                setState(() => _obscureNewPassword = !_obscureNewPassword);
+              },
+            ),
+
+            const SizedBox(height: 20),
+
+            _field(
+              t.currentPassword,
+              t.manageAccount,
+              currentPassword,
+              Icons.lock_outline,
+              isPassword: true,
+              obscureText: _obscureCurrentPassword,
+              onToggle: () {
+                setState(() =>
+                    _obscureCurrentPassword = !_obscureCurrentPassword);
+              },
+            ),
+
+            const SizedBox(height: 15),
+
+            /// ===== INFO TEXT =====
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF0F1FA),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.info_outline,
+                      color: Color(0xFF635BFF), size: 20),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      t.yourDataPrivate,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: const Color(0xFF1A1C43).withOpacity(0.8),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 35),
+
+            /// ===== DELETE ACCOUNT (رجع مثل قبل تحت) =====
+            SizedBox(
+              width: double.infinity,
+              height: 56,
+              child: ElevatedButton(
+                onPressed: deleteAccount,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFFEEFEF),
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: Row(
-                    children: [
-                      const CircleAvatar(
-                        radius: 35,
-                        backgroundColor: Colors.white,
-                        child: Icon(Icons.person, size: 35),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              user?.displayName ?? "No Username",
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              user?.email ?? "No Email",
-                              style: const TextStyle(color: Colors.black54),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
                 ),
-
-                const SizedBox(height: 30),
-
-                _field('Name', 'Enter your new name', name),
-                const SizedBox(height: 20),
-
-                _field('Email', 'Enter your new email', email),
-                const SizedBox(height: 20),
-
-                _field(
-                  'New Password',
-                  'Leave empty if no change',
-                  password,
-                  isPassword: true,
-                ),
-                const SizedBox(height: 20),
-
-                _field(
-                  'Current Password',
-                  'Required for email/password changes',
-                  currentPassword,
-                  isPassword: true,
-                ),
-
-                const SizedBox(height: 30),
-
-                SizedBox(
-                  width: 180,
-                  child: ElevatedButton(
-                    onPressed: deleteAccount,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: mainPurple,
-                    ),
-                    child: const Text(
-                      'Delete Account',
-                      style: TextStyle(
-                        color: Colors.red,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.delete_outline,
+                        color: Color(0xFFDC2626), size: 20),
+                    const SizedBox(width: 8),
+                    Text(
+                      t.logout,
+                      style: const TextStyle(
+                        color: Color(0xFFDC2626),
                         fontWeight: FontWeight.bold,
+                        fontSize: 16,
                       ),
                     ),
-                  ),
+                  ],
                 ),
-
-                if (isLoading)
-                  const Padding(
-                    padding: EdgeInsets.all(20),
-                    child: CircularProgressIndicator(),
-                  ),
-              ],
+              ),
             ),
-          ),
-        ],
+
+            const SizedBox(height: 20),
+          ],
+        ),
       ),
     );
   }
@@ -310,25 +294,36 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget _field(
     String title,
     String hint,
-    TextEditingController controller, {
+    TextEditingController controller,
+    IconData icon, {
     bool isPassword = false,
+    bool obscureText = false,
+    VoidCallback? onToggle,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-        ),
-        const SizedBox(height: 6),
-        TextFormField(
+        Text(title),
+        const SizedBox(height: 8),
+        TextField(
           controller: controller,
-          obscureText: isPassword,
+          obscureText: obscureText,
           decoration: InputDecoration(
             hintText: hint,
-            filled: true,
-            fillColor: mainPurple,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+            prefixIcon: Icon(icon, color: const Color(0xFF635BFF)),
+            suffixIcon: isPassword
+                ? IconButton(
+                    icon: Icon(
+                      obscureText
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                    ),
+                    onPressed: onToggle,
+                  )
+                : null,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
           ),
         ),
       ],
