@@ -125,15 +125,14 @@ class _ExpertHomeScreenState extends State<ExpertHomeScreen> {
                 var item = currentList[index];
 
                 return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            ExpertRequestDetailsScreen(consultation: item),
-                      ),
-                    );
+onTap: () async {
+  await Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) =>
+          ExpertRequestDetailsScreen(consultation: item),
+    ),  );
+  loadConsultations();
                   },
 
                   child: Container(

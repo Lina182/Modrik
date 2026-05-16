@@ -7,6 +7,11 @@ Future<int> getUserId() async {
   return int.parse(prefs.getString('user_id') ?? '0');
 }
 
+Future<String> getUserRole() async {
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getString('user_role') ?? '';
+}
+
 class ConsultationService {
   static const String baseUrl = 'http://172.237.116.141:8003';
 

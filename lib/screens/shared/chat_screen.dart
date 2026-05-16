@@ -1,29 +1,72 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import '../../services/consultation_service.dart';
+import 'dart:async';
 
 class ChatScreen extends StatefulWidget {
+  final int consultationId;
   final String title;
 
-  const ChatScreen({super.key, required this.title});
+  const ChatScreen({super.key, required this.title, required this.consultationId});
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+
+  int? currentUserId;
+  String? currentUserRole;
+  List msgs = [];
   final TextEditingController c = TextEditingController();
 
-  List msgs = [];
+@override
+void initState() {
+  super.initState();
+  initUser();
+  loadMessages();
 
-  void send() {
-    if (c.text.isEmpty) return;
+}
 
-    setState(() {
-      msgs.add({"t": c.text, "u": true});
-      msgs.add({"t": "Reply received from expert.", "u": false});
-    });
-
-    c.clear();
+Future<void> initUser() async {
+  currentUserId = await getUserId();
+  currentUserRole = await getUserRole();
+  setState(() {});
   }
+
+
+  Future<void> loadMessages() async {
+  final res = await http.get(
+    Uri.parse(
+      "http://172.237.116.141:8003/messages/${widget.consultationId}",
+    ),
+  );
+  final data = jsonDecode(res.body);
+
+  setState(() {
+    msgs = data["messages"];
+  });
+}
+
+
+Future<void> send() async {
+  if (c.text.isEmpty) return;
+
+  await http.post(
+    Uri.parse("http://172.237.116.141:8003/messages/send"),
+    headers: {"Content-Type": "application/json"},
+    body: jsonEncode({
+      "consultation_id": widget.consultationId, // ← مهم جدًا
+      "sender_id": currentUserId, 
+      "sender_role": "expert",
+      "message_text": c.text
+    }),
+  );
+
+  c.clear();
+  loadMessages(); // refresh
+}
 
   Widget circleBtn(IconData icon, VoidCallback tap) {
     return GestureDetector(
@@ -71,7 +114,6 @@ class _ChatScreenState extends State<ChatScreen> {
                   ],
                 ),
                 const Spacer(),
-                circleBtn(Icons.more_vert, () {}),
               ],
             ),
           ),
@@ -116,18 +158,19 @@ class _ChatScreenState extends State<ChatScreen> {
               itemCount: msgs.length,
               itemBuilder: (_, i) {
                 var m = msgs[i];
-                bool u = m["u"];
+                bool isMe =int.parse(m["sender_id"].toString()) == currentUserId;
 
                 return Align(
-                  alignment:
-                      u ? Alignment.centerRight : Alignment.centerLeft,
+                  alignment: isMe ? 
+                  Alignment.centerRight :
+                  Alignment.centerLeft,
                   child: Container(
                     margin: const EdgeInsets.symmetric(vertical: 5),
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: u ? const Color(0xFFDADCF5) : Colors.white,
+                      color: isMe ? const Color(0xFFDADCF5) : Colors.white,
                       borderRadius: BorderRadius.circular(16),),
-                    child: Text(m["t"]),
+                    child: Text(m["message_text"]),
                   ),
                 );
               },
@@ -138,8 +181,6 @@ class _ChatScreenState extends State<ChatScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             child: Row(
               children: [
-                const Icon(Icons.attach_file, color: Color(0xFF6C63FF)),
-                const SizedBox(width: 10),
                 Expanded(
                   child: TextField(
                     controller: c,

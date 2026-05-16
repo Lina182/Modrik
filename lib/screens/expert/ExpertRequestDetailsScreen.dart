@@ -5,6 +5,8 @@ import '../users/cross_report_screen.dart';
 import '../../models/individual_report_item.dart';
 import '../../models/cross_report_item.dart';
 import '../../services/consultation_service.dart';
+import '../shared/chat_screen.dart';
+
 
 class ExpertRequestDetailsScreen extends StatelessWidget {
   final Map consultation;
@@ -13,7 +15,10 @@ class ExpertRequestDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool isWaiting = consultation["status"] == "waiting";
+    final status = consultation["status"];
+    final isWaiting = consultation["status"] == "waiting";
+    final isActive = consultation["status"] == "active";
+    final isCompleted = consultation["status"] == "completed";
 
     return Scaffold(
       backgroundColor: const Color(0xFFF6F7FB),
@@ -345,7 +350,9 @@ class ExpertRequestDetailsScreen extends StatelessWidget {
                       child: Text(
                         isWaiting
                             ? "You can accept this request to start chatting with the user."
-                            : "This consultation is already active or completed.",
+                            : isActive
+                                ? "This consultation is active. You can chat with the user or mark it as complete once done."
+                                : "This consultation is already completed.",
 
                         style: TextStyle(
                           color: Colors.grey.shade700,
@@ -357,6 +364,103 @@ class ExpertRequestDetailsScreen extends StatelessWidget {
                   ],
                 ),
               ),
+
+const SizedBox(height: 28),
+/// ===== Active state =====
+if (isActive) ...[
+  Row(
+    children: [
+Expanded(
+  child: ElevatedButton(
+    style: ElevatedButton.styleFrom(
+      backgroundColor: const Color(0xFF6C63FF),
+      elevation: 0,
+
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+      ),
+    ),
+
+    onPressed: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ChatScreen(
+            consultationId: consultation["id"],
+            title: consultation["report_name"],
+          ),
+        ),
+      );
+    },
+
+    child: const Text(
+      "Chat",
+
+      style: TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.bold,
+        color: Colors.white,
+      ),
+    ),
+  ),
+),
+
+      const SizedBox(width: 12),
+
+Expanded(
+  child: ElevatedButton(
+    style: ElevatedButton.styleFrom(
+      backgroundColor: const Color(0xFF6C63FF),
+      elevation: 0,
+
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+      ),
+    ),
+
+    onPressed: () async {
+
+  final success =
+      await ExpertConsultationService.completeConsultation(
+    consultationId: consultation["id"],
+  );
+
+  if (success) {
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Consultation completed"),
+      ),
+    );
+
+    Navigator.pop(context);
+
+  } else {
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Failed to complete consultation"),
+      ),
+    );
+  }
+},
+
+    child: const Text(
+      "Complete ",
+
+      style: TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.bold,
+        color: Colors.white,
+      ),
+    ),
+  ),
+),
+    ],
+  ),
+
+  const SizedBox(height: 20),
+],
 
               const Spacer(),
 

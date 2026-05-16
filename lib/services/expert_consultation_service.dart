@@ -26,7 +26,7 @@ class ExpertConsultationService {
     return data['consultations'];
   }
 
-  /// COMPLETED CONSULTATIONS
+  ///LIST COMPLETED CONSULTATIONS
   static Future<List> getCompletedConsultations(int expertId) async {
     final response = await http.get(
       Uri.parse('$baseUrl/consultations/completed/$expertId'),
@@ -36,6 +36,25 @@ class ExpertConsultationService {
 
     return data['consultations'];
   }
+
+/// COMPLETE CONSULTATION
+static Future<bool> completeConsultation({
+required int consultationId,
+}) async {
+  try {
+    final response = await http.post(
+      Uri.parse(
+        "$baseUrl/consultations/$consultationId/complete",
+      ),
+    );
+
+    return response.statusCode == 200;
+  } catch (e) {
+    print(e);
+
+    return false;
+  }
+}
 
   static Future<bool> acceptConsultation({
     required int consultationId,

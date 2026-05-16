@@ -188,7 +188,8 @@ class _ExpertchatState extends State<Expertchat> {
 
                         MaterialPageRoute(
                           builder: (_) =>
-                              ChatScreen(title: item["report_name"]),
+                              ChatScreen(title: item["report_name"], 
+                              consultationId: item["id"]),
                         ),
                       );
                     },
