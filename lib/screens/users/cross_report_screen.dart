@@ -1,62 +1,81 @@
 import 'package:flutter/material.dart';
+
 import '../../models/cross_report_item.dart';
+
 import '../../widgets/cross_report_card.dart';
 import '../../widgets/report_action_buttons.dart';
+
 import '../../services/db_service.dart';
-import 'AI_chat_screen.dart';
-import 'home_screen.dart';
 import '../../services/consultation_service.dart';
 
-const Color mainPurple = Color(0xFF9DA3D9);
+import 'AI_chat_screen.dart';
+import 'home_screen.dart';
+
+const Color mainPurple = Color(0xFF6C63FF);
 
 class CrossReportScreen extends StatelessWidget {
   final List<CrossReportItem> reports;
   final String fileName;
   final bool showDownload;
+  final bool isExpertView;
 
   const CrossReportScreen({
     super.key,
     required this.reports,
     required this.fileName,
     this.showDownload = true,
+    this.isExpertView = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: mainPurple,
+      backgroundColor: const Color(0xFFF7F8FF),
 
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
+
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
+
             child: Row(
               children: [
+                // BACK
                 IconButton(
                   onPressed: () {
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(builder: (_) => const HomeScreen()),
-                      (route) => false,
-                    );
+                    if (isExpertView) {
+                      Navigator.pop(context);
+                    } else {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+
+                        MaterialPageRoute(builder: (_) => const HomeScreen()),
+
+                        (route) => false,
+                      );
+                    }
                   },
-                  icon: const Icon(Icons.arrow_back, color: Colors.white),
+
+                  icon: const Icon(Icons.arrow_back, color: mainPurple),
                 ),
 
+                // TITLE
                 Expanded(
                   child: Text(
                     fileName,
+
                     textAlign: TextAlign.center,
+
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
-                      color: Colors.white,
+                      color: mainPurple,
                     ),
                   ),
                 ),
 
-                const Icon(Icons.ios_share_outlined, color: Colors.white),
+                const SizedBox(width: 48),
               ],
             ),
           ),
@@ -66,16 +85,22 @@ class CrossReportScreen extends StatelessWidget {
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(16),
+
           children: [
-            ...reports.map((item) => CrossReportCard(item: item)),
+            // REPORTS
+           ...reports.map((item) => CrossReportCard(item: item,isExpertView: isExpertView,),),
 
             const SizedBox(height: 10),
 
+            // ACTION BUTTONS
             ReportActionButtons(
+              isExpertView: isExpertView,
+
               onDownloadPdf: showDownload
                   ? () async {
                       await DBService.saveReport(
                         items: reports.map((item) => item.toJson()).toList(),
+
                         title: fileName,
                         type: 'cross',
                       );
@@ -95,11 +120,13 @@ class CrossReportScreen extends StatelessWidget {
 
                 Navigator.push(
                   context,
+
                   MaterialPageRoute(
                     builder: (_) => AIChatScreen(reportData: reportData),
                   ),
                 );
               },
+
               onConsultExpert: (question) async {
                 final userId = await getUserId();
 
@@ -107,6 +134,7 @@ class CrossReportScreen extends StatelessWidget {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('User not logged in')),
                   );
+
                   return;
                 }
 
@@ -118,22 +146,19 @@ class CrossReportScreen extends StatelessWidget {
                   userQuestion: question,
                 );
 
-                if (success) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Consultation sent successfully'),
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      success
+                          ? 'Consultation sent successfully'
+                          : 'Failed to send consultation',
                     ),
-                  );
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Failed to send consultation'),
-                    ),
-                  );
-                }
+                  ),
+                );
               },
 
               pdfLabel: 'Download Full Couple Report',
+
               aiLabel: 'Chat with AI',
             ),
           ],

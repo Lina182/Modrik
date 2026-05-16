@@ -202,6 +202,7 @@ class ExpertRequestDetailsScreen extends StatelessWidget {
                                     consultation["report_name"] ??
                                     "Cross Report",
                                 showDownload: false,
+                                isExpertView: true,
                               ),
                             ),
                           );
@@ -227,6 +228,7 @@ class ExpertRequestDetailsScreen extends StatelessWidget {
                                     consultation["report_name"] ??
                                     "Individual Report",
                                 showDownload: false,
+                                isExpertView: true,
                               ),
                             ),
                           );

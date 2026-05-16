@@ -11,6 +11,11 @@ class CrossReportItem {
 
   final String explainRisk;
 
+  final Map<String, dynamic>? parents;
+
+  final String? fatherState;
+  final String? motherState;
+
   CrossReportItem({
     required this.sectionTitle,
     required this.disease,
@@ -21,6 +26,9 @@ class CrossReportItem {
     required this.carrierRisk,
     required this.healthyRisk,
     required this.explainRisk,
+    this.parents,
+    this.fatherState,
+    this.motherState,
   });
 
   factory CrossReportItem.fromJson(Map<String, dynamic> json, String section) {
@@ -65,6 +73,12 @@ class CrossReportItem {
           json['explainRisk']?.toString() ??
           json['risk_explanation']?.toString() ??
           'No explanation available',
+
+      parents: json['parents'],
+
+      fatherState: json['father_state']?.toString(),
+
+      motherState: json['mother_state']?.toString(),
     );
   }
 
@@ -79,6 +93,9 @@ class CrossReportItem {
       "carrierRisk": carrierRisk,
       "healthyRisk": healthyRisk,
       "explainRisk": explainRisk,
+      "parents": parents,
+      "fatherState": fatherState,
+      "motherState": motherState,
     };
   }
 }
