@@ -5,12 +5,16 @@ class IndividualReportItem {
   final String inheritance;
   final String confidenceLevel;
 
+  // بيانات إضافية للخبير
+  final Map<String, dynamic>? variantDetails;
+
   IndividualReportItem({
     required this.gene,
     required this.disease,
     required this.clinicalSignificance,
     required this.inheritance,
     required this.confidenceLevel,
+    this.variantDetails,
   });
 
   static String cleanDiseaseName(String rawDisease) {
@@ -21,7 +25,8 @@ class IndividualReportItem {
     for (var part in parts) {
       part = part.trim().toLowerCase();
 
-      if (part != 'not specified' && part != 'not provided') {
+      if (part != 'not specified' &&
+          part != 'not provided') {
         return part;
       }
     }
@@ -33,7 +38,9 @@ class IndividualReportItem {
     Map<String, dynamic> json,
     Map<String, dynamic>? panelInfo,
   ) {
+
     return IndividualReportItem(
+
       gene:
           json['gene']?.toString() ??
           json['base__hugo']?.toString() ??
@@ -41,32 +48,57 @@ class IndividualReportItem {
 
       disease:
           json['disease']?.toString() ??
-          cleanDiseaseName(json['clinvar__disease_names']?.toString() ?? ''),
+          cleanDiseaseName(
+            json['clinvar__disease_names']
+                    ?.toString() ??
+                '',
+          ),
 
       clinicalSignificance:
-          json['clinicalSignificance']?.toString() ??
-          json['clinvar__sig']?.toString() ??
+          json['clinicalSignificance']
+                  ?.toString() ??
+          json['clinvar__sig']
+                  ?.toString() ??
           'Not available',
 
       inheritance:
-          json['inheritance']?.toString() ??
-          panelInfo?['mode_of_inheritance']?.toString() ??
+          json['inheritance']
+                  ?.toString() ??
+          panelInfo?['inheritance_label']
+                  ?.toString() ??
+          panelInfo?['mode_of_inheritance']
+                  ?.toString() ??
           'Not available',
 
       confidenceLevel:
-          json['confidenceLevel']?.toString() ??
-          panelInfo?['confidence_level']?.toString() ??
+          json['confidenceLevel']
+                  ?.toString() ??
+          panelInfo?['confidence_level']
+                  ?.toString() ??
           'Not available',
+
+      // ✅ ناخذها جاهزة من الباك
+      variantDetails:
+          json['variant_details']
+              as Map<String, dynamic>?,
     );
   }
 
   Map<String, dynamic> toJson() {
+
     return {
+
       "gene": gene,
       "disease": disease,
-      "clinicalSignificance": clinicalSignificance,
+      "clinicalSignificance":
+          clinicalSignificance,
       "inheritance": inheritance,
-      "confidenceLevel": confidenceLevel,
+      "confidenceLevel":
+          confidenceLevel,
+
+      // نحفظها مجمعة
+      "variant_details":
+          variantDetails,
     };
   }
 }
