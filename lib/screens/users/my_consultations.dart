@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
+import '../../l10n/app_localizations.dart';
 import '../../services/consultation_service.dart';
 import '../shared/chat_screen.dart';
 
@@ -26,7 +28,11 @@ class _ExpertchatState extends State<Expertchat> {
 
   Future<void> loadConsultations() async {
     final userId = await getUserId();
-    final data = await ConsultationService.getUserConsultations(userId: userId);
+
+    final data =
+        await ConsultationService.getUserConsultations(
+          userId: userId,
+        );
 
     setState(() {
       consultations = data;
@@ -37,6 +43,8 @@ class _ExpertchatState extends State<Expertchat> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+
     var list = consultations.where((e) {
       if (tab == 0) {
         return e["status"] != "completed";
@@ -58,7 +66,10 @@ class _ExpertchatState extends State<Expertchat> {
 
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [Color(0xFFE0E2FF), Color(0xFFF3F4FF)],
+                    colors: [
+                      Color(0xFFE0E2FF),
+                      Color(0xFFF3F4FF),
+                    ],
                   ),
 
                   borderRadius: BorderRadius.only(
@@ -81,7 +92,9 @@ class _ExpertchatState extends State<Expertchat> {
 
                     size: 220,
 
-                    color: const Color(0xFF6C63FF).withOpacity(0.15),
+                    color: const Color(
+                      0xFF6C63FF,
+                    ).withOpacity(0.15),
                   ),
                 ),
               ),
@@ -91,9 +104,12 @@ class _ExpertchatState extends State<Expertchat> {
                 top: 50,
                 left: 20,
 
-                child: circleBtn(Icons.arrow_back_ios_new, () {
-                  Navigator.pop(context);
-                }),
+                child: circleBtn(
+                  Icons.arrow_back_ios_new,
+                  () {
+                    Navigator.pop(context);
+                  },
+                ),
               ),
 
               /// NOTIFICATION
@@ -101,33 +117,39 @@ class _ExpertchatState extends State<Expertchat> {
                 top: 50,
                 right: 20,
 
-                child: circleBtn(Icons.notifications_none, () {}),
+                child: circleBtn(
+                  Icons.notifications_none,
+                  () {},
+                ),
               ),
 
               /// TEXT
-              const Positioned(
+              Positioned(
                 left: 20,
                 bottom: 30,
 
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
 
                   children: [
                     Text(
-                      "My Consultations",
+                      t.myConsultations,
 
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
 
-                    SizedBox(height: 5),
+                    const SizedBox(height: 5),
 
                     Text(
-                      "Track your consultations and\nchat with our experts.",
+                      t.consultationDesc,
 
-                      style: TextStyle(fontSize: 14),
+                      style: const TextStyle(
+                        fontSize: 14,
+                      ),
                     ),
                   ],
                 ),
@@ -139,24 +161,36 @@ class _ExpertchatState extends State<Expertchat> {
 
           /// TABS
           Container(
-            margin: const EdgeInsets.symmetric(horizontal: 20),
+            margin: const EdgeInsets.symmetric(
+              horizontal: 20,
+            ),
 
             padding: const EdgeInsets.all(5),
 
             decoration: BoxDecoration(
               color: Colors.white,
 
-              borderRadius: BorderRadius.circular(15),
-
-              boxShadow: const [
-                BoxShadow(color: Colors.black12, blurRadius: 8),
+              borderRadius: BorderRadius.circular(15),boxShadow: const [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 8,
+                ),
               ],
             ),
+
             child: Row(
               children: [
-                tabBtn("Active", 0, Icons.access_time),
+                tabBtn(
+                  t.active,
+                  0,
+                  Icons.access_time,
+                ),
 
-                tabBtn("Completed", 1, Icons.check_circle_outline),
+                tabBtn(
+                  t.completed,
+                  1,
+                  Icons.check_circle_outline,
+                ),
               ],
             ),
           ),
@@ -165,8 +199,13 @@ class _ExpertchatState extends State<Expertchat> {
 
           /// 🔥 LOADING
           if (isLoading)
-            const Expanded(child: Center(child: CircularProgressIndicator()))
+            const Expanded(
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
+            )
           else
+
             /// LIST
             Expanded(
               child: ListView.builder(
@@ -177,9 +216,11 @@ class _ExpertchatState extends State<Expertchat> {
                 itemBuilder: (_, i) {
                   var item = list[i];
 
-                  bool isCompleted = item["status"] == "completed";
+                  bool isCompleted =
+                      item["status"] == "completed";
 
-                  bool isWaiting = item["status"] == "waiting";
+                  bool isWaiting =
+                      item["status"] == "waiting";
 
                   return GestureDetector(
                     onTap: () {
@@ -187,26 +228,32 @@ class _ExpertchatState extends State<Expertchat> {
                         context,
 
                         MaterialPageRoute(
-                          builder: (_) =>
-                              ChatScreen(title: item["report_name"], 
-                              consultationId: item["id"]),
+                          builder: (_) => ChatScreen(
+                            title: item["report_name"],
+                            consultationId: item["id"],
+                          ),
                         ),
                       );
                     },
 
                     child: Container(
-                      margin: const EdgeInsets.only(bottom: 15),
+                      margin: const EdgeInsets.only(
+                        bottom: 15,
+                      ),
 
                       padding: const EdgeInsets.all(16),
 
                       decoration: BoxDecoration(
                         color: Colors.white,
 
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius:
+                            BorderRadius.circular(20),
 
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.03),
+                            color: Colors.black.withOpacity(
+                              0.03,
+                            ),
 
                             blurRadius: 10,
 
@@ -218,44 +265,56 @@ class _ExpertchatState extends State<Expertchat> {
                       child: Row(
                         children: [
                           Container(
-                            padding: const EdgeInsets.all(10),
+                            padding:
+                                const EdgeInsets.all(10),
 
                             decoration: BoxDecoration(
                               color: isCompleted
-                                  ? Colors.green.withOpacity(0.1)
+                                  ? Colors.green
+                                      .withOpacity(0.1)
                                   : (isWaiting
-                                        ? Colors.orange.withOpacity(0.1)
-                                        : const Color(0xFFEDEBFF)),
+                                      ? Colors.orange
+                                          .withOpacity(0.1)
+                                      : const Color(
+                                          0xFFEDEBFF,
+                                        )),
 
                               shape: BoxShape.circle,
                             ),
 
                             child: Icon(
                               isCompleted
-                                  ? Icons.check_circle_outline
+                                  ? Icons
+                                      .check_circle_outline
                                   : (isWaiting
-                                        ? Icons.access_time
-                                        : Icons.chat_bubble_outline),
+                                      ? Icons.access_time
+                                      : Icons
+                                          .chat_bubble_outline),
 
                               color: isCompleted
                                   ? Colors.green
                                   : (isWaiting
-                                        ? Colors.orange
-                                        : const Color(0xFF6C63FF)),
-                            ),
-                          ),
+                                      ? Colors.orange
+                                      : const Color(
+                                          0xFF6C63FF,
+                                        )),
+                            ),),
 
                           const SizedBox(width: 15),
 
                           Expanded(
                             child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                              crossAxisAlignment:
+                                  CrossAxisAlignment
+                                      .start,
 
                               children: [
                                 Text(
                                   item["report_name"],
+
                                   style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
+                                    fontWeight:
+                                        FontWeight.bold,
                                     fontSize: 16,
                                   ),
                                 ),
@@ -269,12 +328,15 @@ class _ExpertchatState extends State<Expertchat> {
                                     color: isCompleted
                                         ? Colors.green
                                         : (isWaiting
-                                              ? Colors.orange
-                                              : const Color(0xFF6C63FF)),
+                                            ? Colors.orange
+                                            : const Color(
+                                                0xFF6C63FF,
+                                              )),
 
                                     fontSize: 13,
 
-                                    fontWeight: FontWeight.w500,
+                                    fontWeight:
+                                        FontWeight.w500,
                                   ),
                                 ),
                               ],
@@ -308,17 +370,22 @@ class _ExpertchatState extends State<Expertchat> {
               borderRadius: BorderRadius.circular(15),
             ),
 
-            child: const Row(
+            child: Row(
               children: [
-                Icon(Icons.info_outline, color: Color(0xFF6C63FF)),
+                const Icon(
+                  Icons.info_outline,
+                  color: Color(0xFF6C63FF),
+                ),
 
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
 
                 Expanded(
                   child: Text(
-                    "Open a consultation to start or continue chatting with the expert.",
+                    t.consultationInfo,
 
-                    style: TextStyle(fontSize: 12),
+                    style: const TextStyle(
+                      fontSize: 12,
+                    ),
                   ),
                 ),
               ],
@@ -329,7 +396,11 @@ class _ExpertchatState extends State<Expertchat> {
     );
   }
 
-  Widget tabBtn(String t, int i, IconData ic) {
+  Widget tabBtn(
+    String t,
+    int i,
+    IconData ic,
+  ) {
     bool a = tab == i;
 
     return Expanded(
@@ -337,19 +408,29 @@ class _ExpertchatState extends State<Expertchat> {
         onTap: () => setState(() => tab = i),
 
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12),
+          padding: const EdgeInsets.symmetric(
+            vertical: 12,
+          ),
 
           decoration: BoxDecoration(
-            color: a ? const Color(0xFF6C63FF) : Colors.transparent,
+            color: a
+                ? const Color(0xFF6C63FF)
+                : Colors.transparent,
 
             borderRadius: BorderRadius.circular(12),
           ),
 
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment:
+                MainAxisAlignment.center,
 
             children: [
-              Icon(ic, size: 18, color: a ? Colors.white : Colors.grey),
+              Icon(
+                ic,
+                size: 18,
+                color:
+                    a ? Colors.white : Colors.grey,
+              ),
 
               const SizedBox(width: 8),
 
@@ -357,7 +438,8 @@ class _ExpertchatState extends State<Expertchat> {
                 t,
 
                 style: TextStyle(
-                  color: a ? Colors.white : Colors.grey,
+                  color:
+                      a ? Colors.white : Colors.grey,
 
                   fontWeight: FontWeight.bold,
                 ),
@@ -369,11 +451,12 @@ class _ExpertchatState extends State<Expertchat> {
     );
   }
 
-  Widget circleBtn(IconData icon, VoidCallback tap) {
+  Widget circleBtn(
+    IconData icon,
+    VoidCallback tap,
+  ) {
     return GestureDetector(
-      onTap: tap,
-
-      child: Container(
+      onTap: tap,child: Container(
         padding: const EdgeInsets.all(8),
 
         decoration: const BoxDecoration(

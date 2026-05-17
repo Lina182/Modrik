@@ -6,12 +6,15 @@ import 'analysis.dart';
 import 'AI_chat_screen.dart';
 import 'my_consultations.dart';
 import 'saved_reports_screen.dart';
+import '../../l10n/app_localizations.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       bottomNavigationBar: const BottomNavBar(currentIndex: 0),
@@ -21,9 +24,9 @@ class HomeScreen extends StatelessWidget {
             children: [
               /// HEADER
               HeaderSection(
-                title: "Welcome to",
-                bigTitle: "Modrik",
-                subtitle: "Understand your DNA better",
+                title: t.welcomeTo,
+                bigTitle: t.appName,
+                subtitle: t.understandDNA,
               ),
 
               const SizedBox(height: 10),
@@ -45,18 +48,18 @@ class HomeScreen extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              "Analyze Your DNA",
-                              style: TextStyle(
+                            Text(
+                              t.analyzeDNA,
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 18,
                               ),
                             ),
                             const SizedBox(height: 8),
-                            const Text(
-                              "Upload your VCF file and get clear insights.",
-                              style: TextStyle(color: Colors.white70),
+                            Text(
+                              t.uploadVCF,
+                              style: const TextStyle(color: Colors.white70),
                             ),
                             const SizedBox(height: 16),
                             ElevatedButton(
@@ -75,9 +78,9 @@ class HomeScreen extends StatelessWidget {
                                   ),
                                 );
                               },
-                              child: const Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 20),
-                                child: Text("Start Analysis →"),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 20),
+                                child: Text("${t.startAnalysis} →"),
                               ),
                             ),
                           ],
@@ -95,8 +98,7 @@ class HomeScreen extends StatelessWidget {
                           Icons.insert_drive_file,
                           color: Colors.white,
                           size: 40,
-                        ),
-                      ),
+                        ),),
                     ],
                   ),
                 ),
@@ -105,13 +107,13 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(height: 20),
 
               /// EXPLORE
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    "Explore more",
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    t.exploreMore,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -127,7 +129,6 @@ class HomeScreen extends StatelessWidget {
                     Expanded(
                       child: GestureDetector(
                         onTap: () {
-                          /// 🔥 مهم: نخزن context الأب
                           final parentContext = context;
 
                           showModalBottomSheet(
@@ -137,17 +138,15 @@ class HomeScreen extends StatelessWidget {
                                 top: Radius.circular(20),
                               ),
                             ),
-
-                            /// 🔥 غيرنا الاسم هنا
                             builder: (sheetContext) {
                               return Padding(
                                 padding: const EdgeInsets.all(16),
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    const Text(
-                                      "Choose chat type",
-                                      style: TextStyle(
+                                    Text(
+                                      t.chooseChatType,
+                                      style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 16,
                                       ),
@@ -158,37 +157,25 @@ class HomeScreen extends StatelessWidget {
                                     /// 🧬 REPORT
                                     ListTile(
                                       leading: const Icon(Icons.description),
-                                      title: const Text("Ask about a report"),
-                                      subtitle: const Text(
-                                        "Select from saved reports",
-                                      ),
+                                      title: Text(t.askAboutReport),
+                                      subtitle: Text(t.selectSavedReports),
                                       onTap: () {
-                                        Navigator.pop(
-                                          sheetContext,
-                                        ); // يقفل البوتوم شيت
-                                        openReportSelection(
-                                          parentContext,
-                                        ); // يستخدم الأب
+                                        Navigator.pop(sheetContext);
+                                        openReportSelection(parentContext);
                                       },
                                     ),
 
                                     /// 💬 GENERAL
                                     ListTile(
                                       leading: const Icon(Icons.chat),
-                                      title: const Text(
-                                        "General genetic question",
-                                      ),
-                                      subtitle: const Text(
-                                        "Ask anything about genetics",
-                                      ),
+                                      title: Text(t.generalGeneticQuestion),
+                                      subtitle: Text(t.askAnythingGenetics),
                                       onTap: () {
                                         Navigator.pop(sheetContext);
-
                                         Navigator.push(
                                           parentContext,
                                           MaterialPageRoute(
-                                            builder: (_) =>
-                                                const AIChatScreen(),
+                                            builder: (_) => const AIChatScreen(),
                                           ),
                                         );
                                       },
@@ -201,8 +188,8 @@ class HomeScreen extends StatelessWidget {
                         },
                         child: buildSmallCard(
                           Icons.smart_toy_outlined,
-                          "Chat",
-                          "Ask AI about your genetics",
+                          t.chat,
+                          t.chatSubtitle,
                         ),
                       ),
                     ),
@@ -210,8 +197,7 @@ class HomeScreen extends StatelessWidget {
                     const SizedBox(width: 12),
 
                     /// EXPERT
-                    Expanded(
-                      child: GestureDetector(
+                    Expanded(child: GestureDetector(
                         onTap: () {
                           Navigator.push(
                             context,
@@ -220,8 +206,8 @@ class HomeScreen extends StatelessWidget {
                         },
                         child: buildSmallCard(
                           Icons.person,
-                          "Expert",
-                          "Consult with our experts",
+                          t.expert,
+                          t.expertSubtitle,
                         ),
                       ),
                     ),
@@ -248,18 +234,16 @@ class HomeScreen extends StatelessWidget {
                         size: 50,
                       ),
                       const SizedBox(width: 12),
-                      const Expanded(
+                      Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "Your data is private",
-                              style: TextStyle(fontWeight: FontWeight.bold),
+                              t.yourDataPrivate,
+                              style: const TextStyle(fontWeight: FontWeight.bold),
                             ),
-                            SizedBox(height: 6),
-                            Text(
-                              "Your data is processed only for analysis and not stored.",
-                            ),
+                            const SizedBox(height: 6),
+                            Text(t.yourDataPrivateText),
                           ],
                         ),
                       ),
@@ -347,4 +331,6 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
-}
+  
+
+  }

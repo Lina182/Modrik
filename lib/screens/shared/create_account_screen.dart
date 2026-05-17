@@ -3,10 +3,14 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+
+import '../../l10n/app_localizations.dart';
 import '../../firebase_options.dart';
 import '../users/home_screen.dart';
+
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 
@@ -32,7 +36,9 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
   bool _loading = false;
 
   void showMsg(String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(msg)),
+    );
   }
 
   bool isValidEmail(String email) {
@@ -65,7 +71,10 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     super.dispose();
   }
 
-  InputDecoration inputDecoration(String hint, IconData icon) {
+  InputDecoration inputDecoration(
+    String hint,
+    IconData icon,
+  ) {
     return InputDecoration(
       hintText: hint,
       prefixIcon: Icon(icon, color: AppColors.primary),
@@ -77,59 +86,70 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: Colors.black, width: 1),
+        borderSide: const BorderSide(
+          color: Colors.black,
+          width: 1,
+        ),
       ),
     );
   }
 
   Future<void> _signUp() async {
+    final t = AppLocalizations.of(context)!;
+
     if (nameController.text.trim().isEmpty ||
         emailController.text.trim().isEmpty ||
         passwordController.text.isEmpty ||
         confirmPasswordController.text.isEmpty) {
-      showMsg("Please fill all fields");
+      showMsg(t.pleaseFillFields);
       return;
     }
 
     if (!isValidEmail(emailController.text.trim())) {
-      showMsg("Enter a valid email format");
+      showMsg(t.invalidEmail);
       return;
     }
 
     if (passwordController.text.length < 6) {
-      showMsg("Password must be at least 6 characters");
+      showMsg(t.weakPassword);
       return;
     }
 
-    if (passwordController.text != confirmPasswordController.text) {
-      showMsg("Passwords don't match");
+    if (passwordController.text !=
+        confirmPasswordController.text) {
+      showMsg(t.passwordsDontMatch);
       return;
     }
 
     setState(() => _loading = true);
 
     try {
-      final userCredential = await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(
-            email: emailController.text.trim(),
-            password: passwordController.text,
-          );
+      final userCredential =
+          await FirebaseAuth.instance
+              .createUserWithEmailAndPassword(
+                email: emailController.text.trim(),
+                password: passwordController.text,
+              );
 
       final user = userCredential.user;
 
       if (user == null) {
-        throw Exception("User creation failed");
+        throw Exception(t.userCreationFailed);
       }
 
-      await user.updateDisplayName(nameController.text.trim());
+      await user.updateDisplayName(
+        nameController.text.trim(),
+      );
 
-      await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
-        'name': nameController.text.trim(),
-        'email': emailController.text.trim(),
-        'uid': user.uid,
-        'role': 'user',
-        'createdAt': Timestamp.now(),
-      });
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .set({
+            'name': nameController.text.trim(),'email': emailController.text.trim(),
+            'uid': user.uid,
+            'role': 'user',
+            'createdAt': Timestamp.now(),
+          });
 
       final idToken = await user.getIdToken();
       print("Firebase ID Token: $idToken");
@@ -148,49 +168,58 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
         }),
       );
 
+      final fcmToken =
+          await FirebaseMessaging.instance.getToken();
 
-final fcmToken = await FirebaseMessaging.instance.getToken();
+      print("FCM TOKEN: $fcmToken");
 
-print("FCM TOKEN: $fcmToken");
+      await http.post(
+        Uri.parse(
+          "http://172.237.116.141:8003/save-fcm-token",
+        ),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode({
+          "uid": user.uid,
+          "fcm_token": fcmToken,
+        }),
+      );
 
-await http.post(
-  Uri.parse("http://172.237.116.141:8003/save-fcm-token"),
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: jsonEncode({
-    "uid": user.uid,
-    "fcm_token": fcmToken,
-  }),
-);
-
-print("FCM TOKEN SAVED");
-
+      print("FCM TOKEN SAVED");
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Account created successfully ✅")),
+        SnackBar(
+          content: Text(t.accountCreated),
+        ),
       );
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
+        MaterialPageRoute(
+          builder: (_) => const HomeScreen(),
+        ),
       );
     } on FirebaseAuthException catch (e) {
-      String msg = "Something went wrong";
+      final t = AppLocalizations.of(context)!;
+
+      String msg = t.somethingWentWrong;
 
       if (e.code == 'invalid-email') {
-        msg = "This email is invalid";
+        msg = t.invalidEmail;
       }
 
       if (e.code == 'weak-password') {
-        msg = "Password is too weak";
+        msg = t.weakPassword;
       }
 
       if (e.code == 'email-already-in-use') {
-        msg = "Email already in use. Try logging in.";
+        msg = t.emailInUse;
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(msg)),
+      );
     } finally {
       setState(() => _loading = false);
     }
@@ -198,6 +227,8 @@ print("FCM TOKEN SAVED");
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -216,7 +247,10 @@ print("FCM TOKEN SAVED");
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [AppColors.gradientStart, AppColors.gradientEnd],
+                    colors: [
+                      AppColors.gradientStart,
+                      AppColors.gradientEnd,
+                    ],
                   ),
                   shape: BoxShape.circle,
                 ),
@@ -235,13 +269,14 @@ print("FCM TOKEN SAVED");
 
             SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 28),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 28),
                 child: Column(
                   children: [
                     const SizedBox(height: 120),
 
                     Text(
-                      "Create Account",
+                      t.createAccount,
                       style: AppTextStyles.title.copyWith(
                         fontSize: 30,
                         color: AppColors.primary,
@@ -250,19 +285,20 @@ print("FCM TOKEN SAVED");
 
                     const SizedBox(height: 10),
 
-                    const Text(
-                      "Create your account\nand get started!",
+                    Text(
+                      t.createAccountSubtitle,
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: AppColors.textGrey),
+                      style: const TextStyle(
+                        color: AppColors.textGrey,
+                      ),
                     ),
 
                     const SizedBox(height: 50),
 
                     TextField(
                       focusNode: nameFocus,
-                      controller: nameController,
-                      decoration: inputDecoration(
-                        "Full Name",
+                      controller: nameController,decoration: inputDecoration(
+                        t.fullName,
                         Icons.person_outline,
                       ),
                     ),
@@ -273,7 +309,7 @@ print("FCM TOKEN SAVED");
                       focusNode: emailFocus,
                       controller: emailController,
                       decoration: inputDecoration(
-                        "Email",
+                        t.email,
                         Icons.email_outlined,
                       ),
                     ),
@@ -285,7 +321,7 @@ print("FCM TOKEN SAVED");
                       controller: passwordController,
                       obscureText: true,
                       decoration: inputDecoration(
-                        "Password",
+                        t.password,
                         Icons.lock_outline,
                       ),
                     ),
@@ -294,10 +330,11 @@ print("FCM TOKEN SAVED");
 
                     TextField(
                       focusNode: confirmPasswordFocus,
-                      controller: confirmPasswordController,
+                      controller:
+                          confirmPasswordController,
                       obscureText: true,
                       decoration: inputDecoration(
-                        "Confirm Password",
+                        t.confirmPassword,
                         Icons.lock_outline,
                       ),
                     ),
@@ -310,18 +347,25 @@ print("FCM TOKEN SAVED");
                             width: double.infinity,
                             height: 55,
                             child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.primary,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(14),
-                                ),
-                              ),
+                              style:
+                                  ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        AppColors.primary,
+                                    shape:
+                                        RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(
+                                                14,
+                                              ),
+                                        ),
+                                  ),
                               onPressed: _signUp,
-                              child: const Text(
-                                "Sign Up",
-                                style: TextStyle(
+                              child: Text(
+                                t.signUp,
+                                style: const TextStyle(
                                   fontSize: 18,
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight:
+                                      FontWeight.bold,
                                   color: Colors.white,
                                 ),
                               ),
@@ -331,10 +375,13 @@ print("FCM TOKEN SAVED");
                     const SizedBox(height: 16),
 
                     TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text(
-                        "Already have an account? Log in",
-                        style: TextStyle(color: AppColors.primary),
+                      onPressed: () =>
+                          Navigator.pop(context),
+                      child: Text(
+                        t.alreadyHaveAccount,
+                        style: const TextStyle(
+                          color: AppColors.primary,
+                        ),
                       ),
                     ),
                   ],
@@ -360,11 +407,18 @@ class TopCurvePainter extends CustomPainter {
 
     path.moveTo(0, size.height);
 
-    path.quadraticBezierTo(size.width / 2, 0, size.width, size.height);
+    path.quadraticBezierTo(
+      size.width / 2,
+      0,
+      size.width,
+      size.height,
+    );
 
     canvas.drawPath(path, paint);
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(
+    covariant CustomPainter oldDelegate,
+  ) => false;
 }

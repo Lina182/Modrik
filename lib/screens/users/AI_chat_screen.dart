@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-
+import '../../l10n/app_localizations.dart';
 class AIChatScreen extends StatefulWidget {
   final Map<String, dynamic>? reportData;
   const AIChatScreen({super.key, this.reportData});
+
   @override
   State<AIChatScreen> createState() => _AIChatScreenState();
 }
@@ -13,35 +14,20 @@ class _AIChatScreenState extends State<AIChatScreen> {
   final TextEditingController _controller = TextEditingController();
 
   /// UI messages
-  final List<Map<String, String>> messages = [
-    {
-      "sender": "bot",
-      "text":
-          "Hi! I'm Modrik 👋\nAsk me anything about your genetic report or general genetics.",
-    },
-  ];
+  final List<Map<String, String>> messages = [];
 
   /// 🔥 ذاكرة الشات (الأهم)
   List<Map<String, String>> chatHistory = [];
 
   /// 🔥 التقرير (لو موجود)
   late Map<String, dynamic>? reportData;
+
   @override
   void initState() {
     super.initState();
     reportData = widget.reportData;
 
-    /// لو دخل مع تقرير → نضيف رسالة توضيحية
-    if (reportData != null) {
-      chatHistory.add({
-        "role": "user",
-        "content": "This is my genetic report: ${jsonEncode(reportData)}",
-      });
-      messages.add({
-        "sender": "bot",
-        "text": "I have received your report. You can now ask about it.",
-      });
-    }
+    /// ما نحط نص ثابت هنا (نضيفه في build بعد الترجمة)
   }
 
   /// ================= BACKEND =================
@@ -56,6 +42,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
           "analysis_data": reportData,
         }),
       );
+
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         return data["reply"];
@@ -67,21 +54,51 @@ class _AIChatScreenState extends State<AIChatScreen> {
     }
   }
 
-  /// ================= UI =================
+  bool _initialized = false;
+
+  void _initMessages(AppLocalizations t) {
+    if (_initialized) return;
+    _initialized = true;
+
+    messages.add({
+      "sender": "bot",
+      "text": t.welcomeBot,
+    });
+
+    if (reportData != null) {
+      chatHistory.add({
+        "role": "user",
+        "content": "This is my genetic report: ${jsonEncode(reportData)}",
+      });
+
+      messages.add({
+        "sender": "bot",
+        "text": t.reportReceived,
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+
+    _initMessages(t);
+
     final size = MediaQuery.of(context).size;
     final width = size.width;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
+
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         title: Text(
-          reportData != null ? "Report Chat" : "General Chat",
+          reportData != null ? t.chatTitleReport : t.chatTitleGeneral,
           style: const TextStyle(color: Colors.black),
         ),
       ),
+
       body: Column(
         children: [
           /// 🔵 حالة الشات
@@ -90,8 +107,8 @@ class _AIChatScreenState extends State<AIChatScreen> {
               width: double.infinity,
               padding: const EdgeInsets.all(8),
               color: Colors.green.withOpacity(0.1),
-              child: const Text(
-                "You are asking about a report",
+              child: Text(
+                t.reportModeBanner,
                 textAlign: TextAlign.center,
               ),
             ),
@@ -104,16 +121,18 @@ class _AIChatScreenState extends State<AIChatScreen> {
               itemBuilder: (context, index) {
                 final message = messages[index];
                 final isBot = message["sender"] == "bot";
+
                 return Align(
-                  alignment: isBot
-                      ? Alignment.centerLeft
-                      : Alignment.centerRight,
+                  alignment:
+                      isBot ? Alignment.centerLeft : Alignment.centerRight,
                   child: Container(
                     margin: const EdgeInsets.only(bottom: 12),
                     padding: EdgeInsets.all(width * 0.04),
                     constraints: BoxConstraints(maxWidth: width * 0.75),
                     decoration: BoxDecoration(
-                      color: isBot ? const Color(0xFFD6D9F2) : Colors.white,
+                      color: isBot
+                          ? const Color(0xFFD6D9F2)
+                          : Colors.white,
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Text(message["text"] ?? ""),
@@ -131,7 +150,9 @@ class _AIChatScreenState extends State<AIChatScreen> {
                 Expanded(
                   child: TextField(
                     controller: _controller,
-                    decoration: const InputDecoration(hintText: "Message..."),
+                    decoration: InputDecoration(
+                      hintText: t.messageHint,
+                    ),
                   ),
                 ),
                 IconButton(
@@ -146,28 +167,25 @@ class _AIChatScreenState extends State<AIChatScreen> {
     );
   }
 
-  /// ================= SEND =================
   void sendUserMessage() async {
     if (_controller.text.trim().isEmpty) return;
+
+    final t = AppLocalizations.of(context)!;
+
     String userMessage = _controller.text.trim();
     _controller.clear();
 
-    /// UI
     setState(() {
       messages.add({"sender": "user", "text": userMessage});
-      messages.add({"sender": "bot", "text": "Typing..."});
+      messages.add({"sender": "bot", "text": t.typing});
     });
 
-    /// 🔥 نضيف للذاكرة
     chatHistory.add({"role": "user", "content": userMessage});
 
-    /// 🔥 نرسل كامل الهيستوري
     String botReply = await sendMessageToBackend();
 
-    /// 🔥 نحفظ رد البوت
     chatHistory.add({"role": "assistant", "content": botReply});
 
-    /// UI
     setState(() {
       messages.removeLast();
       messages.add({"sender": "bot", "text": botReply});

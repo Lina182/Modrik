@@ -1,15 +1,15 @@
+import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // 🔹 Firestore
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
+import '../../l10n/app_localizations.dart';
 import 'create_account_screen.dart';
 import 'forget_password_screen.dart';
 import '../users/home_screen.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import '../admin/admin_dash.dart';
 import '../expert/ExpertHomeScreen.dart';
 import '../../theme/app_colors.dart';
@@ -49,10 +49,12 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _login() async {
+    final t = AppLocalizations.of(context)!;
+
     if (emailController.text.isEmpty || passwordController.text.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Please fill all fields")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(t.pleaseFillFields)),
+      );
       return;
     }
 
@@ -61,71 +63,59 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final userCredential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(
-            email: emailController.text.trim(),
-            password: passwordController.text.trim(),
-          );
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
 
       final user = userCredential.user;
-      if (user == null) throw Exception("User is null");
+      if (user == null) throw Exception(t.userNull);
 
       final idToken = await user.getIdToken();
-      print("Firebase ID Token: $idToken");
 
       final fcmToken = await FirebaseMessaging.instance.getToken();
 
-await http.post(
-  Uri.parse("http://172.237.116.141:8003/save-fcm-token"),
-  headers: {"Content-Type": "application/json"},
-  body: jsonEncode({
-    "uid": user.uid,
-    "fcm_token": fcmToken,
-  }),
-);
+      await http.post(
+        Uri.parse("http://172.237.116.141:8003/save-fcm-token"),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "uid": user.uid,
+          "fcm_token": fcmToken,
+        }),
+      );
 
-print("FCM TOKEN SAVED");
+      await FirebaseFirestore.instance.collection('login_activity').add({
+        'userId': user.uid,
+        'email': user.email ?? emailController.text.trim(),
+        'timestamp': Timestamp.now(),
+      });
 
-      // 🔹 تسجيل دخول المستخدم في Firestore
-      if (user != null) {
-        await FirebaseFirestore.instance.collection('login_activity').add({
-          'userId': user.uid,
-          'email': user.email ?? emailController.text.trim(),
-          'timestamp': Timestamp.now(),
-        });
-
-        debugPrint("✅ Login recorded in Firestore for ${user.email}");
-      }
-
-      //verify token,set role, and navigate
       final response = await http.post(
         Uri.parse("http://172.237.116.141:8003/verify-token"),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({"token": idToken}),
       );
 
-      print("VERIFY: ${response.body}");
-
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final user_id = data['user_id'];
         final uid = data['uid'];
-        final role = (data['role'] ?? 'user').toString().trim().toLowerCase();
+        final role =
+            (data['role'] ?? 'user').toString().trim().toLowerCase();
+
         final prefs = await SharedPreferences.getInstance();
 
         await prefs.setString('firebase_uid', uid);
-        await prefs.setString('role', (data['role'] ?? 'user').toString().trim().toLowerCase());
-        if (user_id != null) {
-            await prefs.setString('user_id', user_id.toString(),);}
+        await prefs.setString('role', role);
 
-        print("firebase uid: $uid");
-        print("role: $role");
+        if (user_id != null) {
+          await prefs.setString('user_id', user_id.toString());
+        }
 
         final logResponse = await http.post(
           Uri.parse("http://172.237.116.141:8003/login-log"),
           headers: {"Content-Type": "application/json"},
           body: jsonEncode({"token": idToken}),
         );
-        print(logResponse.statusCode);
-        print("Login log response: ${logResponse.body}");
 
         if (!mounted) return;
 
@@ -140,33 +130,33 @@ print("FCM TOKEN SAVED");
             MaterialPageRoute(builder: (_) => const ExpertHomeScreen()),
           );
         } else {
-          Navigator.pushReplacement(
-            context,
+          Navigator.pushReplacement(context,
             MaterialPageRoute(builder: (_) => const HomeScreen()),
           );
         }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Token verification failed")),
+          SnackBar(content: Text(t.tokenVerificationFailed)),
         );
       }
     } on FirebaseAuthException catch (e) {
-      String msg = "Login failed";
+      final t = AppLocalizations.of(context)!;
+      String msg = t.loginFailed;
 
       if (e.code == 'user-not-found') {
-        msg = "No user found with this email";
+        msg = t.noUserFound;
       } else if (e.code == 'wrong-password') {
-        msg = "Wrong password";
+        msg = t.wrongPassword;
       } else if (e.code == 'invalid-email') {
-        msg = "Invalid email format";
+        msg = t.invalidEmail;
       }
+
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
-      debugPrint("❌ Login error: ${e.code}");
     } catch (e) {
+      final t = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Unexpected error occurred")),
+        SnackBar(content: Text(t.unexpectedError)),
       );
-      debugPrint("❌ Unexpected error: $e");
     } finally {
       setState(() => _loading = false);
     }
@@ -174,12 +164,14 @@ print("FCM TOKEN SAVED");
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+
     return Scaffold(
-      backgroundColor: AppColors.background, // استخدام اللون المحدد
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Stack(
           children: [
-            Container(color: AppColors.background), // الخلفية
+            Container(color: AppColors.background),
 
             Positioned(
               top: -180,
@@ -192,8 +184,8 @@ print("FCM TOKEN SAVED");
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      AppColors.gradientStart, // التدرج الفاتح الأول
-                      AppColors.gradientEnd, // التدرج الفاتح الثاني
+                      AppColors.gradientStart,
+                      AppColors.gradientEnd,
                     ],
                   ),
                   shape: BoxShape.circle,
@@ -216,28 +208,30 @@ print("FCM TOKEN SAVED");
                 child: Column(
                   children: [
                     const SizedBox(height: 120),
+
                     Text(
-                      "Login",
+                      t.login,
                       style: AppTextStyles.title.copyWith(
-                        fontSize: 30, // تكبير حجم الخط
-                        color: AppColors.primary, // استخدام اللون الأساسي
+                        fontSize: 30,
+                        color: AppColors.primary,
                       ),
                     ),
+
                     const SizedBox(height: 10),
-                    const Text(
-                      "Welcome back you've\nbeen missed!",
+
+                    Text(
+                      t.welcomeBack,
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: AppColors.textGrey,
-                      ), // استخدام اللون الرمادي للنص
+                      style: const TextStyle(color: AppColors.textGrey),
                     ),
+
                     const SizedBox(height: 50),
 
                     TextField(
                       controller: emailController,
                       focusNode: emailFocus,
                       decoration: InputDecoration(
-                        hintText: "Email",
+                        hintText: t.email,
                         prefixIcon: const Icon(
                           Icons.email_outlined,
                           color: AppColors.primary,
@@ -248,23 +242,19 @@ print("FCM TOKEN SAVED");
                           borderRadius: BorderRadius.circular(14),
                           borderSide: BorderSide.none,
                         ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
-                          borderSide: const BorderSide(
-                            color: Colors.black,
-                            width: 1,
-                          ),
+                        focusedBorder: const OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.black, width: 1),
                         ),
                       ),
                     ),
 
                     const SizedBox(height: 18),
+
                     TextField(
                       controller: passwordController,
                       focusNode: passwordFocus,
                       obscureText: true,
-                      decoration: InputDecoration(
-                        hintText: "Password",
+                      decoration: InputDecoration(hintText: t.password,
                         prefixIcon: const Icon(
                           Icons.lock_outline,
                           color: AppColors.primary,
@@ -275,15 +265,12 @@ print("FCM TOKEN SAVED");
                           borderRadius: BorderRadius.circular(14),
                           borderSide: BorderSide.none,
                         ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
-                          borderSide: const BorderSide(
-                            color: Colors.black,
-                            width: 1,
-                          ),
+                        focusedBorder: const OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.black, width: 1),
                         ),
                       ),
                     ),
+
                     Align(
                       alignment: Alignment.centerRight,
                       child: TextButton(
@@ -295,9 +282,9 @@ print("FCM TOKEN SAVED");
                             ),
                           );
                         },
-                        child: const Text(
-                          "Forgot Password?",
-                          style: TextStyle(color: AppColors.primary),
+                        child: Text(
+                          t.forgotPassword,
+                          style: const TextStyle(color: AppColors.primary),
                         ),
                       ),
                     ),
@@ -311,16 +298,15 @@ print("FCM TOKEN SAVED");
                             height: 55,
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    AppColors.primary, // استخدام اللون الأساسي
+                                backgroundColor: AppColors.primary,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(14),
                                 ),
                               ),
                               onPressed: _login,
-                              child: const Text(
-                                "Log in",
-                                style: TextStyle(
+                              child: Text(
+                                t.logIn,
+                                style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
@@ -340,11 +326,9 @@ print("FCM TOKEN SAVED");
                           ),
                         );
                       },
-                      child: const Text(
-                        "Don’t have an account ? Sign Up",
-                        style: TextStyle(
-                          color: AppColors.primary,
-                        ), // استخدام اللون الأساسي
+                      child: Text(
+                        t.dontHaveAccount,
+                        style: const TextStyle(color: AppColors.primary),
                       ),
                     ),
                   ],
