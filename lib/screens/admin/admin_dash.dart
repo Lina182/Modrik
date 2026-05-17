@@ -20,12 +20,18 @@ Map<String, dynamic>? healthData;
 bool loading = true;
 int individualCount = 0;
 int crossCount = 0;
+int successCount = 0;
+int failedCount = 0;
+double successRate = 0.0; 
+double failedRate = 0.0;
+
 
 @override
 void initState() {
   super.initState();
   loadHealth();
   fetchAnalysisCounts();
+  fetchAnalysisStats();
 }
 
   // 🔥 API CALL
@@ -60,6 +66,37 @@ void initState() {
     });
   }
 }
+
+
+Future<void> fetchAnalysisStats() async {
+
+  final response = await http.get(
+    Uri.parse("http://172.237.116.141:8003/analysis-stats"),
+  );
+
+  if (response.statusCode == 200) {
+
+    final data = jsonDecode(response.body);
+
+    int success = data['success'];
+    int failed = data['failed'];
+
+    int total = success + failed;
+
+    setState(() {
+
+      successCount = success;
+      failedCount = failed;
+
+      successRate =
+          total == 0 ? 0 : success / total;
+
+      failedRate =
+          total == 0 ? 0 : failed / total;
+    });
+  }
+}
+
 
   Future<void> loadHealth() async {
   try {
@@ -127,12 +164,20 @@ void initState() {
             _buildCircularChart(),
             const SizedBox(height: 30),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildAnalysisStatus('Success analyses', '75%', Colors.green),
-                _buildAnalysisStatus('Failed analyses', '25%', Colors.red),
-              ],
-            ),
+  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  children: [
+    _buildAnalysisStatus(
+      'Success',
+      '${(successRate * 100).toStringAsFixed(1)}%',
+      Colors.green,
+    ),
+    _buildAnalysisStatus(
+      'Failed',
+      '${(failedRate * 100).toStringAsFixed(1)}%',
+      Colors.red,
+    ),
+  ],
+),
             const SizedBox(height: 30),
             const Text(
               'API Status',
@@ -177,21 +222,54 @@ void initState() {
     );
   }
 
-  Widget _buildCircularChart() {
-    return Center(
-      child: Container(
-        width: 200,
-        height: 200,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(color: moviePurple, width: 8),
-        ),
-        child: CustomPaint(
-          painter: _ProgressPainter(),
-        ),
+Widget _buildCircularChart() {
+  return Center(
+    child: SizedBox(
+      width: 220,
+      height: 220,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+
+          SizedBox(
+            width: 220,
+            height: 220,
+            child: CustomPaint(
+              painter: _ProgressPainter(
+                successRate: successRate,
+                failedRate: failedRate,
+              ),
+            ),
+          ),
+
+          Container(
+            width: 220,
+            height: 220,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: moviePurple, width: 8),
+            ),
+          ),
+
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "${successCount + failedCount}",
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const Text("Total"),
+            ],
+          ),
+
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildAnalysisStatus(String title, String value, Color color) {
     return Row(
@@ -272,25 +350,50 @@ void initState() {
 }
 
 class _ProgressPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final Paint paint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 12;
 
-    paint.color = Colors.red;
-    canvas.drawArc(Offset.zero & size, -1.5708, 3.1416 * 0.25, false, paint);
+final double successRate;
+final double failedRate;
+_ProgressPainter({
+  required this.successRate,
+  required this.failedRate,
+});
 
-    paint.color = Colors.green;
-    canvas.drawArc(
-      Offset.zero & size,
-      -1.5708 + 3.1416 * 0.25,
-      3.1416 * 0.75,
-      false,
-      paint,
-    );
-  }
+@override
+void paint(Canvas canvas, Size size) {
+  final Paint paint = Paint()
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = 12
+    ..strokeCap = StrokeCap.round;
 
+  double total = successRate + failedRate;
+  if (total == 0) return;
+
+  double successAngle = 3.1416 * 2 * (successRate / total);
+  double failedAngle = 3.1416 * 2 * (failedRate / total);
+
+  // START from top
+  double startAngle = -3.1416 / 2;
+
+  // GREEN (success)
+  paint.color = Colors.green;
+  canvas.drawArc(
+    Offset.zero & size,
+    startAngle,
+    successAngle,
+    false,
+    paint,
+  );
+
+  // RED (failed)
+  paint.color = Colors.red;
+  canvas.drawArc(
+    Offset.zero & size,
+    startAngle + successAngle,
+    failedAngle,
+    false,
+    paint,
+  );
+}
   @override
   bool shouldRepaint(CustomPainter oldDelegate) => false;
 }
