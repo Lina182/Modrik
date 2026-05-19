@@ -1,32 +1,95 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import '../models/individual_report_item.dart';
-import '../services/disease_service.dart';
+import '../../services/disease_service.dart';
 
 const Color mainPurple = Color(0xFF6C63FF);
 
 class IndividualReportCard extends StatefulWidget {
   final IndividualReportItem item;
+
+  final String? translatedDisease;
+
   final bool isExpertView;
 
   const IndividualReportCard({
     super.key,
     required this.item,
+    this.translatedDisease,
     this.isExpertView = false,
   });
 
   @override
-  State<IndividualReportCard> createState() =>
-      _IndividualReportCardState();
+  State<IndividualReportCard> createState() => _IndividualReportCardState();
 }
 
-class _IndividualReportCardState
-    extends State<IndividualReportCard> {
-
-  bool showArabic = false;
+class _IndividualReportCardState extends State<IndividualReportCard> {
   bool isLoading = false;
   bool showExpertDetails = false;
 
-  String? translatedText;
+  // =========================
+  // TRANSLATE INHERITANCE
+  // =========================
+
+  String _translateInheritance(BuildContext context, String value) {
+    final t = AppLocalizations.of(context)!;
+
+    final lower = value.toLowerCase();
+
+    if (lower.contains('both dominant and recessive')) {
+      return t.bothDominantRecessive;
+    }
+
+    if (lower.contains('autosomal dominant')) {
+      return t.autosomalDominant;
+    }
+
+    if (lower.contains('autosomal recessive')) {
+      return t.autosomalRecessive;
+    }
+
+    if (lower.contains('x-linked dominant')) {
+      return t.xLinkedDominant;
+    }
+
+    if (lower.contains('x-linked recessive')) {
+      return t.xLinkedRecessive;
+    }
+
+    if (lower.contains('x-linked')) {
+      return t.xLinked;
+    }
+
+    return value;
+  }
+
+  // =========================
+  // TRANSLATE SIGNIFICANCE
+  // =========================
+
+  String _translateClinicalSignificance(BuildContext context, String value) {
+    final t = AppLocalizations.of(context)!;
+
+    final lower = value.toLowerCase();
+
+    if (lower.contains('likely pathogenic')) {
+      return t.likelyPathogenic;
+    }
+
+    if (lower.contains('pathogenic')) {
+      return t.pathogenic;
+    }
+
+    if (lower.contains('uncertain')) {
+      return t.uncertainSignificance;
+    }
+
+    if (lower.contains('benign')) {
+      return t.benign;
+    }
+
+    return value;
+  }
 
   // =========================
   // STATUS COLORS
@@ -77,197 +140,185 @@ class _IndividualReportCardState
   // =========================
 
   void _showMenu() async {
-    final value = await showModalBottomSheet(
+    final t = AppLocalizations.of(context)!;
+
+    await showModalBottomSheet(
       context: context,
 
       backgroundColor: Colors.white,
 
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(26),
-        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
       ),
 
       builder: (_) => Padding(
-        padding: const EdgeInsets.fromLTRB(
-          18,
-          14,
-          18,
-          28,
-        ),
+        padding: const EdgeInsets.fromLTRB(18, 14, 18, 28),
 
         child: Column(
           mainAxisSize: MainAxisSize.min,
 
           children: [
-
             Container(
               width: 44,
               height: 5,
 
-              margin: const EdgeInsets.only(
-                bottom: 18,
-              ),
+              margin: const EdgeInsets.only(bottom: 18),
 
               decoration: BoxDecoration(
                 color: const Color(0xFFE2E2EA),
 
-                borderRadius:
-                    BorderRadius.circular(50),
+                borderRadius: BorderRadius.circular(50),
               ),
             ),
 
-            // TRANSLATE
             ListTile(
-              leading: const Icon(
-                Icons.translate,
-                color: mainPurple,
+              leading: const Icon(Icons.psychology_outlined, color: mainPurple),
+
+              title: Text(
+                t.explain,
+
+                style: const TextStyle(fontWeight: FontWeight.w600),
               ),
 
-              title: const Text(
-                'Translate to Arabic',
+              onTap: () async {
+                Navigator.pop(context);
 
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+                setState(() {
+                  isLoading = true;
+                });
 
-              onTap: () =>
-                  Navigator.pop(context, 'translate'),
-            ),
+                try {
+                  final explanation = await DiseaseService.explainDisease(
+                    widget.item.disease,
+                    Localizations.localeOf(context).languageCode,
+                  );
+                  if (!mounted) return;
 
-            // EXPLAIN
-            ListTile(
-              leading: const Icon(
-                Icons.psychology_outlined,
-                color: mainPurple,
-              ),
+                  showDialog(
+                    context: context,
 
-              title: const Text(
-                'Explain',
+                    builder: (_) => AlertDialog(
+                      backgroundColor: Colors.white,
 
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24),
+                      ),
 
-              onTap: () =>
-                  Navigator.pop(context, 'explain'),
+                      icon: Container(
+                        width: 58,
+                        height: 58,
+
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Color(0xFFF3EEFF),
+                        ),
+
+                        child: const Icon(
+                          Icons.auto_awesome_rounded,
+                          color: Color(0xFF7B61FF),
+                          size: 28,
+                        ),
+                      ),
+
+                      title: Text(
+                        t.explain,
+
+                        textAlign: TextAlign.center,
+
+                        style: const TextStyle(
+                          color: Color(0xFF7B61FF),
+                          fontSize: 28,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+
+                      content: Text(
+                        explanation,
+
+                        textAlign: TextAlign.center,
+
+                        style: const TextStyle(
+                          fontSize: 15.5,
+                          height: 1.7,
+                          color: Color(0xFF4E4B66),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+
+                      actionsPadding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+
+                      actions: [
+                        SizedBox(
+                          width: double.infinity,
+                          height: 52,
+
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+
+                            style: ElevatedButton.styleFrom(
+                              elevation: 0,
+
+                              backgroundColor: Colors.transparent,
+
+                              shadowColor: Colors.transparent,
+
+                              padding: EdgeInsets.zero,
+
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+
+                            child: Ink(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
+
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    Color(0xFF8B6BFF),
+                                    Color(0xFF6C63FF),
+                                  ],
+                                ),
+                              ),
+
+                              child: Center(
+                                child: Text(
+                                  t.ok,
+
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                } catch (e) {
+                  if (!mounted) return;
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Failed to generate explanation'),
+                    ),
+                  );
+                }
+
+                setState(() {
+                  isLoading = false;
+                });
+              },
             ),
           ],
         ),
       ),
     );
-
-    final item = widget.item;
-
-    // =========================
-    // TRANSLATE
-    // =========================
-
-    if (value == 'translate') {
-
-      setState(() => isLoading = true);
-
-      try {
-
-        final result =
-            await DiseaseService.translateDisease(
-          item.disease,
-        );
-
-        setState(() {
-          translatedText = result;
-          showArabic = true;
-          isLoading = false;
-        });
-
-      } catch (e) {
-
-        setState(() => isLoading = false);
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content:
-                Text("Translation failed: $e"),
-          ),
-        );
-      }
-    }
-
-    // =========================
-    // EXPLAIN
-    // =========================
-
-    if (value == 'explain') {
-
-      setState(() => isLoading = true);
-
-      try {
-
-        final result =
-            await DiseaseService.explainDisease(
-          item.disease,
-        );
-
-        setState(() => isLoading = false);
-
-        showModalBottomSheet(
-          context: context,
-
-          backgroundColor: Colors.white,
-
-          isScrollControlled: true,
-
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(
-              top: Radius.circular(26),
-            ),
-          ),
-
-          builder: (_) => Container(
-            padding: const EdgeInsets.fromLTRB(
-              20,
-              20,
-              20,
-              32,
-            ),
-
-            constraints: BoxConstraints(
-              maxHeight:
-                  MediaQuery.of(context)
-                          .size
-                          .height *
-                      0.65,
-            ),
-
-            child: SingleChildScrollView(
-              child: Text(
-                result,
-
-                style: const TextStyle(
-                  fontSize: 15,
-                  height: 1.6,
-                  color: Color(0xFF171733),
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-          ),
-        );
-
-      } catch (e) {
-
-        setState(() => isLoading = false);
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content:
-                Text("Explanation failed: $e"),
-          ),
-        );
-      }
-    }
   }
 
   // =========================
@@ -276,16 +327,13 @@ class _IndividualReportCardState
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
 
     final item = widget.item;
 
-    final statusColor =
-        _statusColor(item.clinicalSignificance);
+    final statusColor = _statusColor(item.clinicalSignificance);
 
-    final statusBackground =
-        _statusBackground(
-      item.clinicalSignificance,
-    );
+    final statusBackground = _statusBackground(item.clinicalSignificance);
 
     return Container(
       width: double.infinity,
@@ -295,13 +343,11 @@ class _IndividualReportCardState
       decoration: BoxDecoration(
         color: Colors.white,
 
-        borderRadius:
-            BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(28),
 
         boxShadow: [
           BoxShadow(
-            color:
-                Colors.black.withOpacity(0.045),
+            color: Colors.black.withOpacity(0.045),
 
             blurRadius: 24,
 
@@ -311,12 +357,9 @@ class _IndividualReportCardState
       ),
 
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
 
         children: [
-
-          // MENU
           Align(
             alignment: Alignment.topRight,
 
@@ -329,127 +372,82 @@ class _IndividualReportCardState
               ),
 
               style: IconButton.styleFrom(
-                backgroundColor:
-                    const Color(0xFFF3F0FF),
+                backgroundColor: const Color(0xFFF3F0FF),
 
-                minimumSize:
-                    const Size(34, 34),
+                minimumSize: const Size(34, 34),
               ),
             ),
           ),
 
           const SizedBox(height: 8),
 
-          // GENE
           _InfoRow(
             icon: Icons.biotech_outlined,
-            title: 'Gene',
+
+            title: t.gene,
+
             value: item.gene,
           ),
 
-          // DISEASE
           _InfoRow(
-            icon:
-                Icons.medical_information_outlined,
+            icon: Icons.medical_information_outlined,
 
-            title: 'Disease',
+            title: t.disease,
 
-            valueWidget: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+            valueWidget: Text(
+              widget.translatedDisease ?? item.disease,
 
-              children: [
+              textDirection: widget.translatedDisease != null
+                  ? TextDirection.rtl
+                  : TextDirection.ltr,
 
-                Text(
-                  item.disease,
-
-                  style: const TextStyle(
-                    fontSize: 13.5,
-                    color:
-                        Color(0xFF171733),
-                    fontWeight:
-                        FontWeight.w600,
-                    height: 1.35,
-                  ),
-                ),
-
-                // TRANSLATION
-                if (showArabic &&
-                    translatedText != null) ...[
-
-                  const SizedBox(height: 8),
-
-                  Text(
-                    translatedText!,
-
-                    textDirection:
-                        TextDirection.rtl,
-
-                    style: const TextStyle(
-                      fontSize: 13,
-                      height: 1.5,
-                      color: mainPurple,
-                      fontWeight:
-                          FontWeight.w700,
-                    ),
-                  ),
-                ],
-              ],
+              style: const TextStyle(
+                fontSize: 13.5,
+                color: Color(0xFF171733),
+                fontWeight: FontWeight.w600,
+                height: 1.35,
+              ),
             ),
           ),
 
-          // CLINICAL SIGNIFICANCE
           _InfoRow(
-            icon:
-                Icons.health_and_safety_outlined,
+            icon: Icons.health_and_safety_outlined,
 
-            title:
-                'Clinical significance',
+            title: t.clinicalSignificance,
 
             valueWidget: _StatusBadge(
-              text:
-                  item.clinicalSignificance,
+              text: _translateClinicalSignificance(
+                context,
+                item.clinicalSignificance,
+              ),
 
               color: statusColor,
 
-              background:
-                  statusBackground,
+              background: statusBackground,
 
               compact: true,
             ),
           ),
 
-          // INHERITANCE
           _InfoRow(
             icon: Icons.groups_2_outlined,
-            title: 'Inheritance',
-            value: item.inheritance,
+
+            title: t.inheritance,
+
+            value: _translateInheritance(context, item.inheritance),
           ),
 
-          // CONFIDENCE
           _InfoRow(
-            icon:
-                Icons.bar_chart_rounded,
+            icon: Icons.bar_chart_rounded,
 
-            title:
-                'Confidence level',
+            title: t.confidenceLevel,
 
-            valueWidget:
-                _ConfidenceBadge(
-              value:
-                  item.confidenceLevel,
-            ),
+            valueWidget: _ConfidenceBadge(value: item.confidenceLevel),
 
             showDivider: false,
           ),
 
-          // =========================
-          // EXPERT DETAILS
-          // =========================
-
-          if (widget.isExpertView &&
-              item.variantDetails != null) ...[
-
+          if (widget.isExpertView && item.variantDetails != null) ...[
             const SizedBox(height: 10),
 
             Align(
@@ -457,29 +455,21 @@ class _IndividualReportCardState
 
               child: GestureDetector(
                 onTap: () {
-
                   setState(() {
-                    showExpertDetails =
-                        !showExpertDetails;
+                    showExpertDetails = !showExpertDetails;
                   });
                 },
 
                 child: Row(
-                  mainAxisSize:
-                      MainAxisSize.min,
+                  mainAxisSize: MainAxisSize.min,
 
                   children: [
-
                     Text(
-                      showExpertDetails
-                          ? "Hide Details"
-                          : "Show Details",
+                      showExpertDetails ? t.hideDetails : t.showDetails,
 
-                      style:
-                          const TextStyle(
+                      style: const TextStyle(
                         color: mainPurple,
-                        fontWeight:
-                            FontWeight.w700,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
 
@@ -487,10 +477,8 @@ class _IndividualReportCardState
 
                     Icon(
                       showExpertDetails
-                          ? Icons
-                              .keyboard_arrow_up
-                          : Icons
-                              .keyboard_arrow_down,
+                          ? Icons.keyboard_arrow_up
+                          : Icons.keyboard_arrow_down,
 
                       color: mainPurple,
                     ),
@@ -500,30 +488,22 @@ class _IndividualReportCardState
             ),
 
             if (showExpertDetails) ...[
-
               const SizedBox(height: 14),
 
-              _expertDetailsCard(
-                item.variantDetails!,
-              ),
+              _expertDetailsCard(item.variantDetails!),
             ],
           ],
 
-          // LOADING
           if (isLoading)
             const Padding(
-              padding:
-                  EdgeInsets.only(top: 14),
+              padding: EdgeInsets.only(top: 14),
 
               child: Center(
                 child: SizedBox(
                   width: 26,
                   height: 26,
 
-                  child:
-                      CircularProgressIndicator(
-                    strokeWidth: 2.5,
-                  ),
+                  child: CircularProgressIndicator(strokeWidth: 2.5),
                 ),
               ),
             ),
@@ -531,10 +511,9 @@ class _IndividualReportCardState
       ),
     );
   }
-  // EXPERT DETAILS CARD
-  Widget _expertDetailsCard(
-    Map<String, dynamic> details,
-  ) {
+
+  Widget _expertDetailsCard(Map<String, dynamic> details) {
+    final t = AppLocalizations.of(context)!;
 
     return Container(
       width: double.infinity,
@@ -544,46 +523,30 @@ class _IndividualReportCardState
       decoration: BoxDecoration(
         color: const Color(0xFFF8F7FF),
 
-        borderRadius:
-            BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16),
       ),
 
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
 
         children: [
+          Text(
+            t.variantDetails,
 
-          const Text(
-            "Variant Details",
-
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 15,
-            ),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
           ),
 
           const SizedBox(height: 12),
 
-          Text(
-            "Chromosome: ${details["chrom"]}",
-          ),
+          Text("${t.chromosome}: ${details["chrom"]}"),
 
-          Text(
-            "Position: ${details["position"]}",
-          ),
+          Text("${t.position}: ${details["position"]}"),
 
-          Text(
-            "Reference: ${details["ref"]}",
-          ),
+          Text("${t.reference}: ${details["ref"]}"),
 
-          Text(
-            "Alternative: ${details["alt"]}",
-          ),
+          Text("${t.alternative}: ${details["alt"]}"),
 
-          Text(
-            "Zygosity: ${details["zygosity"]}",
-          ),
+          Text("${t.zygosity}: ${details["zygosity"]}"),
         ],
       ),
     );
@@ -592,9 +555,7 @@ class _IndividualReportCardState
 
 // STATUS BADGE
 
-
 class _StatusBadge extends StatelessWidget {
-
   final String text;
   final Color color;
   final Color background;
@@ -609,49 +570,37 @@ class _StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Container(
-      constraints: compact
-          ? null
-          : const BoxConstraints(
-              maxWidth: 150,
-            ),
+      constraints: compact ? null : const BoxConstraints(maxWidth: 150),
 
       padding: EdgeInsets.symmetric(
-        horizontal:
-            compact ? 10 : 12,
+        horizontal: compact ? 10 : 12,
 
-        vertical:
-            compact ? 7 : 10,
+        vertical: compact ? 7 : 10,
       ),
 
       decoration: BoxDecoration(
         color: background,
 
-        borderRadius:
-            BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(14),
       ),
 
       child: Row(
         mainAxisSize: MainAxisSize.min,
 
         children: [
-
           Flexible(
             child: Text(
               text,
 
-              overflow:
-                  TextOverflow.visible,
+              overflow: TextOverflow.visible,
 
               style: TextStyle(
                 color: color,
 
-                fontSize:
-                    compact ? 12 : 11.5,
+                fontSize: compact ? 12 : 11.5,
 
-                fontWeight:
-                    FontWeight.w800,
+                fontWeight: FontWeight.w800,
 
                 height: 1.25,
               ),
@@ -664,20 +613,17 @@ class _StatusBadge extends StatelessWidget {
             width: 7,
             height: 7,
 
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           ),
         ],
       ),
     );
   }
 }
+
 // INFO ROW
 
 class _InfoRow extends StatelessWidget {
-
   final IconData icon;
   final String title;
   final String? value;
@@ -694,41 +640,26 @@ class _InfoRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Column(
       children: [
-
         Padding(
-          padding:
-              const EdgeInsets.symmetric(
-            vertical: 11,
-          ),
+          padding: const EdgeInsets.symmetric(vertical: 11),
 
           child: Row(
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
 
             children: [
-
               Container(
                 width: 46,
                 height: 46,
 
                 decoration: BoxDecoration(
-                  color:
-                      const Color(0xFFF3F0FF),
+                  color: const Color(0xFFF3F0FF),
 
-                  borderRadius:
-                      BorderRadius.circular(
-                    14,
-                  ),
+                  borderRadius: BorderRadius.circular(14),
                 ),
 
-                child: Icon(
-                  icon,
-                  color: mainPurple,
-                  size: 24,
-                ),
+                child: Icon(icon, color: mainPurple, size: 24),
               ),
 
               const SizedBox(width: 16),
@@ -737,22 +668,16 @@ class _InfoRow extends StatelessWidget {
                 width: 120,
 
                 child: Padding(
-                  padding:
-                      const EdgeInsets.only(
-                    top: 12,
-                  ),
+                  padding: const EdgeInsets.only(top: 12),
 
                   child: Text(
                     title,
 
-                    style:
-                        const TextStyle(
+                    style: const TextStyle(
                       fontSize: 14,
-                      color:
-                          Color(0xFF171733),
+                      color: Color(0xFF171733),
 
-                      fontWeight:
-                          FontWeight.w700,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
@@ -762,24 +687,18 @@ class _InfoRow extends StatelessWidget {
 
               Expanded(
                 child: Padding(
-                  padding:
-                      const EdgeInsets.only(
-                    top: 10,
-                  ),
+                  padding: const EdgeInsets.only(top: 10),
 
                   child:
                       valueWidget ??
                       Text(
                         value ?? '',
 
-                        style:
-                            const TextStyle(
+                        style: const TextStyle(
                           fontSize: 14,
-                          color:
-                              Color(0xFF171733),
+                          color: Color(0xFF171733),
 
-                          fontWeight:
-                              FontWeight.w600,
+                          fontWeight: FontWeight.w600,
 
                           height: 1.45,
                         ),
@@ -790,43 +709,30 @@ class _InfoRow extends StatelessWidget {
           ),
         ),
 
-        if (showDivider)
-          const Divider(
-            height: 1,
-            color: Color(0xFFEEEFF6),
-          ),
+        if (showDivider) const Divider(height: 1, color: Color(0xFFEEEFF6)),
       ],
     );
   }
 }
+
 // CONFIDENCE BADGE
 
-class _ConfidenceBadge
-    extends StatelessWidget {
-
+class _ConfidenceBadge extends StatelessWidget {
   final String value;
 
-  const _ConfidenceBadge({
-    required this.value,
-  });
+  const _ConfidenceBadge({required this.value});
 
   @override
   Widget build(BuildContext context) {
-
     return Container(
       width: 120,
 
-      padding:
-          const EdgeInsets.symmetric(
-        horizontal: 12,
-        vertical: 9,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
 
       decoration: BoxDecoration(
         color: const Color(0xFFEDEBFF),
 
-        borderRadius:
-            BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(12),
       ),
 
       child: Text(

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
+
 const Color mainPurple = Color(0xFF6C63FF);
+
 class ReportActionButtons extends StatelessWidget {
   final VoidCallback? onDownloadPdf;
   final VoidCallback onAskAi;
@@ -7,7 +10,6 @@ class ReportActionButtons extends StatelessWidget {
   final String pdfLabel;
   final String aiLabel;
   final bool isExpertView;
-
   const ReportActionButtons({
     super.key,
     this.onDownloadPdf,
@@ -17,71 +19,94 @@ class ReportActionButtons extends StatelessWidget {
     required this.aiLabel,
     this.isExpertView = false,
   });
-
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Column(
       children: [
+        // DOWNLOAD BUTTON
         if (onDownloadPdf != null)
           _MainActionButton(
             icon: Icons.download_rounded,
             label: pdfLabel,
             onPressed: onDownloadPdf!,
           ),
-
         const SizedBox(height: 12),
-
+        // AI + EXPERT
         if (!isExpertView)
           Row(
             children: [
+              // ASK AI
               Expanded(
                 child: _SecondaryActionButton(
                   icon: Icons.smart_toy_outlined,
-                  label: aiLabel,
+                  label: t.askAiAboutReport,
                   onPressed: onAskAi,
                 ),
               ),
-
               const SizedBox(width: 12),
-
+              // CONSULT EXPERT
               Expanded(
                 child: _SecondaryActionButton(
                   icon: Icons.medical_services_outlined,
-                  label: 'Consult Expert',
+                  label: t.consultExpert,
                   onPressed: () {
                     final questionController = TextEditingController();
-
                     showDialog(
                       context: context,
+
                       builder: (_) {
                         return AlertDialog(
+                          backgroundColor: Colors.white,
+
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(22),
                           ),
-                          title: const Text(
-                            'Ask the Expert',
-                            style: TextStyle(
+
+                          title: Text(
+                            t.askTheExpert,
+
+                            textAlign: TextAlign.center,
+
+                            style: const TextStyle(
                               fontWeight: FontWeight.w800,
+                              fontSize: 26,
+                              color: mainPurple,
                             ),
                           ),
+
                           content: TextField(
                             controller: questionController,
+
                             maxLines: 4,
+
                             decoration: InputDecoration(
-                              hintText: 'Write your question here...',
+                              hintText: t.writeQuestionHere,
+
+                              hintStyle: const TextStyle(
+                                color: Color(0xFF9B9BB3),
+                                fontWeight: FontWeight.w500,
+                              ),
+
                               filled: true,
+
                               fillColor: const Color(0xFFF7F8FF),
+
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(14),
                               ),
+
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(14),
+
                                 borderSide: const BorderSide(
                                   color: Color(0xFFE4E6F5),
                                 ),
                               ),
+
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(14),
+
                                 borderSide: const BorderSide(
                                   color: mainPurple,
                                   width: 1.4,
@@ -89,34 +114,111 @@ class ReportActionButtons extends StatelessWidget {
                               ),
                             ),
                           ),
+
+                          actionsPadding: const EdgeInsets.fromLTRB(
+                            18,
+                            0,
+                            18,
+                            18,
+                          ),
+
                           actions: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              child: const Text('Cancel'),
-                            ),
+                            Row(
+                              children: [
+                                // CANCEL
+                                Expanded(
+                                  child: TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
 
-                            ElevatedButton(
-                              onPressed: () {
-                                final question =
-                                    questionController.text.trim();
+                                    style: TextButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 15,
+                                      ),
 
-                                if (question.isEmpty) {
-                                  return;
-                                }
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(14),
+                                      ),
+                                    ),
 
-                                onConsultExpert(question);
-                                Navigator.pop(context);
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: mainPurple,
-                                foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
+                                    child: Text(
+                                      t.cancel,
+
+                                      style: const TextStyle(
+                                        color: Color(0xFF7B61FF),
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              ),
-                              child: const Text('Send'),
+
+                                const SizedBox(width: 12),
+
+                                // SEND
+                                Expanded(
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      final question = questionController.text
+                                          .trim();
+
+                                      if (question.isEmpty) {
+                                        return;
+                                      }
+
+                                      onConsultExpert(question);
+
+                                      Navigator.pop(context);
+                                    },
+
+                                    style: ElevatedButton.styleFrom(
+                                      elevation: 0,
+
+                                      backgroundColor: Colors.transparent,
+
+                                      shadowColor: Colors.transparent,
+
+                                      padding: EdgeInsets.zero,
+
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(14),
+                                      ),
+                                    ),
+
+                                    child: Ink(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(14),
+
+                                        gradient: const LinearGradient(
+                                          colors: [
+                                            Color(0xFF8B6BFF),
+                                            Color(0xFF6C63FF),
+                                          ],
+                                        ),
+                                      ),
+
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 15,
+                                        ),
+
+                                        alignment: Alignment.center,
+
+                                        child: Text(
+                                          t.send,
+
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w800,
+                                            fontSize: 15,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         );
@@ -134,17 +236,16 @@ class ReportActionButtons extends StatelessWidget {
   }
 }
 
+// MAIN BUTTON
 class _MainActionButton extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback onPressed;
-
   const _MainActionButton({
     required this.icon,
     required this.label,
     required this.onPressed,
   });
-
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -155,10 +256,7 @@ class _MainActionButton extends StatelessWidget {
         icon: Icon(icon, size: 23),
         label: Text(
           label,
-          style: const TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w800,
-          ),
+          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
         ),
         style: ElevatedButton.styleFrom(
           elevation: 0,
@@ -173,17 +271,16 @@ class _MainActionButton extends StatelessWidget {
   }
 }
 
+// SECONDARY BUTTON
 class _SecondaryActionButton extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback onPressed;
-
   const _SecondaryActionButton({
     required this.icon,
     required this.label,
     required this.onPressed,
   });
-
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -195,18 +292,13 @@ class _SecondaryActionButton extends StatelessWidget {
           fit: BoxFit.scaleDown,
           child: Text(
             label,
-            style: const TextStyle(
-              fontSize: 13.5,
-              fontWeight: FontWeight.w800,
-            ),
+            style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w800),
           ),
         ),
         style: OutlinedButton.styleFrom(
           backgroundColor: Colors.white,
           foregroundColor: mainPurple,
-          side: const BorderSide(
-            color: Color(0xFFE3E0FF),
-          ),
+          side: const BorderSide(color: Color(0xFFE3E0FF)),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(18),
           ),

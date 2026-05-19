@@ -250,7 +250,74 @@
   "report": "التقرير",
 
   "noQuestion": "لا يوجد سؤال",
-  "missingReport": "بيانات التقرير مفقودة"
+  "missingReport": "بيانات التقرير مفقودة",
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+"@reportSection": {
+  "description": "Report translation keys for genetic analysis reports"
+},
+
+"gene": "الجين",
+"disease": "المرض",
+"inheritance": "نمط التوارث",
+"clinicalSignificance": "الأهمية السريرية",
+"confidenceLevel": "مستوى الثقة",
+"variantDetails": "تفاصيل الطفرة",
+"chromosome": "الكروموسوم",
+"position": "الموقع",
+"reference": "المرجع",
+"alternative": "البديل",
+"zygosity": "الزيجوتية",
+"showDetails": "عرض التفاصيل",
+"hideDetails": "إخفاء التفاصيل",
+"childRisk": "احتمالية إصابة الطفل",
+"affected": "مصاب",
+"carrier": "حامل",
+"healthy": "سليم",
+"geneticCondition": "الحالة الجينية",
+"explain": "شرح",
+"explainRisk": "شرح هذا الخطر",
+"autosomalDominant": "وراثة جسمية سائدة",
+"autosomalRecessive": "وراثة جسمية متنحية",
+"xLinkedDominant": "وراثة سائدة مرتبطة بالكروموسوم X",
+"xLinkedRecessive": "وراثة متنحية مرتبطة بالكروموسوم X",
+"xLinked": "وراثة مرتبطة بالكروموسوم X",
+"bothDominantRecessive": "سائدة ومتنحية معًا",
+"pathogenic": "مُمرض",
+"likelyPathogenic": "غالبًا مُمرض",
+"benign": "حميد",
+"uncertainSignificance": "دلالة غير مؤكدة",
+"heterozygous": "متغاير الزيجوت",
+"homozygous": "متماثل الزيجوت",
+"noneValue": "غير موجود",
+"dominantRiskExplanation": "هذا الجين يتبع نمط الوراثة الجسمية السائدة. تم حساب احتمالية إصابة الطفل اعتمادًا على الحالة الجينية للأب والأم.",
+"recessiveRiskExplanation": "هذا الجين يتبع نمط الوراثة الجسمية المتنحية. تم حساب احتمالية إصابة الطفل اعتمادًا على الحالة الجينية للأب والأم.",
+"xLinkedDominantRiskExplanation": "هذا الجين يتبع نمط الوراثة السائدة المرتبطة بالكروموسوم X. قد تختلف احتمالية الإصابة بين الذكور والإناث.",
+"xLinkedRecessiveRiskExplanation": "هذا الجين يتبع نمط الوراثة المتنحية المرتبطة بالكروموسوم X. قد تختلف احتمالية الإصابة بين الذكور والإناث.",
+"bothRiskExplanation": "قد يتبع هذا الجين أكثر من نمط وراثي. لذلك يُنصح بمراجعة مختص وراثي لتفسير النتيجة بدقة.",
+"consultExpert": "استشر خبير",
+"askTheExpert": "اسأل الخبير",
+"writeQuestionHere": "اكتب سؤالك هنا...",
+"send": "إرسال",
+"cancel": "إلغاء",
+"askAiAboutReport": "اسأل الذكاء عن التقرير",
+"ok": "حسنًا"
 }

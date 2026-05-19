@@ -1,16 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:modik_pages/screens/users/home_screen.dart';
+
 import '../../models/individual_report_item.dart';
 import '../../widgets/individual_report_card.dart';
 import '../../widgets/report_action_buttons.dart';
+
 import '../../services/db_service.dart';
 import '../../services/consultation_service.dart';
+import '../../services/disease_service.dart';
+
+import '../../l10n/app_localizations.dart';
+
 import 'AI_chat_screen.dart';
 
 const Color mainPurple = Color(0xFF6C63FF);
 const Color screenBackground = Color(0xFFF7F8FF);
 
-class IndividualReportScreen extends StatelessWidget {
+class IndividualReportScreen extends StatefulWidget {
   final List<IndividualReportItem> reportItems;
   final String fileName;
   final bool showDownload;
@@ -25,25 +31,99 @@ class IndividualReportScreen extends StatelessWidget {
   });
 
   @override
+  State<IndividualReportScreen> createState() => _IndividualReportScreenState();
+}
+
+class _IndividualReportScreenState extends State<IndividualReportScreen> {
+  Map<String, String> translatedDiseases = {};
+
+  bool isTranslating = true;
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _translateDiseases();
+    });
+  }
+
+  Future<void> _translateDiseases() async {
+    final locale = Localizations.localeOf(context).languageCode;
+
+    // اذا اللغة مو عربي لا تترجم
+    if (locale != 'ar') {
+      setState(() {
+        isTranslating = false;
+      });
+
+      return;
+    }
+
+    try {
+      final uniqueDiseases = widget.reportItems
+          .map((e) => e.disease.trim())
+          .toSet()
+          .toList();
+
+      final translatedMap = await DiseaseService.translateDiseases(
+        uniqueDiseases,
+      );
+
+      if (mounted) {
+        setState(() {
+          translatedDiseases = translatedMap;
+
+          isTranslating = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        isTranslating = false;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+
+    // لا تعرض الصفحة لين الترجمة تخلص
+    if (isTranslating) {
+      return const Scaffold(
+        backgroundColor: screenBackground,
+
+        body: Center(child: CircularProgressIndicator(color: mainPurple)),
+      );
+    }
+
     return Scaffold(
       backgroundColor: screenBackground,
 
       body: SafeArea(
         child: Column(
           children: [
-            _ReportHeader(title: fileName, isExpertView: isExpertView),
+            _ReportHeader(
+              title: widget.fileName,
+              isExpertView: widget.isExpertView,
+            ),
 
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(18, 12, 18, 20),
+
                 children: [
-                  ...reportItems.map(
+                  ...widget.reportItems.map(
                     (item) => Padding(
                       padding: const EdgeInsets.only(bottom: 18),
+
                       child: IndividualReportCard(
                         item: item,
-                        isExpertView: isExpertView,
+
+                        translatedDisease:
+                            translatedDiseases[item.disease.trim()],
+
+                        isExpertView: widget.isExpertView,
                       ),
                     ),
                   ),
@@ -51,47 +131,61 @@ class IndividualReportScreen extends StatelessWidget {
                   const SizedBox(height: 8),
 
                   ReportActionButtons(
-                    isExpertView: isExpertView,
-                    onDownloadPdf: showDownload
+                    isExpertView: widget.isExpertView,
+
+                    onDownloadPdf: widget.showDownload
                         ? () async {
                             await DBService.saveReport(
-                              items: reportItems
+                              items: widget.reportItems
                                   .map((item) => item.toJson())
                                   .toList(),
-                              title: fileName,
+
+                              title: widget.fileName,
+
                               type: 'individual',
                             );
 
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Report saved locally'),
-                              ),
+                              SnackBar(content: Text(t.savedReport)),
                             );
                           }
                         : null,
+
                     onAskAi: () {
                       final reportData = {
-                        "title": fileName,
-                        "data": reportItems.map((e) => e.toJson()).toList(),
+                        "title": widget.fileName,
+
+                        "data": widget.reportItems
+                            .map((e) => e.toJson())
+                            .toList(),
+
                         "type": "individual",
                       };
 
                       Navigator.push(
                         context,
+
                         MaterialPageRoute(
                           builder: (_) => AIChatScreen(reportData: reportData),
                         ),
                       );
                     },
+
                     onConsultExpert: (question) async {
                       final userId = await getUserId();
 
                       final success =
                           await ConsultationService.createConsultation(
                             userId: userId,
+
                             type: 'individual',
-                            reportName: fileName,
-                            data: reportItems.map((e) => e.toJson()).toList(),
+
+                            reportName: widget.fileName,
+
+                            data: widget.reportItems
+                                .map((e) => e.toJson())
+                                .toList(),
+
                             userQuestion: question,
                           );
 
@@ -105,8 +199,10 @@ class IndividualReportScreen extends StatelessWidget {
                         ),
                       );
                     },
-                    pdfLabel: 'Download Full Report',
-                    aiLabel: 'Ask AI about results',
+
+                    pdfLabel: t.savedReport,
+
+                    aiLabel: t.askAboutReport,
                   ),
                 ],
               ),
@@ -128,8 +224,11 @@ class _ReportHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 74,
+
       padding: const EdgeInsets.symmetric(horizontal: 12),
+
       decoration: const BoxDecoration(color: screenBackground),
+
       child: Row(
         children: [
           IconButton(
@@ -139,11 +238,14 @@ class _ReportHeader extends StatelessWidget {
               } else {
                 Navigator.pushAndRemoveUntil(
                   context,
+
                   MaterialPageRoute(builder: (_) => const HomeScreen()),
+
                   (route) => false,
                 );
               }
             },
+
             icon: const Icon(
               Icons.arrow_back_ios_new_rounded,
               color: mainPurple,
@@ -154,15 +256,21 @@ class _ReportHeader extends StatelessWidget {
           Expanded(
             child: Text(
               title,
+
               textAlign: TextAlign.center,
+
               overflow: TextOverflow.ellipsis,
+
               style: const TextStyle(
                 fontSize: 19,
+
                 fontWeight: FontWeight.w800,
+
                 color: mainPurple,
               ),
             ),
           ),
+
           const SizedBox(width: 48),
         ],
       ),
