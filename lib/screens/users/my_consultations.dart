@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../services/consultation_service.dart';
 import '../shared/chat_screen.dart';
+import 'UserConsultationDetailsScreen.dart';
 
 class Expertchat extends StatefulWidget {
   const Expertchat({super.key});
@@ -38,11 +39,15 @@ class _ExpertchatState extends State<Expertchat> {
   @override
   Widget build(BuildContext context) {
     var list = consultations.where((e) {
-      if (tab == 0) {
-        return e["status"] != "completed";
-      }
+    if (tab == 0) {
+          return e["status"] == "waiting";
+        }
 
-      return e["status"] == "completed";
+        if (tab == 1) {
+          return e["status"] == "active";
+        }
+
+        return e["status"] == "completed";
     }).toList();
 
     return Scaffold(
@@ -154,9 +159,9 @@ class _ExpertchatState extends State<Expertchat> {
             ),
             child: Row(
               children: [
-                tabBtn("Active", 0, Icons.access_time),
-
-                tabBtn("Completed", 1, Icons.check_circle_outline),
+                tabBtn("Waiting", 0, Icons.access_time),
+                tabBtn("Active", 1, Icons.chat_bubble_outline),
+                tabBtn("Completed", 2, Icons.check_circle_outline),
               ],
             ),
           ),
@@ -177,39 +182,28 @@ class _ExpertchatState extends State<Expertchat> {
                 itemBuilder: (_, i) {
                   var item = list[i];
 
-                  bool isCompleted = item["status"] == "completed";
-
-                  bool isWaiting = item["status"] == "waiting";
-
                   return GestureDetector(
                     onTap: () {
                       Navigator.push(
                         context,
-
                         MaterialPageRoute(
-                          builder: (_) =>
-                              ChatScreen(title: item["report_name"], 
-                              consultationId: item["id"]),
+                          builder: (_) => UserConsultationDetailsScreen(
+                            consultation: item,
+                          ),
                         ),
                       );
                     },
 
                     child: Container(
                       margin: const EdgeInsets.only(bottom: 15),
-
                       padding: const EdgeInsets.all(16),
-
                       decoration: BoxDecoration(
                         color: Colors.white,
-
                         borderRadius: BorderRadius.circular(20),
-
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.03),
-
                             blurRadius: 10,
-
                             offset: const Offset(0, 4),
                           ),
                         ],
@@ -218,81 +212,91 @@ class _ExpertchatState extends State<Expertchat> {
                       child: Row(
                         children: [
                           Container(
-                            padding: const EdgeInsets.all(10),
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: item["status"] == "waiting"
+                                    ? Colors.orange.withOpacity(0.12)
+                                    : item["status"] == "completed"
+                                        ? Colors.green.withOpacity(0.12)
+                                        : const Color(0xFF6C63FF).withOpacity(0.12),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
 
-                            decoration: BoxDecoration(
-                              color: isCompleted
-                                  ? Colors.green.withOpacity(0.1)
-                                  : (isWaiting
-                                        ? Colors.orange.withOpacity(0.1)
-                                        : const Color(0xFFEDEBFF)),
-
-                              shape: BoxShape.circle,
+                              child: Icon(
+                                item["status"] == "waiting"
+                                    ? Icons.access_time
+                                    : item["status"] == "completed"
+                                        ? Icons.check_circle
+                                        : Icons.chat_bubble_outline,
+                                color: item["status"] == "waiting"
+                                    ? Colors.orange
+                                    : item["status"] == "completed"
+                                        ? Colors.green
+                                        : const Color(0xFF6C63FF),
+                              ),
                             ),
-
-                            child: Icon(
-                              isCompleted
-                                  ? Icons.check_circle_outline
-                                  : (isWaiting
-                                        ? Icons.access_time
-                                        : Icons.chat_bubble_outline),
-
-                              color: isCompleted
-                                  ? Colors.green
-                                  : (isWaiting
-                                        ? Colors.orange
-                                        : const Color(0xFF6C63FF)),
-                            ),
-                          ),
 
                           const SizedBox(width: 15),
 
                           Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      item["report_name"],
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
 
-                              children: [
-                                Text(
-                                  item["report_name"],
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
+                                    const SizedBox(height: 6),
+
+                                    Text(
+                                      item["type"] ?? "Individual",
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+
+                                    const SizedBox(height: 4),
+
+                                    Text(
+                                      item["created_at"] ?? "",
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+
+                                    const SizedBox(height: 4),
+
+                                    Text(
+                                      item["status"],
+                                      style: TextStyle(
+                                        color: item["status"] == "completed"
+                                            ? Colors.green
+                                            : item["status"] == "waiting"
+                                                ? Colors.orange
+                                                : const Color(0xFF6C63FF),
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-
-                                const SizedBox(height: 4),
-
-                                Text(
-                                  item["status"],
-
-                                  style: TextStyle(
-                                    color: isCompleted
-                                        ? Colors.green
-                                        : (isWaiting
-                                              ? Colors.orange
-                                              : const Color(0xFF6C63FF)),
-
-                                    fontSize: 13,
-
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                              ),
 
                           const Icon(
                             Icons.arrow_forward_ios,
-
                             size: 16,
-
                             color: Color(0xFF6C63FF),
                           ),
                         ],
                       ),
                     ),
                   );
-                },
+                }
               ),
             ),
 

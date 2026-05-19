@@ -343,7 +343,7 @@ class ExpertRequestDetailsScreen extends StatelessWidget {
                     const Icon(
                       Icons.info_outline_rounded,
 
-                      color: Color(0xFF6C63FF),
+                      color: Color.fromRGBO(108, 99, 255, 1),
                     ),
 
                     const SizedBox(width: 10),
@@ -387,10 +387,23 @@ Expanded(
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => ChatScreen(
-            consultationId: consultation["id"],
-            title: consultation["report_name"],
-          ),
+          builder: (_) =>ChatScreen(
+  consultationId: consultation["id"],
+
+  title:
+      consultation["report_name"],
+
+  expertName:
+      consultation["expert_name"] ?? "Expert",
+
+  status:
+      consultation["status"],
+
+  reportData:
+      consultation,
+
+  isCompleted: false,
+)
         ),
       );
     },
@@ -464,6 +477,47 @@ Expanded(
   const SizedBox(height: 20),
 ],
 
+if (isCompleted) ...[
+  Center(
+    child: SizedBox(
+      height: 58,
+      width: 180, 
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF6C63FF),
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
+        ),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => ChatScreen(
+                consultationId: consultation["id"],
+                title: consultation["report_name"],
+                status: consultation["status"],
+                reportData: consultation,
+                isCompleted: true,
+                expertName: consultation["expert_name"] ?? "Expert",
+              ),
+            ),
+          );
+        },
+        child: const Text(
+          "View Chat",
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+      ),
+    ),
+  ),
+  const SizedBox(height: 20),
+],
               const Spacer(),
 
               /// ===== ACCEPT BUTTON =====
