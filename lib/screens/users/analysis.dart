@@ -5,11 +5,16 @@ import '../../widgets/bottom_nav_bar.dart';
 import '../../theme/app_colors.dart';
 import 'individual_upload.dart';
 import 'cross_upload.dart';
+import '../../l10n/app_localizations.dart';
+
 
 class AnalysisScreen extends StatelessWidget {
   const AnalysisScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       bottomNavigationBar: const BottomNavBar(currentIndex: 2),
@@ -23,7 +28,6 @@ class AnalysisScreen extends StatelessWidget {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  
                   const SizedBox(height: 140),
 
                   Container(
@@ -45,10 +49,10 @@ class AnalysisScreen extends StatelessWidget {
                     ),
                     child: Column(
                       children: [
-                        const Text(
-                          "Select how you want to\nanalyze your genetic data.",
+                        Text(
+                          t.selectAnalysisType,
                           textAlign: TextAlign.center,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w600,
                             height: 1.4,
@@ -59,14 +63,14 @@ class AnalysisScreen extends StatelessWidget {
                         /// SINGLE
                         buildOptionCard(
                           icon: Icons.person_outline,
-                          title: "Individual Analysis",
-                          subtitle:
-                              "Analyze one VCF file for a single individual.",
+                          title: t.individualAnalysis,
+                          subtitle: t.individualAnalysisText,
                           onTap: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => const IndividualUploadScreen(),
+                                builder: (_) =>
+                                    const IndividualUploadScreen(),
                               ),
                             );
                           },
@@ -76,9 +80,8 @@ class AnalysisScreen extends StatelessWidget {
                         /// CROSS
                         buildOptionCard(
                           icon: Icons.group_outlined,
-                          title: "Cross Analysis",
-                          subtitle:
-                              "Analyze two VCF files to compare shared or inherited variants.",
+                          title: t.crossAnalysis,
+                          subtitle: t.crossAnalysisText,
                           onTap: () {
                             Navigator.push(
                               context,
@@ -123,7 +126,8 @@ class AnalysisScreen extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               title,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style:
+                  const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
             Text(

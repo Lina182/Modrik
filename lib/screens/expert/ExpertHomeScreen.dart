@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../l10n/app_localizations.dart';
 import '../../widgets/header_section.dart';
 import '../../widgets/ExpertBottomNavBar.dart';
 import '../../services/expert_consultation_service.dart';
@@ -43,12 +45,14 @@ class _ExpertHomeScreenState extends State<ExpertHomeScreen> {
         consultations =
             await ExpertConsultationService.getWaitingConsultations();
       }
+
       /// ACTIVE
       else if (selectedTab == 1) {
         consultations = await ExpertConsultationService.getActiveConsultations(
           expertId,
         );
       }
+
       /// COMPLETED
       else {
         consultations =
@@ -65,6 +69,8 @@ class _ExpertHomeScreenState extends State<ExpertHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+
     List currentList = consultations;
 
     return Scaffold(
@@ -77,16 +83,16 @@ class _ExpertHomeScreenState extends State<ExpertHomeScreen> {
             title: "",
 
             bigTitle: selectedTab == 0
-                ? "New Requests"
+                ? t.newRequests
                 : selectedTab == 1
-                ? "Active Consultations"
-                : "Completed Consultations",
+                    ? t.activeConsultations
+                    : t.completedConsultations,
 
             subtitle: selectedTab == 0
-                ? "Review incoming consultation requests."
+                ? t.reviewRequests
                 : selectedTab == 1
-                ? "Continue active consultations."
-                : "View completed consultations.",
+                    ? t.continueConsultations
+                    : t.viewCompletedConsultations,
 
             bigTitleSize: 30,
 
@@ -94,7 +100,11 @@ class _ExpertHomeScreenState extends State<ExpertHomeScreen> {
 
             headerHeight: 170,
 
-            customPadding: const EdgeInsets.only(left: 24, right: 24, top: 60),
+            customPadding: const EdgeInsets.only(
+              left: 24,
+              right: 24,
+              top: 60,
+            ),
           ),
 
           const SizedBox(height: 22),
@@ -125,14 +135,17 @@ class _ExpertHomeScreenState extends State<ExpertHomeScreen> {
                 var item = currentList[index];
 
                 return GestureDetector(
-onTap: () async {
-  await Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (_) =>
-          ExpertRequestDetailsScreen(consultation: item),
-    ),  );
-  loadConsultations();
+                  onTap: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ExpertRequestDetailsScreen(
+                          consultation: item,
+                        ),
+                      ),
+                    );
+
+                    loadConsultations();
                   },
 
                   child: Container(
@@ -145,8 +158,7 @@ onTap: () async {
 
                       borderRadius: BorderRadius.circular(30),
 
-                      boxShadow: [
-                        BoxShadow(
+                      boxShadow: [BoxShadow(
                           color: Colors.black.withOpacity(0.04),
 
                           blurRadius: 20,
@@ -169,8 +181,8 @@ onTap: () async {
                                 color: isWaiting
                                     ? const Color(0xFFFFF3E6)
                                     : isActive
-                                    ? const Color(0xFFEDEBFF)
-                                    : const Color(0xFFEAF8EE),
+                                        ? const Color(0xFFEDEBFF)
+                                        : const Color(0xFFEAF8EE),
 
                                 borderRadius: BorderRadius.circular(18),
                               ),
@@ -182,8 +194,8 @@ onTap: () async {
                                   color: isWaiting
                                       ? Colors.orange
                                       : isActive
-                                      ? const Color(0xFF6C63FF)
-                                      : Colors.green,
+                                          ? const Color(0xFF6C63FF)
+                                          : Colors.green,
 
                                   size: 28,
                                 ),
@@ -200,11 +212,10 @@ onTap: () async {
                                 children: [
                                   /// CASE ID
                                   Text(
-                                    "Case #${item["id"]}",
+                                    "${t.caseNumber} #${item["id"]}",
 
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
-
                                       fontSize: 17,
                                     ),
                                   ),
@@ -214,8 +225,8 @@ onTap: () async {
                                   /// REPORT TYPE
                                   Text(
                                     item["report_type"] == "cross"
-                                        ? "Cross Analysis Report"
-                                        : "Individual Analysis",
+                                        ? t.crossAnalysisReport
+                                        : t.individualAnalysis,
 
                                     style: const TextStyle(
                                       color: Color(0xFF6C63FF),
@@ -244,14 +255,14 @@ onTap: () async {
                                       Expanded(
                                         child: Text(
                                           item["created_at"].toString(),
+
                                           overflow: TextOverflow.ellipsis,
 
                                           style: TextStyle(
                                             fontSize: 12,
 
                                             color: Colors.grey.shade600,
-                                          ),
-                                        ),
+                                          ),),
                                       ),
                                     ],
                                   ),
@@ -281,7 +292,7 @@ onTap: () async {
                                 Expanded(
                                   child: Text(
                                     item["user_question"] ??
-                                        "No question provided",
+                                        t.noQuestionProvided,
 
                                     style: TextStyle(
                                       color: Colors.grey.shade800,

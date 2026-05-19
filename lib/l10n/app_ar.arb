@@ -1,0 +1,256 @@
+{
+  "@@locale": "ar",
+
+  "account": "الحساب",
+  "manageAccount": "إدارة حسابك وتفضيلاتك",
+  "editProfile": "تعديل الملف الشخصي",
+
+  "general": "عام",
+  "language": "اللغة",
+  "notifications": "الإشعارات",
+
+  "privacy": "الخصوصية",
+  "privacyText": "يتم معالجة بياناتك الجينية فقط للتحليل ولا يتم تخزينها على خوادمنا.\nلا نقوم بمشاركة بياناتك مع أي طرف ثالث.\nجميع التحليلات تتم بشكل آمن وسري.",
+
+  "support": "الدعم",
+  "contactUs": "تواصل معنا",
+  "contactText": "البريد: supportmodrik@gmail.com\nنحن هنا لمساعدتك في أي وقت.",
+
+  "aboutApp": "عن التطبيق",
+  "aboutText": "Modrik يساعدك على فهم بياناتك الجينية بطريقة بسيطة وواضحة.\nنقوم بتحليل ملف DNA الخاص بك وتقديم نتائج سهلة الفهم باستخدام الذكاء الاصطناعي.\nبياناتك تبقى خاصة ولا يتم تخزينها بعد التحليل.",
+
+  "logout": "تسجيل خروج",
+  "noUsername": "لا يوجد اسم",
+  "noEmail": "لا يوجد بريد",
+
+  "welcomeTo": "مرحبًا بك في",
+  "appName": "مدرك",
+
+  "understandDNA": "افهم حمضك النووي بشكل أفضل",
+  "analyzeDNA": "تحليل الحمض النووي",
+  "uploadVCF": "ارفع ملف VCF واحصل على نتائج واضحة.",
+  "startAnalysis": "ابدأ التحليل",
+  "exploreMore": "استكشف المزيد",
+
+  "chooseChatType": "اختر نوع المحادثة",
+  "askAboutReport": "اسأل عن تقرير",
+  "selectSavedReports": "اختر من التقارير المحفوظة",
+  "generalGeneticQuestion": "سؤال جيني عام",
+  "askAnythingGenetics": "اسأل أي شيء عن الجينات",
+
+  "chat": "الدردشة",
+  "chatSubtitle": "اسأل الذكاء الاصطناعي عن جيناتك",
+
+  "expert": "تواصل مع الخبير",
+  "expertSubtitle": "استشر خبراءنا",
+
+  "yourDataPrivate": "بياناتك خاصة",
+  "yourDataPrivateText": "تتم معالجة بياناتك للتحليل فقط ولا يتم حفظها.",
+
+  "selectAnalysisType": "اختر طريقة تحليل بياناتك الجينية",
+
+  "individualAnalysis": "تحليل فردي",
+  "individualAnalysisText": "قم بتحليل ملف VCF لشخص واحد.",
+
+  "crossAnalysis": "تحليل مشترك",
+  "crossAnalysisText": "قم بتحليل ملفين VCF لمقارنة المتغيرات المشتركة أو الوراثية.",
+
+  "crossUpload": "الرفع المشترك",
+  "crossUploadDesc": "ارفع ملفين VCF لمقارنة المتغيرات المشتركة أو الوراثية.",
+
+  "selectFiles": "اختر ملفات VCF",
+  "selectSingleFile": "اختر ملف VCF",
+  "noFileSelected": "لم يتم اختيار ملف",
+  "uploadFailed": "فشل الرفع",
+
+  "chooseFatherFile": "اختر ملف الأب",
+  "chooseMotherFile": "اختر ملف الأم",
+
+  "continueBtn": "متابعة",
+
+  "error": "خطأ",
+  "ok": "حسناً",
+
+  "failedToAnalyze": "فشل في تحليل الملفات",
+  "somethingWentWrong": "حدث خطأ ما",
+
+  "noSavedReports": "لا توجد تقارير محفوظة بعد",
+  "savedReportsDesc": "ستظهر التقارير التي تم تحليلها هنا.",
+  "savedReports": "التقارير المحفوظة",
+  "savedReport": "تقرير محفوظ",
+
+  "genesCount": "{count} جينات",
+  "@genesCount": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+
+  "conditionsCount": "{count} حالات",
+  "@conditionsCount": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+
+  "notAvailable": "غير متوفر",
+  "unknown": "غير معروف",
+  "noExplanation": "لا يوجد شرح متوفر",
+
+  "chatTitleReport": "محادثة التقرير",
+  "chatTitleGeneral": "المحادثة العامة",
+
+  "reportModeBanner": "أنت تسأل عن تقرير",
+  "messageHint": "اكتب رسالتك...",
+  "typing": "جاري الكتابة...",
+
+  "welcomeBot": "مرحبًا! أنا مودرك 👋\nاسألني عن تقريرك أو أي شيء في الجينات.",
+  "reportReceived": "تم استلام التقرير، يمكنك البدء بالسؤال.",
+  "serverError": "خطأ في السيرفر",
+  "connectionError": "خطأ في الاتصال",
+  "fullName": "الاسم الكامل",
+  "enterName": "أدخل اسمك",
+  "enterEmail": "أدخل بريدك الإلكتروني",
+
+  "newPassword": "كلمة المرور الجديدة",
+  "leaveEmpty": "اتركه فارغًا إذا لم ترد التغيير",
+
+  "currentPassword": "كلمة المرور الحالية",
+  "requiredPassword": "مطلوبة لتغيير البريد أو كلمة المرور",
+
+  "securityNotice": "لأمان حسابك، يرجى إدخال كلمة المرور الحالية لحفظ أي تغييرات.",
+
+  "deleteAccount": "حذف الحساب",
+
+  "profileUpdated": "تم تحديث الملف الشخصي بنجاح ✅",
+  "noChanges": "لا توجد تغييرات",
+
+  "wrongPassword": "كلمة المرور الحالية غير صحيحة",
+  "errorUpdate": "حدث خطأ أثناء تحديث الملف الشخصي",
+
+  "confirmEmail": "تحقق من بريدك الإلكتروني الجديد للتأكيد 📩","enterCurrentPassword": "أدخل كلمة المرور الحالية لتغيير البريد أو كلمة المرور",
+  "deletePassword": "أدخل كلمة المرور الحالية لحذف الحساب",
+  "email": "البريد الإلكتروني",
+  "login": "تسجيل الدخول",
+  "welcomeBack": "مرحبًا بعودتك\nلقد افتقدناك!",
+  "email": "البريد الإلكتروني",
+  "password": "كلمة المرور",
+  "forgotPassword": "نسيت كلمة المرور؟",
+  "logIn": "دخول",
+  "dontHaveAccount": "ليس لديك حساب؟ إنشاء حساب",
+
+  "pleaseFillFields": "يرجى تعبئة جميع الحقول",
+  "userNull": "المستخدم غير موجود",
+  "tokenVerificationFailed": "فشل التحقق من التوكن",
+  "loginFailed": "فشل تسجيل الدخول",
+  "noUserFound": "لا يوجد مستخدم بهذا البريد",
+  "wrongPassword": "كلمة المرور خاطئة",
+  "invalidEmail": "صيغة البريد الإلكتروني غير صحيحة",
+  "unexpectedError": "حدث خطأ غير متوقع",
+  "noAccount": "ليس لديك حساب؟ إنشاء حساب",
+  "fillAllFields": "يرجى تعبئة جميع الحقول",
+   "createAccount": "إنشاء حساب",
+  "createAccountSubtitle": "أنشئ حسابك\nوابدأ الآن!",
+
+  "fullName": "الاسم الكامل",
+  "email": "البريد الإلكتروني",
+  "password": "كلمة المرور",
+  "confirmPassword": "تأكيد كلمة المرور",
+
+  "signUp": "تسجيل",
+  "alreadyHaveAccount": "لديك حساب؟ تسجيل الدخول",
+
+  "pleaseFillFields": "يرجى تعبئة جميع الحقول",
+  "invalidEmail": "أدخل صيغة بريد صحيحة",
+  "weakPassword": "كلمة المرور يجب أن تكون 6 أحرف على الأقل",
+  "passwordsDontMatch": "كلمات المرور غير متطابقة",
+
+  "accountCreated": "تم إنشاء الحساب بنجاح",
+  "userCreationFailed": "فشل إنشاء الحساب",
+  "somethingWentWrong": "حدث خطأ ما",
+  "emailInUse": "البريد مستخدم مسبقًا",
+  "forgotPassword": "نسيت كلمة المرور",
+  "forgotPasswordDesc": "أدخل بريدك الإلكتروني وسنرسل لك رابط إعادة التعيين",
+  "email": "البريد الإلكتروني",
+  "enterEmail": "الرجاء إدخال البريد الإلكتروني",
+  "resetPassword": "إعادة تعيين كلمة المرور",
+  "resetLinkSent": "تم إرسال رابط إعادة التعيين إلى بريدك الإلكتروني",
+  "noAccountFound": "لا يوجد حساب بهذا البريد الإلكتروني",
+  "invalidEmail": "صيغة البريد الإلكتروني غير صحيحة",
+  "somethingWentWrong": "حدث خطأ غير متوقع",
+  "myConsultations": "استشاراتي",
+"consultationDesc": "تابع استشاراتك\nوتحدث مع خبرائنا.",
+"active": "النشطة",
+"completed": "المكتملة",
+"consultationInfo": "افتح الاستشارة لبدء أو متابعة المحادثة مع الخبير.",
+"newRequests": "الطلبات الجديدة",
+"activeConsultations": "الاستشارات النشطة",
+"completedConsultations": "الاستشارات المكتملة",
+
+"reviewRequests": "راجع طلبات الاستشارة الجديدة.",
+"continueConsultations": "تابع الاستشارات النشطة.",
+"viewCompletedConsultations": "عرض الاستشارات المكتملة.",
+
+"caseNumber": "الحالة",
+
+"crossAnalysisReport": "تقرير التحليل المشترك",
+
+"noQuestionProvided": "لا يوجد سؤال مرفق",
+
+
+"expertMyConsultations": "استشاراتي",
+"expertTrackConsultations": "تابع استشاراتك وتحدث مع خبرائنا.",
+
+"active": "النشطة",
+"completed": "المكتملة",
+
+"openConsultationChat": "افتح الاستشارة لبدء أو متابعة المحادثة مع الخبير.",
+
+"newRequests": "الطلبات الجديدة",
+"activeConsultations": "الاستشارات النشطة",
+"completedConsultations": "الاستشارات المكتملة",
+
+"reviewRequests": "راجع طلبات الاستشارة الجديدة.",
+"continueConsultations": "تابع الاستشارات النشطة.",
+"viewCompletedConsultations": "عرض الاستشارات المكتملة.",
+
+"crossAnalysisReport": "تقرير تحليل مشترك",
+"individualAnalysisOnly": "تحليل فردي",
+
+"noQuestionProvided": "لا يوجد سؤال مرفق",
+
+  "expertHomeTitle": "طلبات جديدة",
+  "expertHomeSubtitle": "راجع طلبات الاستشارات القادمة.",
+
+  "expertActiveTitle": "استشارات نشطة",
+  "expertActiveSubtitle": "تابع الاستشارات الحالية.",
+
+  "expertCompletedTitle": "استشارات مكتملة",
+  "expertCompletedSubtitle": "عرض الاستشارات المكتملة.",
+
+  "myConsultations": "استشاراتي",
+  "trackConsultations": "تابع استشاراتك وتحدث مع الخبراء.",
+
+  "active": "نشطة",
+  "completed": "مكتملة",
+
+  "viewReport": "عرض التقرير",
+  "userQuestion": "سؤال المستخدم",
+  "notes": "ملاحظات",
+
+  "chat": "دردشة",
+  "complete": "إنهاء",
+  "acceptRequest": "قبول الطلب",
+
+  "requestDetails": "تفاصيل الطلب",
+  "report": "التقرير",
+
+  "noQuestion": "لا يوجد سؤال",
+  "missingReport": "بيانات التقرير مفقودة"
+
+
+}

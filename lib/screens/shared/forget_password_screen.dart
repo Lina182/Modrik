@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
-
+import '../../l10n/app_localizations.dart';
 class ForgetPasswordScreen extends StatefulWidget {
   const ForgetPasswordScreen({super.key});
 
@@ -17,11 +18,12 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
 
   Future<void> resetPassword() async {
     final email = emailController.text.trim();
+    final t = AppLocalizations.of(context)!;
 
     if (email.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Please enter your email")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(t.enterEmail)),
+      );
       return;
     }
 
@@ -31,20 +33,22 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
       await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Reset link sent to your email ✅")),
+        SnackBar(content: Text(t.resetLinkSent)),
       );
 
       Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
-      String msg = "Something went wrong";
+      String msg = t.somethingWentWrong;
 
       if (e.code == 'user-not-found') {
-        msg = "No account found with this email";
+        msg = t.noAccountFound;
       } else if (e.code == 'invalid-email') {
-        msg = "Invalid email format";
+        msg = t.invalidEmail;
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(msg)),
+      );
     } finally {
       setState(() => _loading = false);
     }
@@ -60,21 +64,21 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
         borderRadius: BorderRadius.circular(14),
         borderSide: BorderSide.none,
       ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: Colors.black, width: 1),
+      focusedBorder: const OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.black, width: 1),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: Stack(
           children: [
-            // نفس خلفية اللوق إن
             Container(color: AppColors.background),
 
             Positioned(
@@ -94,7 +98,6 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
               ),
             ),
 
-            // نفس الـ curve
             Positioned(
               top: 50,
               right: 0,
@@ -113,7 +116,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                     const SizedBox(height: 120),
 
                     Text(
-                      "Forgot Password",
+                      t.forgotPassword,
                       textAlign: TextAlign.center,
                       style: AppTextStyles.title.copyWith(
                         fontSize: 30,
@@ -122,18 +125,18 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                     ),
 
                     const SizedBox(height: 10),
-                    const Text(
-                      "Enter your email and we will\nsend you a reset link.",
+
+                    Text(
+                      t.enterEmail,
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: AppColors.textGrey),
+                      style: const TextStyle(color: AppColors.textGrey),
                     ),
 
                     const SizedBox(height: 50),
 
-                    TextField(
-                      controller: emailController,
+                    TextField(controller: emailController,
                       decoration: inputDecoration(
-                        "Email",
+                        t.email,
                         Icons.email_outlined,
                       ),
                     ),
@@ -153,9 +156,9 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                                 ),
                               ),
                               onPressed: resetPassword,
-                              child: const Text(
-                                "Reset Password",
-                                style: TextStyle(
+                              child: Text(
+                                t.resetPassword,
+                                style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
