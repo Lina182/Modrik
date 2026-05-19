@@ -254,7 +254,63 @@
   "report": "Report",
 
   "noQuestion": "No question provided",
-  "missingReport": "Report data is missing"
+  "missingReport": "Report data is missing",
 
 
+
+
+
+
+
+
+"@reportSection": {
+  "description": "Report translation keys for genetic analysis reports"
+},
+
+
+"gene": "Gene",
+"disease": "Disease",
+"inheritance": "Inheritance",
+"clinicalSignificance": "Clinical Significance",
+"confidenceLevel": "Confidence Level",
+"variantDetails": "Variant Details",
+"chromosome": "Chromosome",
+"position": "Position",
+"reference": "Reference",
+"alternative": "Alternative",
+"zygosity": "Zygosity",
+"showDetails": "Show Details",
+"hideDetails": "Hide Details",
+"childRisk": "Child Risk",
+"affected": "Affected",
+"carrier": "Carrier",
+"healthy": "Healthy",
+"geneticCondition": "Genetic Condition",
+"explain": "Explain",
+"explainRisk": "Explain this risk",
+"autosomalDominant": "Autosomal Dominant",
+"autosomalRecessive": "Autosomal Recessive",
+"xLinkedDominant": "X-Linked Dominant",
+"xLinkedRecessive": "X-Linked Recessive",
+"xLinked": "X-Linked",
+"bothDominantRecessive": "Both Dominant and Recessive",
+"pathogenic": "Pathogenic",
+"likelyPathogenic": "Likely Pathogenic",
+"benign": "Benign",
+"uncertainSignificance": "Uncertain Significance",
+"heterozygous": "Heterozygous",
+"homozygous": "Homozygous",
+"noneValue": "None",
+"dominantRiskExplanation": "This gene follows Autosomal Dominant inheritance. The child risk is calculated based on the genetic states of both parents.",
+"recessiveRiskExplanation": "This gene follows Autosomal Recessive inheritance. The child risk is calculated based on the genetic states of both parents.",
+"xLinkedDominantRiskExplanation": "This gene follows X-Linked Dominant inheritance. Male and female children may have different risk percentages.",
+"xLinkedRecessiveRiskExplanation": "This gene follows X-Linked Recessive inheritance. Male and female children may have different risk percentages.",
+"bothRiskExplanation": "This gene may follow both dominant and recessive inheritance patterns. Expert interpretation is recommended.",
+"consultExpert": "Consult Expert",
+"askTheExpert": "Ask the Expert",
+"writeQuestionHere": "Write your question here...",
+"send": "Send",
+"cancel": "Cancel",
+"askAiAboutReport": "Ask AI About Report",
+"ok": "OK"
 }

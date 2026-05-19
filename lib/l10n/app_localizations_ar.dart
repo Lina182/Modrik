@@ -156,7 +156,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get error => 'خطأ';
 
   @override
-  String get ok => 'حسناً';
+  String get ok => 'حسنًا';
 
   @override
   String get failedToAnalyze => 'فشل في تحليل الملفات';
@@ -461,4 +461,136 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get missingReport => 'بيانات التقرير مفقودة';
+
+  @override
+  String get gene => 'الجين';
+
+  @override
+  String get disease => 'المرض';
+
+  @override
+  String get inheritance => 'نمط التوارث';
+
+  @override
+  String get clinicalSignificance => 'الأهمية السريرية';
+
+  @override
+  String get confidenceLevel => 'مستوى الثقة';
+
+  @override
+  String get variantDetails => 'تفاصيل الطفرة';
+
+  @override
+  String get chromosome => 'الكروموسوم';
+
+  @override
+  String get position => 'الموقع';
+
+  @override
+  String get reference => 'المرجع';
+
+  @override
+  String get alternative => 'البديل';
+
+  @override
+  String get zygosity => 'الزيجوتية';
+
+  @override
+  String get showDetails => 'عرض التفاصيل';
+
+  @override
+  String get hideDetails => 'إخفاء التفاصيل';
+
+  @override
+  String get childRisk => 'احتمالية إصابة الطفل';
+
+  @override
+  String get affected => 'مصاب';
+
+  @override
+  String get carrier => 'حامل';
+
+  @override
+  String get healthy => 'سليم';
+
+  @override
+  String get geneticCondition => 'الحالة الجينية';
+
+  @override
+  String get explain => 'شرح';
+
+  @override
+  String get explainRisk => 'شرح هذا الخطر';
+
+  @override
+  String get autosomalDominant => 'وراثة جسمية سائدة';
+
+  @override
+  String get autosomalRecessive => 'وراثة جسمية متنحية';
+
+  @override
+  String get xLinkedDominant => 'وراثة سائدة مرتبطة بالكروموسوم X';
+
+  @override
+  String get xLinkedRecessive => 'وراثة متنحية مرتبطة بالكروموسوم X';
+
+  @override
+  String get xLinked => 'وراثة مرتبطة بالكروموسوم X';
+
+  @override
+  String get bothDominantRecessive => 'سائدة ومتنحية معًا';
+
+  @override
+  String get pathogenic => 'مُمرض';
+
+  @override
+  String get likelyPathogenic => 'غالبًا مُمرض';
+
+  @override
+  String get benign => 'حميد';
+
+  @override
+  String get uncertainSignificance => 'دلالة غير مؤكدة';
+
+  @override
+  String get heterozygous => 'متغاير الزيجوت';
+
+  @override
+  String get homozygous => 'متماثل الزيجوت';
+
+  @override
+  String get noneValue => 'غير موجود';
+
+  @override
+  String get dominantRiskExplanation => 'هذا الجين يتبع نمط الوراثة الجسمية السائدة. تم حساب احتمالية إصابة الطفل اعتمادًا على الحالة الجينية للأب والأم.';
+
+  @override
+  String get recessiveRiskExplanation => 'هذا الجين يتبع نمط الوراثة الجسمية المتنحية. تم حساب احتمالية إصابة الطفل اعتمادًا على الحالة الجينية للأب والأم.';
+
+  @override
+  String get xLinkedDominantRiskExplanation => 'هذا الجين يتبع نمط الوراثة السائدة المرتبطة بالكروموسوم X. قد تختلف احتمالية الإصابة بين الذكور والإناث.';
+
+  @override
+  String get xLinkedRecessiveRiskExplanation => 'هذا الجين يتبع نمط الوراثة المتنحية المرتبطة بالكروموسوم X. قد تختلف احتمالية الإصابة بين الذكور والإناث.';
+
+  @override
+  String get bothRiskExplanation => 'قد يتبع هذا الجين أكثر من نمط وراثي. لذلك يُنصح بمراجعة مختص وراثي لتفسير النتيجة بدقة.';
+
+  @override
+  String get consultExpert => 'استشر خبير';
+
+  @override
+  String get askTheExpert => 'اسأل الخبير';
+
+  @override
+  String get writeQuestionHere => 'اكتب سؤالك هنا...';
+
+  @override
+  String get send => 'إرسال';
+
+  @override
+  String get cancel => 'إلغاء';
+
+  @override
+  String get askAiAboutReport => 'اسأل الذكاء عن التقرير';
 }

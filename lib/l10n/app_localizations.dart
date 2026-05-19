@@ -994,6 +994,270 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Report data is missing'**
   String get missingReport;
+
+  /// No description provided for @gene.
+  ///
+  /// In en, this message translates to:
+  /// **'Gene'**
+  String get gene;
+
+  /// No description provided for @disease.
+  ///
+  /// In en, this message translates to:
+  /// **'Disease'**
+  String get disease;
+
+  /// No description provided for @inheritance.
+  ///
+  /// In en, this message translates to:
+  /// **'Inheritance'**
+  String get inheritance;
+
+  /// No description provided for @clinicalSignificance.
+  ///
+  /// In en, this message translates to:
+  /// **'Clinical Significance'**
+  String get clinicalSignificance;
+
+  /// No description provided for @confidenceLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Confidence Level'**
+  String get confidenceLevel;
+
+  /// No description provided for @variantDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Variant Details'**
+  String get variantDetails;
+
+  /// No description provided for @chromosome.
+  ///
+  /// In en, this message translates to:
+  /// **'Chromosome'**
+  String get chromosome;
+
+  /// No description provided for @position.
+  ///
+  /// In en, this message translates to:
+  /// **'Position'**
+  String get position;
+
+  /// No description provided for @reference.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference'**
+  String get reference;
+
+  /// No description provided for @alternative.
+  ///
+  /// In en, this message translates to:
+  /// **'Alternative'**
+  String get alternative;
+
+  /// No description provided for @zygosity.
+  ///
+  /// In en, this message translates to:
+  /// **'Zygosity'**
+  String get zygosity;
+
+  /// No description provided for @showDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Show Details'**
+  String get showDetails;
+
+  /// No description provided for @hideDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide Details'**
+  String get hideDetails;
+
+  /// No description provided for @childRisk.
+  ///
+  /// In en, this message translates to:
+  /// **'Child Risk'**
+  String get childRisk;
+
+  /// No description provided for @affected.
+  ///
+  /// In en, this message translates to:
+  /// **'Affected'**
+  String get affected;
+
+  /// No description provided for @carrier.
+  ///
+  /// In en, this message translates to:
+  /// **'Carrier'**
+  String get carrier;
+
+  /// No description provided for @healthy.
+  ///
+  /// In en, this message translates to:
+  /// **'Healthy'**
+  String get healthy;
+
+  /// No description provided for @geneticCondition.
+  ///
+  /// In en, this message translates to:
+  /// **'Genetic Condition'**
+  String get geneticCondition;
+
+  /// No description provided for @explain.
+  ///
+  /// In en, this message translates to:
+  /// **'Explain'**
+  String get explain;
+
+  /// No description provided for @explainRisk.
+  ///
+  /// In en, this message translates to:
+  /// **'Explain this risk'**
+  String get explainRisk;
+
+  /// No description provided for @autosomalDominant.
+  ///
+  /// In en, this message translates to:
+  /// **'Autosomal Dominant'**
+  String get autosomalDominant;
+
+  /// No description provided for @autosomalRecessive.
+  ///
+  /// In en, this message translates to:
+  /// **'Autosomal Recessive'**
+  String get autosomalRecessive;
+
+  /// No description provided for @xLinkedDominant.
+  ///
+  /// In en, this message translates to:
+  /// **'X-Linked Dominant'**
+  String get xLinkedDominant;
+
+  /// No description provided for @xLinkedRecessive.
+  ///
+  /// In en, this message translates to:
+  /// **'X-Linked Recessive'**
+  String get xLinkedRecessive;
+
+  /// No description provided for @xLinked.
+  ///
+  /// In en, this message translates to:
+  /// **'X-Linked'**
+  String get xLinked;
+
+  /// No description provided for @bothDominantRecessive.
+  ///
+  /// In en, this message translates to:
+  /// **'Both Dominant and Recessive'**
+  String get bothDominantRecessive;
+
+  /// No description provided for @pathogenic.
+  ///
+  /// In en, this message translates to:
+  /// **'Pathogenic'**
+  String get pathogenic;
+
+  /// No description provided for @likelyPathogenic.
+  ///
+  /// In en, this message translates to:
+  /// **'Likely Pathogenic'**
+  String get likelyPathogenic;
+
+  /// No description provided for @benign.
+  ///
+  /// In en, this message translates to:
+  /// **'Benign'**
+  String get benign;
+
+  /// No description provided for @uncertainSignificance.
+  ///
+  /// In en, this message translates to:
+  /// **'Uncertain Significance'**
+  String get uncertainSignificance;
+
+  /// No description provided for @heterozygous.
+  ///
+  /// In en, this message translates to:
+  /// **'Heterozygous'**
+  String get heterozygous;
+
+  /// No description provided for @homozygous.
+  ///
+  /// In en, this message translates to:
+  /// **'Homozygous'**
+  String get homozygous;
+
+  /// No description provided for @noneValue.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get noneValue;
+
+  /// No description provided for @dominantRiskExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'This gene follows Autosomal Dominant inheritance. The child risk is calculated based on the genetic states of both parents.'**
+  String get dominantRiskExplanation;
+
+  /// No description provided for @recessiveRiskExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'This gene follows Autosomal Recessive inheritance. The child risk is calculated based on the genetic states of both parents.'**
+  String get recessiveRiskExplanation;
+
+  /// No description provided for @xLinkedDominantRiskExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'This gene follows X-Linked Dominant inheritance. Male and female children may have different risk percentages.'**
+  String get xLinkedDominantRiskExplanation;
+
+  /// No description provided for @xLinkedRecessiveRiskExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'This gene follows X-Linked Recessive inheritance. Male and female children may have different risk percentages.'**
+  String get xLinkedRecessiveRiskExplanation;
+
+  /// No description provided for @bothRiskExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'This gene may follow both dominant and recessive inheritance patterns. Expert interpretation is recommended.'**
+  String get bothRiskExplanation;
+
+  /// No description provided for @consultExpert.
+  ///
+  /// In en, this message translates to:
+  /// **'Consult Expert'**
+  String get consultExpert;
+
+  /// No description provided for @askTheExpert.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask the Expert'**
+  String get askTheExpert;
+
+  /// No description provided for @writeQuestionHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Write your question here...'**
+  String get writeQuestionHere;
+
+  /// No description provided for @send.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get send;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @askAiAboutReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask AI About Report'**
+  String get askAiAboutReport;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
