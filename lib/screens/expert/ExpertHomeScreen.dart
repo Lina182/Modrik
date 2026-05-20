@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'dart:async';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/header_section.dart';
 import '../../widgets/ExpertBottomNavBar.dart';
@@ -22,14 +22,16 @@ class _ExpertHomeScreenState extends State<ExpertHomeScreen> {
   List consultations = [];
 
   bool isLoading = true;
+  Timer? refreshTimer;
 
   @override
   void initState() {
     super.initState();
-
     selectedTab = widget.initialTab;
-
     loadConsultations();
+    refreshTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+      loadConsultations();
+    });
   }
 
   Future loadConsultations() async {
@@ -65,6 +67,12 @@ class _ExpertHomeScreenState extends State<ExpertHomeScreen> {
     setState(() {
       isLoading = false;
     });
+  }
+
+  @override
+  void dispose() {
+    refreshTimer?.cancel();
+    super.dispose();
   }
 
   @override

@@ -61,6 +61,11 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _loading = true);
 
     try {
+      await FirebaseAuth.instance.signOut();
+
+      final Prefs = await SharedPreferences.getInstance();
+      await Prefs.clear();
+      
       final userCredential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(
         email: emailController.text.trim(),
@@ -105,10 +110,13 @@ class _LoginScreenState extends State<LoginScreen> {
         final prefs = await SharedPreferences.getInstance();
 
         await prefs.setString('firebase_uid', uid);
-        await prefs.setString('role', role);
+        await prefs.setString('user_role', role);
 
         if (user_id != null) {
           await prefs.setString('user_id', user_id.toString());
+
+            print("SAVED USER ID = $user_id");
+            print("SAVED ROLE = $role");
         }
 
         final logResponse = await http.post(
