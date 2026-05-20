@@ -1,746 +1,375 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
 import '../../services/consultation_service.dart';
-
+import 'dart:async';
 import '../users/individual_report_screen.dart';
 import '../users/cross_report_screen.dart';
-
 import '../../models/individual_report_item.dart';
 import '../../models/cross_report_item.dart';
 
 class ChatScreen extends StatefulWidget {
-
   final int consultationId;
-
-  // 🔥 اسم الحالة
-  final String? title;
-
-  // 🔥 اسم الخبير
+  final String title;
+  final String status;
+  final Map reportData;
+  final bool isCompleted;
   final String expertName;
 
-  final String status;
-
-  final Map reportData;
-
-  final bool isCompleted;
-
-  const ChatScreen({
-    super.key,
-
-    required this.consultationId,
-
-    this.title,
-
-    required this.expertName,
-
-    required this.status,
-
-    required this.reportData,
-
-    required this.isCompleted,
-  });
+  const ChatScreen({super.key,
+  required this.title,
+  required this.consultationId,
+  required this.status,
+  required this.reportData,
+  required this.isCompleted,
+  required this.expertName});
 
   @override
-  State<ChatScreen> createState() =>
-      _ChatScreenState();
+  State<ChatScreen> createState() => _ChatScreenState();
 }
 
-class _ChatScreenState
-    extends State<ChatScreen> {
+class _ChatScreenState extends State<ChatScreen> {
 
   int? currentUserId;
-
   String? currentUserRole;
-
+  Timer? refreshTimer;
   List msgs = [];
+  final TextEditingController c = TextEditingController();
 
-  bool loading = true;
+@override
+void initState() {
+  super.initState();
 
-  final TextEditingController c =
-      TextEditingController();
+  msgs = [];
 
-  // =========================
-  // INIT
-  // =========================
+  initUser();
 
-  @override
-  void initState() {
-    super.initState();
+  refreshTimer = Timer.periodic(
+    const Duration(seconds: 3),
+    (_) {
+      loadMessages();
+    },
+  );
+}
 
-    initUser();
+Future<void> initUser() async {
+
+  currentUserId = await getUserId();
+  currentUserRole = await getUserRole();
+
+  print("CHAT USER ID = $currentUserId");
+  print("CHAT USER ROLE = $currentUserRole");
+
+  setState(() {});
+
+  await loadMessages();
+}
+
+
+Future<void> loadMessages() async {
+
+  if (currentUserId == null || currentUserRole == null) {
+    return;
   }
 
-  @override
-  void dispose() {
-    c.dispose();
+  final res = await http.get(
+    Uri.parse(
+      "http://172.237.116.141:8003/messages/${widget.consultationId}"
+      "?current_user_id=$currentUserId"
+      "&current_user_role=$currentUserRole",
+    ),
+  );
 
-    super.dispose();
-  }
+  final data = jsonDecode(res.body);
 
-  Future<void> initUser() async {
+  setState(() {
+    msgs = data["messages"] ?? [];
+  });
+}
 
-    currentUserId =
-        await getUserId();
 
-    currentUserRole =
-        await getUserRole();
+Future<void> send() async {
 
-    print(currentUserId);
-    print(currentUserRole);
+  if (c.text.trim().isEmpty) return;
 
-    await loadMessages();
+  final res = await http.post(
+    Uri.parse("http://172.237.116.141:8003/messages/send"),
 
-    setState(() {
-      loading = false;
-    });
-  }
+    headers: {
+      "Content-Type": "application/json"
+    },
 
-  // =========================
-  // LOAD MESSAGES
-  // =========================
+    body: jsonEncode({
 
-  Future<void> loadMessages() async {
+      "consultation_id": widget.consultationId,
 
-    if (
-      currentUserId == null ||
-      currentUserRole == null
-    ) {
-      return;
-    }
+      "sender_id": currentUserId,
 
-    final res = await http.get(
+      "message_text": c.text.trim(),
+    }),
+  );
 
-      Uri.parse(
-        "http://172.237.116.141:8003/messages/${widget.consultationId}"
-        "?current_user_id=$currentUserId"
-        "&current_user_role=$currentUserRole",
-      ),
-    );
+  print(res.body);
 
-    final data =
-        jsonDecode(res.body);
+  print("SENDING AS USER ID = $currentUserId");
 
-    print(data);
+  c.clear();
 
-    setState(() {
+  await loadMessages();
+}
 
-      msgs =
-          data["messages"] ?? [];
+@override
+void dispose() {
+  refreshTimer?.cancel();
+  super.dispose();
+}
 
-    });
-  }
+Widget buildTitle(){
+ if(currentUserRole == "expert"){
+  return Text("Case #${widget.consultationId}",
+  style: const TextStyle(
+    fontWeight: FontWeight.bold,
+    fontSize: 16,
+  ),
+  );
+ } else {
+return Text(widget.expertName,
+  style: const TextStyle(
+    fontWeight: FontWeight.bold,
+    fontSize: 16,
+  ),
+  );
+ }
 
-  // =========================
-  // SEND
-  // =========================
+}
 
-  Future<void> send() async {
-
-    if (c.text.trim().isEmpty) {
-      return;
-    }
-
-    final res = await http.post(
-
-      Uri.parse(
-        "http://172.237.116.141:8003/messages/send",
-      ),
-
-      headers: {
-        "Content-Type":
-            "application/json",
-      },
-
-      body: jsonEncode({
-
-        "consultation_id":
-            widget.consultationId,
-
-        "sender_id":
-            currentUserId,
-
-        "message_text":
-            c.text.trim(),
-      }),
-    );
-
-    print(res.body);
-
-    c.clear();
-
-    await loadMessages();
-  }
-
-  // =========================
-  // MESSAGE SIDE
-  // =========================
-
-  bool isMyMessage(Map m) {
-
-    final senderId =
-        int.parse(
-          m["sender_id"]
-              .toString(),
-        );
-
-    final senderRole =
-        m["sender_role"]
-            .toString()
-            .trim();
-
-    return
-
-        senderId ==
-            currentUserId &&
-
-        senderRole ==
-            currentUserRole;
-  }
-
-  // =========================
-  // TITLE
-  // =========================
-
-  Widget buildTitle() {
-
-    // 🔥 الخبير يشوف اسم الحالة
-    if (
-    currentUserRole ==
-        "expert"
-    ) {
-
-      return Text(
-
-        widget.title ??
-        widget.reportData["report_name"] ??
-        "Case #${widget.consultationId}",
-
-        style: const TextStyle(
-          fontWeight:
-              FontWeight.bold,
-
-          fontSize: 16,
-        ),
-      );
-    }
-
-    // 🔥 اليوزر يشوف اسم الخبير
-    return Text(
-
-      widget.expertName,
-
-      style: const TextStyle(
-        fontWeight:
-            FontWeight.bold,
-
-        fontSize: 16,
-      ),
-    );
-  }
-
-  // =========================
-  // BUTTON
-  // =========================
-
-  Widget circleBtn(
-    IconData icon,
-    VoidCallback tap,
-  ) {
-
+  Widget circleBtn(IconData icon, VoidCallback tap) {
     return GestureDetector(
-
       onTap: tap,
-
       child: Container(
-
-        padding:
-            const EdgeInsets.all(8),
-
-        decoration:
-            const BoxDecoration(
+        padding: const EdgeInsets.all(8),
+        decoration: const BoxDecoration(
           color: Colors.white,
-
           shape: BoxShape.circle,
         ),
-
-        child: Icon(
-          icon,
-          size: 18,
-          color: Colors.black,
-        ),
+        child: Icon(icon, size: 18, color: Colors.black),
       ),
     );
   }
-
-  // =========================
-  // OPEN REPORT
-  // =========================
-
-  void openReport() {
-
-    final data =
-        widget.reportData["report_data"];
-
-    if (data == null) return;
-
-    // =========================
-    // CROSS REPORT
-    // =========================
-
-    if (
-    widget.reportData["report_type"]
-        == "cross"
-    ) {
-
-      final reports = (data as List)
-
-          .map(
-            (e) =>
-            CrossReportItem.fromJson(
-              Map<String, dynamic>.from(e),
-
-              widget.reportData["report_name"]
-                  ?? "",
-            ),
-      )
-
-          .toList();
-
-      Navigator.push(
-        context,
-
-        MaterialPageRoute(
-          builder: (_) =>
-              CrossReportScreen(
-
-                reports: reports,
-
-                fileName:
-                    widget.reportData["report_name"]
-                        ?? "",
-
-                showDownload:
-                    false,
-
-                isExpertView:
-                    currentUserRole ==
-                        "expert",
-              ),
-        ),
-      );
-    }
-
-    // =========================
-    // INDIVIDUAL REPORT
-    // =========================
-
-    else {
-
-      final reports = (data as List)
-
-          .map(
-            (e) =>
-            IndividualReportItem.fromJson(
-              Map<String, dynamic>.from(e),
-
-              null,
-            ),
-      )
-
-          .toList();
-
-      Navigator.push(
-        context,
-
-        MaterialPageRoute(
-          builder: (_) =>
-              IndividualReportScreen(
-
-                reportItems:
-                    reports,
-
-                fileName:
-                    widget.reportData["report_name"]
-                        ?? "",
-
-                showDownload:
-                    false,
-
-                isExpertView:
-                    currentUserRole ==
-                        "expert",
-              ),
-        ),
-      );
-    }
-  }
-
-  // =========================
-  // BUILD
-  // =========================
 
   @override
   Widget build(BuildContext context) {
-
-    final completed =
-
-        widget.isCompleted ||
-
-        widget.status ==
-            "completed";
-
     return Scaffold(
-
-      backgroundColor:
-          const Color(0xFFFBFBFF),
-
+      backgroundColor: const Color(0xFFFBFBFF),
       body: Column(
         children: [
-
           const SizedBox(height: 50),
 
-          // =========================
-          // HEADER
-          // =========================
-
           Padding(
-
-            padding:
-                const EdgeInsets.symmetric(
-              horizontal: 10,
-            ),
-
+            padding: const EdgeInsets.symmetric(horizontal: 10),
             child: Row(
               children: [
-
-                circleBtn(
-                  Icons.arrow_back_ios_new,
-
-                  () {
-                    Navigator.pop(
-                        context);
-                  },
-                ),
-
+                circleBtn(Icons.arrow_back_ios_new, () {
+                  Navigator.pop(context);
+                }),
                 const SizedBox(width: 10),
-
                 const CircleAvatar(),
-
                 const SizedBox(width: 12),
+              
+                 Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
 
-                Expanded(
+                        buildTitle(),
 
-                  child: Column(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start,
-
-                    mainAxisSize:
-                        MainAxisSize.min,
-
-                    children: [
-
-                      buildTitle(),
-
-                      if (
-
-                      currentUserRole !=
-                              "expert" &&
-
-                          !completed
-
-                      )
-
-                        const Text(
-
-                          "Online",
-
-                          style: TextStyle(
-                            color:
-                                Colors.green,
-
-                            fontSize: 12,
-                          ),
-                        ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
               ],
             ),
           ),
 
-          const Divider(
-            height: 30,
-            color: Colors.black12,
-          ),
+          const Divider(height: 30, color: Colors.black12),
+                 if (!widget.isCompleted)
+                    GestureDetector(
+            onTap: () {
 
-          // =========================
-          // REPORT CARD
-          // =========================
+              final data = widget.reportData["report_data"];
 
-          if (!widget.isCompleted)
+              if (data == null) return;
 
-            GestureDetector(
+              /// CROSS REPORT
+              if (widget.reportData["report_type"] == "cross") {
 
-              onTap: openReport,
-
-              child: Container(
-
-                margin:
-                    const EdgeInsets.symmetric(
-                  horizontal: 20,
-                ),
-
-                padding:
-                    const EdgeInsets.all(12),
-
-                decoration:
-                    BoxDecoration(
-                  color: Colors.white,
-
-                  borderRadius:
-                      BorderRadius.circular(15),
-
-                  border: Border.all(
-                    color:
-                        const Color(0xFFE0E2FF),
-                  ),
-                ),
-
-                child: Row(
-                  children: [
-
-                    const Icon(
-                      Icons.description,
-                      color:
-                          Color(0xFF6C63FF),
-                    ),
-
-                    const SizedBox(width: 12),
-
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment:
-                            CrossAxisAlignment.start,
-
-                        children: [
-
-                          Text(
-
-                            widget.reportData["report_name"]
-                                ??
-                                "Unknown Report",
-
-                            style:
-                                const TextStyle(
-                              fontWeight:
-                                  FontWeight.bold,
-                            ),
-                          ),
-
-                          const SizedBox(height: 3),
-
-                          Text(
-
-                            "Case #${widget.reportData["id"]}",
-
-                            style:
-                                const TextStyle(
-                              color:
-                                  Colors.grey,
-
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
+                final reports = (data as List)
+                    .map(
+                      (e) => CrossReportItem.fromJson(
+                        Map<String, dynamic>.from(e),
+                        widget.reportData["report_name"] ?? "",
                       ),
+                    )
+                    .toList();
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => CrossReportScreen(
+                      reports: reports,
+                      fileName: widget.reportData["report_name"] ?? "",
+                      showDownload: false,
+                      isExpertView: currentUserRole == "expert",
                     ),
-
-                    const Icon(
-                      Icons.arrow_forward_ios,
-                      size: 14,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-          const SizedBox(height: 10),
-
-          // =========================
-          // CHAT
-          // =========================
-
-          Expanded(
-
-            child:
-
-            loading
-
-                ? const Center(
-                    child:
-                        CircularProgressIndicator(),
-                  )
-
-                : ListView.builder(
-
-                    padding:
-                        const EdgeInsets.all(12),
-
-                    itemCount:
-                        msgs.length,
-
-                    itemBuilder:
-                        (_, i) {
-
-                      final Map m =
-                          Map<String,
-                              dynamic>.from(
-                        msgs[i],
-                      );
-
-                      final bool isMe =
-                          isMyMessage(m);
-
-                      return Align(
-
-                        alignment:
-
-                        isMe
-
-                            ? Alignment
-                                .centerRight
-
-                            : Alignment
-                                .centerLeft,
-
-                        child: Container(
-
-                          constraints:
-                              BoxConstraints(
-                            maxWidth:
-                                MediaQuery.of(context)
-                                        .size
-                                        .width *
-                                    0.72,
-                          ),
-
-                          padding:
-                              const EdgeInsets.all(10),
-
-                          margin:
-                              const EdgeInsets.symmetric(
-                            vertical: 4,
-                          ),
-
-                          decoration:
-                              BoxDecoration(
-
-                            color:
-
-                            isMe
-
-                                ? const Color(
-                                    0xFF6C63FF)
-
-                                : Colors.grey[300],
-
-                            borderRadius:
-                                BorderRadius.circular(
-                                    12),
-                          ),
-
-                          child: Text(
-
-                            m["message_text"],
-
-                            style: TextStyle(
-
-                              color:
-
-                              isMe
-
-                                  ? Colors.white
-
-                                  : Colors.black,
-                            ),
-                          ),
-                        ),
-                      );
-                    },
                   ),
-          ),
+                );
 
-          // =========================
-          // INPUT
-          // =========================
+              }
 
-          if (!completed)
+              /// INDIVIDUAL REPORT
+              else {
 
-            Container(
+                final reports = (data as List)
+                    .map(
+                      (e) => IndividualReportItem.fromJson(
+                        Map<String, dynamic>.from(e),
+                        null,
+                      ),
+                    )
+                    .toList();
 
-              padding:
-                  const EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 10,
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => IndividualReportScreen(
+                      reportItems: reports,
+                      fileName: widget.reportData["report_name"] ?? "",
+                      showDownload: false,
+                      isExpertView: currentUserRole == "expert",
+                    ),
+                  ),
+                );
+              }
+            },
+
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.all(12),
+
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(15),
+                border: Border.all(color: const Color(0xFFE0E2FF)),
               ),
 
               child: Row(
                 children: [
 
+                  const Icon(
+                    Icons.description,
+                    color: Color(0xFF6C63FF),
+                  ),
+
+                  const SizedBox(width: 12),
+
                   Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
 
-                    child: TextField(
+                        Text(
+                          widget.reportData["report_name"] ?? "Unknown Report",
 
-                      controller: c,
-
-                      decoration:
-                          InputDecoration(
-
-                        hintText:
-                            "Type a message...",
-
-                        filled: true,
-
-                        fillColor:
-                            Colors.white,
-
-                        border:
-                            OutlineInputBorder(
-
-                          borderRadius:
-                              BorderRadius.circular(
-                                  30),
-
-                          borderSide:
-                              BorderSide.none,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
+
+                        const SizedBox(height: 3),
+
+                        Text(
+                          "Case #${widget.reportData["id"]}",
+
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
 
-                  const SizedBox(width: 10),
-
-                  CircleAvatar(
-
-                    backgroundColor:
-                        const Color(0xFF6C63FF),
-
-                    child: IconButton(
-
-                      onPressed: send,
-
-                      icon: const Icon(
-                        Icons.send,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                    ),
-                  )
+                  const Icon(Icons.arrow_forward_ios, size: 14),
                 ],
               ),
             ),
+          ),
+
+          const SizedBox(height: 10),
+
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.all(12),
+              itemCount: msgs.length,
+              itemBuilder: (_, i) {
+                var m = msgs[i];
+                print("MESSAGE SENDER = ${m["sender_id"]}");
+                print("CURRENT USER = $currentUserId");
+                bool isMe =m['sender_id'].toString() == currentUserId.toString();
+
+
+                return Align(
+                  alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+                  child: Container(
+                    padding: EdgeInsets.all(10),
+                    margin: EdgeInsets.symmetric(vertical: 4),
+                    decoration: BoxDecoration(
+                      color: isMe ? const Color(0xFF6C63FF) 
+                      : Colors.grey[300],
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      m["message_text"],
+                      style: TextStyle(
+                        color: isMe ? Colors.white : Colors.black,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+
+          if (widget.status != "completed")
+           Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: c,
+                    decoration: InputDecoration(
+                      hintText: "Type a message...",
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                CircleAvatar(
+                  backgroundColor: const Color(0xFF6C63FF),
+                  child: IconButton(
+                    onPressed: send,
+                    icon: const Icon(Icons.send, color: Colors.white, size: 20),
+                  ),
+                )
+              ],
+            ),
+          ),
         ],
       ),
     );

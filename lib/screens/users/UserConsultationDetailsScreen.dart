@@ -323,14 +323,16 @@ Center(
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => ChatScreen(
-            
-            consultationId: consultation["id"],
-            status: consultation["status"],
-            reportData: consultation,
-            isCompleted: isCompleted,
-            expertName: consultation["expert_name"] ?? "Expert",
-          ),
+                builder: (_) => ChatScreen(
+
+                  consultationId: consultation["id"],
+                  title: consultation["report_name"] ?? "",
+                  status: consultation["status"] ?? "",
+                  reportData: consultation,
+                  isCompleted: consultation["status"] == "completed",
+                  expertName:
+                      consultation["expert_name"] ?? "Expert",
+                ),
         ),
       );
     },

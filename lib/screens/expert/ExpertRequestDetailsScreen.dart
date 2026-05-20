@@ -435,29 +435,51 @@ if (isCompleted) ...[
 
               /// ===== ACCEPT BUTTON =====
               if (isWaiting)
-                SizedBox(
-                  width: double.infinity,
-                  height: 58,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      final expertId = await getUserId();
+SizedBox(
+  width: double.infinity,
+  height: 58,
+  child: ElevatedButton(
+    style: ElevatedButton.styleFrom(
+      backgroundColor: const Color(0xFF6C63FF),
+      foregroundColor: Colors.white,
 
-                      final success =
-                          await ExpertConsultationService.acceptConsultation(
-                        consultationId: consultation["id"],
-                        expertId: expertId,
-                      );
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+      ),
 
-                      if (success) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(t.acceptRequest)),
-                        );
-                        Navigator.pop(context);
-                      }
-                    },
-                    child: Text(t.acceptRequest),
-                  ),
-                ),
+      elevation: 0,
+    ),
+
+    onPressed: () async {
+      final expertId = await getUserId();
+
+      final success =
+          await ExpertConsultationService.acceptConsultation(
+        consultationId: consultation["id"],
+        expertId: expertId,
+      );
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(t.acceptRequest),
+          ),
+        );
+
+        Navigator.pop(context);
+      }
+    },
+
+    child: Text(
+      t.acceptRequest,
+
+      style: const TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: 16,
+      ),
+    ),
+  ),
+),
             ],
           ),
         ),
