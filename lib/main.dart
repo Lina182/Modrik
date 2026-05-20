@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'firebase_options.dart';
 import 'screens/start_screen.dart';
@@ -25,6 +26,8 @@ void main() async {
 
   String? fcmToken = await FirebaseMessaging.instance.getToken();
   print("FCM TOKEN: $fcmToken");
+  print("FIREBASE UID: ${FirebaseAuth.instance.currentUser?.uid}");
+
 
   const AndroidInitializationSettings initializationSettingsAndroid =
       AndroidInitializationSettings('@mipmap/ic_launcher');

@@ -8,6 +8,7 @@ import '../../widgets/bottom_nav_bar.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import 'package:modik_pages/l10n/app_localizations.dart';
+import 'package:app_settings/app_settings.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -205,10 +206,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             icon: Icons.notifications,
                             title: t.notifications,
                             trailing: Switch(
-                              value: notifications,
-                              onChanged: (v) =>
-                                  setState(() => notifications = v),
-                            ),
+  value: notifications,
+  onChanged: (v) {
+
+    setState(() => notifications = v);
+
+    AppSettings.openAppSettings(
+      type: AppSettingsType.notification,
+    );
+  },
+),
                           ),
                         ],
                       ),),
