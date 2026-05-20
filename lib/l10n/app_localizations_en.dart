@@ -461,4 +461,136 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get missingReport => 'Report data is missing';
+
+  @override
+  String get gene => 'Gene';
+
+  @override
+  String get disease => 'Disease';
+
+  @override
+  String get inheritance => 'Inheritance';
+
+  @override
+  String get clinicalSignificance => 'Clinical Significance';
+
+  @override
+  String get confidenceLevel => 'Confidence Level';
+
+  @override
+  String get variantDetails => 'Variant Details';
+
+  @override
+  String get chromosome => 'Chromosome';
+
+  @override
+  String get position => 'Position';
+
+  @override
+  String get reference => 'Reference';
+
+  @override
+  String get alternative => 'Alternative';
+
+  @override
+  String get zygosity => 'Zygosity';
+
+  @override
+  String get showDetails => 'Show Details';
+
+  @override
+  String get hideDetails => 'Hide Details';
+
+  @override
+  String get childRisk => 'Child Risk';
+
+  @override
+  String get affected => 'Affected';
+
+  @override
+  String get carrier => 'Carrier';
+
+  @override
+  String get healthy => 'Healthy';
+
+  @override
+  String get geneticCondition => 'Genetic Condition';
+
+  @override
+  String get explain => 'Explain';
+
+  @override
+  String get explainRisk => 'Explain this risk';
+
+  @override
+  String get autosomalDominant => 'Autosomal Dominant';
+
+  @override
+  String get autosomalRecessive => 'Autosomal Recessive';
+
+  @override
+  String get xLinkedDominant => 'X-Linked Dominant';
+
+  @override
+  String get xLinkedRecessive => 'X-Linked Recessive';
+
+  @override
+  String get xLinked => 'X-Linked';
+
+  @override
+  String get bothDominantRecessive => 'Both Dominant and Recessive';
+
+  @override
+  String get pathogenic => 'Pathogenic';
+
+  @override
+  String get likelyPathogenic => 'Likely Pathogenic';
+
+  @override
+  String get benign => 'Benign';
+
+  @override
+  String get uncertainSignificance => 'Uncertain Significance';
+
+  @override
+  String get heterozygous => 'Heterozygous';
+
+  @override
+  String get homozygous => 'Homozygous';
+
+  @override
+  String get noneValue => 'None';
+
+  @override
+  String get dominantRiskExplanation => 'This gene follows Autosomal Dominant inheritance. The child risk is calculated based on the genetic states of both parents.';
+
+  @override
+  String get recessiveRiskExplanation => 'This gene follows Autosomal Recessive inheritance. The child risk is calculated based on the genetic states of both parents.';
+
+  @override
+  String get xLinkedDominantRiskExplanation => 'This gene follows X-Linked Dominant inheritance. Male and female children may have different risk percentages.';
+
+  @override
+  String get xLinkedRecessiveRiskExplanation => 'This gene follows X-Linked Recessive inheritance. Male and female children may have different risk percentages.';
+
+  @override
+  String get bothRiskExplanation => 'This gene may follow both dominant and recessive inheritance patterns. Expert interpretation is recommended.';
+
+  @override
+  String get consultExpert => 'Consult Expert';
+
+  @override
+  String get askTheExpert => 'Ask the Expert';
+
+  @override
+  String get writeQuestionHere => 'Write your question here...';
+
+  @override
+  String get send => 'Send';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get askAiAboutReport => 'Ask AI About Report';
 }

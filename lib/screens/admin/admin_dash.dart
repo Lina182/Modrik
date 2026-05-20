@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'admin_profile.dart';
+import '../../theme/app_colors.dart';
+import '../../theme/app_text_styles.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
-
-const Color mainPurple = Color(0xFFC4C8EA);
-const Color bgPurple = Color(0xFF9DA3D9);
-const Color moviePurple = Color(0xFF7A5CC1);
+import 'dart:math' as math;
 
 class AdminDashScreen extends StatefulWidget {
   const AdminDashScreen({super.key});
@@ -16,19 +15,24 @@ class AdminDashScreen extends StatefulWidget {
 }
 
 class _AdminDashScreenState extends State<AdminDashScreen> {
-Map<String, dynamic>? healthData;
-bool loading = true;
-int individualCount = 0;
-int crossCount = 0;
+  Map<String, dynamic>? healthData;
+  bool loading = true;
+  int individualCount = 0;
+  int crossCount = 0;
+  int successCount = 0;
+  int failedCount = 0;
+  double successRate = 0.0; 
+  double failedRate = 0.0;
 
-@override
-void initState() {
-  super.initState();
-  loadHealth();
-  fetchAnalysisCounts();
-}
+  @override
+  void initState() {
+    super.initState();
+    loadHealth();
+    fetchAnalysisCounts();
+    fetchAnalysisStats();
+  }
 
-  // 🔥 API CALL
+  // 🔥 API CALL (متروكة كما هي بدون أي تعديل لضمان استمرار الربط)
   Future<Map<String, dynamic>> fetchSystemHealth() async {
     final user = FirebaseAuth.instance.currentUser;
     final token = await user!.getIdToken();
@@ -45,185 +49,362 @@ void initState() {
   }
 
   Future<void> fetchAnalysisCounts() async {
+    final response = await http.get(
+      Uri.parse("http://172.237.116.141:8003/analysis-count"),
+    );
 
-  final response = await http.get(
-    Uri.parse("http://172.237.116.141:8003/analysis-count"),
-  );
-
-  if (response.statusCode == 200) {
-
-    final data = jsonDecode(response.body);
-
-    setState(() {
-      individualCount = data['individual'];
-      crossCount = data['cross'];
-    });
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      setState(() {
+        individualCount = data['individual'];
+        crossCount = data['cross'];
+      });
+    }
   }
-}
+
+  Future<void> fetchAnalysisStats() async {
+    final response = await http.get(
+      Uri.parse("http://172.237.116.141:8003/analysis-stats"),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      int success = data['success'];
+      int failed = data['failed'];
+      int total = success + failed;
+
+      setState(() {
+        successCount = success;
+        failedCount = failed;
+        successRate = total == 0 ? 0 : success / total;
+        failedRate = total == 0 ? 0 : failed / total;
+      });
+    }
+  }
 
   Future<void> loadHealth() async {
-  try {
-    final data = await fetchSystemHealth();
-    setState(() {
-      healthData = data;
-      loading = false;
-    });
-  } catch (e) {
-    setState(() {
-      loading = false;
-    });
+    try {
+      final data = await fetchSystemHealth();
+      setState(() {
+        healthData = data;
+        loading = false;
+      });
+    } catch (e) {
+      setState(() {
+        loading = false;
+      });
+    }
   }
-}
 
-  // 🎨 تحديد اللون حسب الحالة
   Color _getColor(String status) {
-    if (status == "stable") return Colors.green;
-    if (status == "unstable") return Colors.orange;
+    if (status.toLowerCase() == "stable") return Colors.green;
+    if (status.toLowerCase() == "unstable") return Colors.orange;
     return Colors.red;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Admin Dashboard'),
-        backgroundColor: moviePurple,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.person),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ProfileAdminScreen(),
-                ),
-              );
-            },
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [AppColors.gradientStart, AppColors.gradientEnd],
           ),
-        ],
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // الهيدر العلوي
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Admin Dashboard',
+                          style: AppTextStyles.title.copyWith(fontSize: 26),
+                        ),
+                        const SizedBox(height: 4),
+                        const Text(
+                          'Overview of the platform',
+                          style: AppTextStyles.subtitle,
+                        ),
+                      ],
+                    ),
+                    GestureDetector(onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ProfileAdminScreen(),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: const BoxDecoration(
+                          color: AppColors.card,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.person, 
+                          color: AppColors.primary, 
+                          size: 26,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+
+                // قسم الكروت الثلاثية العلوية بعد تنظيفها وحذف النسب المئوية تماماً
+                Row(
+                  children: [
+                    _buildDashboardCard(
+                      'Individual analyses',
+                      individualCount.toString(),
+                      Icons.bar_chart_rounded,
+                      const Color(0xFFE8E9F9),
+                      AppColors.primary,
+                    ),
+                    const SizedBox(width: 12),
+                    _buildDashboardCard(
+                      'All Users',
+                      loading ? '...' : (healthData?['total_users']?.toString() ?? '0'),
+                      Icons.people_alt_rounded,
+                      AppColors.gradientStart,
+                      AppColors.softPurple,
+                    ),
+                    const SizedBox(width: 12),
+                    _buildDashboardCard(
+                      'Cross Analyses',
+                      crossCount.toString(),
+                      Icons.flip_to_front_rounded,
+                      const Color(0xFFEBF3FE),
+                      Colors.blue,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+
+                // كارت الـ Analysis Outcomes
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: AppColors.card,
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Analysis outcomes',
+                        style: AppTextStyles.title,
+                      ),
+                      const SizedBox(height: 24),
+                      Row(
+                        children: [
+                          Expanded(child: _buildCircularChart()),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildAnalysisStatusRow(
+                                  'Success analyses',
+                                  '${(successRate * 100).toStringAsFixed(0)}%',
+                                  '($successCount)',
+                                  Colors.green,
+                                ),
+                                const SizedBox(height: 20),
+                                _buildAnalysisStatusRow(
+                                  'Failed analyses',
+                                  '${(failedRate * 100).toStringAsFixed(0)}%',
+                                  '($failedCount)',
+                                  Colors.red,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),const SizedBox(height: 24),
+
+                // كارت حالة الـ APIs
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: AppColors.card,
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'API Status',
+                        style: AppTextStyles.title,
+                      ),
+                      const SizedBox(height: 12),
+                      _buildAPIStatus(),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+    );
+  }
+
+  // الدالة المحدثة التي تعرض المسمى والرقم الحالي فقط بداخل الكروت بدون قيم مقارنة زائدة
+  Widget _buildDashboardCard(String title, String value, IconData icon, Color iconBg, Color iconColor) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        height: 125, // طول الكارت أصبح متناسقاً جداً ومناسباً لحجم المحتوى الجديد
+        decoration: BoxDecoration(
+          color: AppColors.card,
+          borderRadius: BorderRadius.circular(20),
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween, // لتوزيع المحتوى الداخلي بالتساوي عمودياً
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: iconBg,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(icon, size: 22, color: iconColor),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildDashboardCard('Individual analyses', individualCount.toString(), Icons.analytics),
-                _buildDashboardCard('All Users',
-                  loading ? '...' : (healthData?['total_users']?.toString() ?? '0'),
-                  Icons.people,
+                Text(
+                  title,
+                  style: AppTextStyles.subtitle.copyWith(height: 1.1),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                _buildDashboardCard('Cross Analyses', crossCount.toString(), Icons.compare),
+                const SizedBox(height: 4),
+                Text(
+                  value,
+                  style: AppTextStyles.title.copyWith(fontSize: 22),
+                ),
               ],
             ),
-            const SizedBox(height: 30),
-            const Text(
-              'Analysis outcomes',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            _buildCircularChart(),
-            const SizedBox(height: 30),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildAnalysisStatus('Success analyses', '75%', Colors.green),
-                _buildAnalysisStatus('Failed analyses', '25%', Colors.red),
-              ],
-            ),
-            const SizedBox(height: 30),
-            const Text(
-              'API Status',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-
-            // 🔥 هنا الربط الحقيقي بالباك
-            _buildAPIStatus(),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildDashboardCard(String title, String value, IconData icon) {
-    return Flexible(
-      child: Card(
-        color: const Color(0xFFC4C8EA),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        elevation: 4,
-        child: SizedBox(
-          height: 100,
-          child: Center(
-            child: Column(
+  Widget _buildCircularChart() {
+    int totalCount = successCount + failedCount;
+    return Center(
+      child: SizedBox(
+        width: 140,
+        height: 140,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            SizedBox(
+              width: 130,
+              height: 130,
+              child: CustomPaint(
+                painter: _ProgressPainter(
+                  successRate: successRate,
+                  failedRate: failedRate,
+                ),
+              ),
+            ),
+            Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(icon, size: 30, color: moviePurple),
-                const SizedBox(height: 8),
-                Text(
-                  title,
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                const Text(
+                  "Total",
+                  style: AppTextStyles.subtitle,
                 ),
-                const SizedBox(height: 8),
-                Text(value, style: const TextStyle(fontSize: 14)),
+                Text(
+                  "$totalCount",
+                  style: AppTextStyles.title.copyWith(fontSize: 22),
+                ),
               ],
             ),
-          ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildCircularChart() {
-    return Center(
-      child: Container(
-        width: 200,
-        height: 200,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(color: moviePurple, width: 8),
-        ),
-        child: CustomPaint(
-          painter: _ProgressPainter(),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAnalysisStatus(String title, String value, Color color) {
-    return Row(
+  Widget _buildAnalysisStatusRow(String title, String percent, String count, Color color) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        CircleAvatar(radius: 10, backgroundColor: color),
-        const SizedBox(width: 10),
-        Text(
-          '$title: $value',
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
+        Row(
+          children: [
+            Container(
+              width: 10,
+              height: 10,
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                title,
+                style: AppTextStyles.subtitle.copyWith(fontWeight: FontWeight.w500, color: AppColors.textGrey),
+              ),
+            ),
+          ],),
+        Padding(
+          padding: const EdgeInsets.only(left: 18.0, top: 2),
+          child: RichText(
+            text: TextSpan(
+              children: [
+                TextSpan(
+                  text: '$percent ',
+                  style: AppTextStyles.title.copyWith(fontSize: 18, color: Colors.black),
+                ),
+                TextSpan(
+                  text: count,
+                  style: AppTextStyles.subtitle,
+                ),
+              ],
+            ),
           ),
         ),
       ],
     );
   }
 
-  // 🔥 دي اللي اتعدلت
   Widget _buildAPIStatus() {
     return FutureBuilder(
       future: fetchSystemHealth(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Padding(
-            padding: EdgeInsets.all(10),
-            child: CircularProgressIndicator(),
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(20),
+              child: CircularProgressIndicator(color: AppColors.primary),
+            ),
           );
         }
 
         if (snapshot.hasError) {
-          return Text("Error: ${snapshot.error}");
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 10),
+            child: Text("Error loading API status", style: TextStyle(color: Colors.red)),
+          );
         }
 
         final data = snapshot.data as Map<String, dynamic>;
@@ -232,18 +413,20 @@ void initState() {
           children: [
             _buildAPIStatusItem(
               'OpenCRAVAT API',
-              data['opencravat'],
-              _getColor(data['opencravat']),
+              data['opencravat'] ?? 'Down',
+              _getColor(data['opencravat'] ?? 'Down'),
             ),
+            const Divider(color: AppColors.gradientStart, height: 1),
             _buildAPIStatusItem(
               'PanelApp API',
-              data['panelapp'],
-              _getColor(data['panelapp']),
+              data['panelapp'] ?? 'Down',
+              _getColor(data['panelapp'] ?? 'Down'),
             ),
+            const Divider(color: AppColors.gradientStart, height: 1),
             _buildAPIStatusItem(
               'Gemini API',
-              data['gemini'],
-              _getColor(data['gemini']),
+              data['gemini'] ?? 'Down',
+              _getColor(data['gemini'] ?? 'Down'),
             ),
           ],
         );
@@ -253,16 +436,26 @@ void initState() {
 
   Widget _buildAPIStatusItem(String apiName, String status, Color color) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 14.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(apiName),
+          Text(
+            apiName,
+            style: AppTextStyles.title.copyWith(fontSize: 15, fontWeight: FontWeight.w500),
+          ),
           Row(
             children: [
-              Icon(Icons.circle, color: color, size: 12),
+              Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+              ),
               const SizedBox(width: 8),
-              Text(status),
+              Text(
+                status[0].toUpperCase() + status.substring(1).toLowerCase(),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: color),
+              ),
             ],
           ),
         ],
@@ -272,25 +465,47 @@ void initState() {
 }
 
 class _ProgressPainter extends CustomPainter {
+  final double successRate;
+  final double failedRate;
+  _ProgressPainter({required this.successRate, required this.failedRate});
+
   @override
   void paint(Canvas canvas, Size size) {
     final Paint paint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 12;
+      ..strokeWidth = 14
+      ..strokeCap = StrokeCap.butt;
 
-    paint.color = Colors.red;
-    canvas.drawArc(Offset.zero & size, -1.5708, 3.1416 * 0.25, false, paint);
+    double total = successRate + failedRate;
+    
+    if (total == 0) {
+      paint.color = Colors.grey.shade200;
+      canvas.drawArc(Offset.zero & size, 0, math.pi * 2, false, paint);
+      return;
+    }
 
+    double successAngle = (math.pi * 2) * (successRate / total);
+    double failedAngle = (math.pi * 2) * (failedRate / total);
+    double pendingAngle = (math.pi * 2) - successAngle - failedAngle;
+
+    double startAngle = -math.pi / 2;
+
+    // 1. Success
     paint.color = Colors.green;
-    canvas.drawArc(
-      Offset.zero & size,
-      -1.5708 + 3.1416 * 0.25,
-      3.1416 * 0.75,
-      false,
-      paint,
-    );
+    canvas.drawArc(Offset.zero & size, startAngle, successAngle, false, paint);
+    startAngle += successAngle;
+
+    // 2. Failed
+    paint.color = Colors.red;
+    canvas.drawArc(Offset.zero & size, startAngle, failedAngle, false, paint);
+    startAngle += failedAngle;
+
+    if (pendingAngle > 0) {
+      paint.color = AppColors.primary;
+      canvas.drawArc(Offset.zero & size, startAngle, pendingAngle, false, paint);
+    }
   }
 
   @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
+  bool shouldRepaint(CustomPainter oldDelegate) => true;
 }
