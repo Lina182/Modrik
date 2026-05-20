@@ -184,14 +184,6 @@ return Text(widget.expertName,
 
                         buildTitle(),
 
-                        if (currentUserRole != "expert" && widget.status != "completed")
-                          const Text(
-                            "Online",
-                            style: TextStyle(
-                              color: Colors.green,
-                              fontSize: 12,
-                            ),
-                          ),
                       ],
                     ),
                   ),

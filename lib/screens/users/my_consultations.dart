@@ -117,16 +117,6 @@ class _ExpertchatState extends State<Expertchat> {
                 ),
               ),
 
-              /// NOTIFICATION
-              Positioned(
-                top: 50,
-                right: 20,
-
-                child: circleBtn(
-                  Icons.notifications_none,
-                  () {},
-                ),
-              ),
 
               /// TEXT
               Positioned(

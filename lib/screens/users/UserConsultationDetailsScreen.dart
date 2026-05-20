@@ -323,7 +323,6 @@ Center(
       Navigator.push(
         context,
         MaterialPageRoute(
-<<<<<<< Updated upstream
                 builder: (_) => ChatScreen(
 
                   consultationId: consultation["id"],
@@ -334,17 +333,6 @@ Center(
                   expertName:
                       consultation["expert_name"] ?? "Expert",
                 ),
-=======
-          builder: (_) => ChatScreen(
-            title: consultation["report_name"] ?? "",
-            consultationId: consultation["id"],
-            status: consultation["status"],
-            reportData: consultation,
-            isCompleted: isCompleted,
-            expertName: consultation["expert_name"] ?? "Expert",
-
-          ),
->>>>>>> Stashed changes
         ),
       );
     },
