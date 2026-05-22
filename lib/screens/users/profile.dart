@@ -9,6 +9,8 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import 'package:modik_pages/l10n/app_localizations.dart';
 import 'package:app_settings/app_settings.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -182,15 +184,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   child: Text("العربية"),
                                 ),
                               ],
-                              onChanged: (value) {
-                                if (value == null) return;
+                            onChanged: (value) async {
+  if (value == null) return;
 
-                                setState(() {
-                                  language = value;
-                                });
+  setState(() {
+    language = value;
+  });
 
-                                appLocale.value = value;
-                              },
+  appLocale.value = value;
+
+  await http.post(
+    Uri.parse("http://172.237.116.141:8003/update-language"),
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: jsonEncode({
+      "uid": FirebaseAuth.instance.currentUser?.uid,
+      "language": value.languageCode,
+    }),
+  );
+},
                             ),
                           ),
 

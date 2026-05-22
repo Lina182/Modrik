@@ -24,12 +24,16 @@ class _AdminDashScreenState extends State<AdminDashScreen> {
   double successRate = 0.0; 
   double failedRate = 0.0;
 
+List<dynamic> expertsStats = [];
+bool expertsLoading = true;
+
   @override
   void initState() {
     super.initState();
     loadHealth();
     fetchAnalysisCounts();
     fetchAnalysisStats();
+    fetchExpertStatistics();
   }
 
   // 🔥 API CALL (متروكة كما هي بدون أي تعديل لضمان استمرار الربط)
@@ -81,6 +85,25 @@ class _AdminDashScreenState extends State<AdminDashScreen> {
       });
     }
   }
+
+  Future<void> fetchExpertStatistics() async {
+  final response = await http.get(
+    Uri.parse("http://172.237.116.141:8003/expert-statistics"),
+  );
+
+  if (response.statusCode == 200) {
+    final data = jsonDecode(response.body);
+
+    setState(() {
+      expertsStats = data['experts'];
+      expertsLoading = false;
+    });
+  } else {
+    setState(() {
+      expertsLoading = false;
+    });
+  }
+}
 
   Future<void> loadHealth() async {
     try {
@@ -257,6 +280,83 @@ class _AdminDashScreenState extends State<AdminDashScreen> {
                     ],
                   ),
                 ),
+                const SizedBox(height: 24),
+
+// Consultants Section
+Container(
+  width: double.infinity,
+  padding: const EdgeInsets.all(20),
+  decoration: BoxDecoration(
+    color: AppColors.card,
+    borderRadius: BorderRadius.circular(24),
+  ),
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const Text(
+        'Consultants',
+        style: AppTextStyles.title,
+      ),
+
+      const SizedBox(height: 18),
+
+      if (expertsLoading)
+        const Center(
+          child: CircularProgressIndicator(
+            color: AppColors.primary,
+          ),
+        )
+      else if (expertsStats.isEmpty)
+        const Text(
+          "No consultants found",
+        )
+      else
+        Column(
+          children: expertsStats.map((expert) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 14),
+              child: Row(
+                children: [
+                  Container(
+                    width: 42,
+                    height: 42,
+                    decoration: BoxDecoration(
+                      color: AppColors.gradientStart,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(
+                      Icons.person,
+                      color: AppColors.primary,
+                    ),
+                  ),
+
+                  const SizedBox(width: 12),
+
+                  Expanded(
+                    child: Text(
+                      expert['expert_name'],
+                      style: AppTextStyles.title.copyWith(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+
+                  Text(
+                    '${expert['completed_consultations_count']} consultations',
+                    style: AppTextStyles.subtitle.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+        ),
+    ],
+  ),
+),
               ],
             ),
           ),

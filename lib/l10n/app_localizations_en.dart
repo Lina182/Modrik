@@ -174,7 +174,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get savedReports => 'Saved Reports';
 
   @override
-  String get savedReport => 'Saved Report';
+  String get savedReport => 'Save Report';
 
   @override
   String genesCount(Object count) {
