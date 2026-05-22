@@ -263,11 +263,11 @@ abstract class AppLocalizations {
   /// **'Ask anything about genetics'**
   String get askAnythingGenetics;
 
-  /// No description provided for @chat.
+  /// No description provided for @chatbot.
   ///
   /// In en, this message translates to:
-  /// **'Chat'**
-  String get chat;
+  /// **'Genetic Assistant'**
+  String get chatbot;
 
   /// No description provided for @chatSubtitle.
   ///
@@ -278,7 +278,7 @@ abstract class AppLocalizations {
   /// No description provided for @expert.
   ///
   /// In en, this message translates to:
-  /// **'Contact Expert'**
+  /// **'Consult Expert'**
   String get expert;
 
   /// No description provided for @expertSubtitle.
@@ -428,7 +428,7 @@ abstract class AppLocalizations {
   /// No description provided for @savedReport.
   ///
   /// In en, this message translates to:
-  /// **'Saved Report'**
+  /// **'Save Report'**
   String get savedReport;
 
   /// No description provided for @genesCount.
@@ -959,6 +959,12 @@ abstract class AppLocalizations {
   /// **'Notes'**
   String get notes;
 
+  /// No description provided for @chat.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat'**
+  String get chat;
+
   /// No description provided for @complete.
   ///
   /// In en, this message translates to:
@@ -1258,6 +1264,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Ask AI About Report'**
   String get askAiAboutReport;
+
+  /// No description provided for @consultationDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'I agree to share my genetic report temporarily with the expert for consultation purposes only.The data will be deleted after the consultation ends.'**
+  String get consultationDisclaimer;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

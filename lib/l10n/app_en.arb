@@ -38,10 +38,10 @@
   "generalGeneticQuestion": "General genetic question",
   "askAnythingGenetics": "Ask anything about genetics",
 
-  "chat": "Chat",
+  "chatbot": "Genetic Assistant",
   "chatSubtitle": "Ask AI about your genetics",
 
-  "expert": "Contact Expert",
+  "expert": "Consult Expert",
   "expertSubtitle": "Consult with our experts",
 
   "yourDataPrivate": "Your data is private",
@@ -77,7 +77,7 @@
   "noSavedReports": "No saved reports yet",
   "savedReportsDesc": "Your analyzed reports will appear here.",
   "savedReports": "Saved Reports",
-  "savedReport": "Saved Report",
+  "savedReport": "Save Report",
 
   "genesCount": "{count} genes",
   "@genesCount": {
@@ -312,5 +312,7 @@
 "send": "Send",
 "cancel": "Cancel",
 "askAiAboutReport": "Ask AI About Report",
-"ok": "OK"
+"ok": "OK",
+
+"consultationDisclaimer": "I agree to share my genetic report temporarily with the expert for consultation purposes only.The data will be deleted after the consultation ends."
 }

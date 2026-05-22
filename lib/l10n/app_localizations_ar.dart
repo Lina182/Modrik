@@ -93,16 +93,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get askAnythingGenetics => 'اسأل أي شيء عن الجينات';
 
   @override
-  String get chat => 'دردشة';
+  String get chatbot => 'اسأل مساعد AI ';
 
   @override
-  String get chatSubtitle => 'اسأل الذكاء الاصطناعي عن جيناتك';
+  String get chatSubtitle => 'مُساعدك الجيني';
 
   @override
-  String get expert => 'تواصل مع الخبير';
+  String get expert => ' تواصل مع خبير';
 
   @override
-  String get expertSubtitle => 'استشر خبراءنا';
+  String get expertSubtitle => 'استشر مختصاً';
 
   @override
   String get yourDataPrivate => 'بياناتك خاصة';
@@ -174,7 +174,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get savedReports => 'التقارير المحفوظة';
 
   @override
-  String get savedReport => 'تقرير محفوظ';
+  String get savedReport => 'حفظ التقرير ';
 
   @override
   String genesCount(Object count) {
@@ -445,6 +445,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get notes => 'ملاحظات';
 
   @override
+  String get chat => 'دردشة';
+
+  @override
   String get complete => 'إنهاء';
 
   @override
@@ -593,4 +596,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get askAiAboutReport => 'اسأل الذكاء عن التقرير';
+
+  @override
+  String get consultationDisclaimer => 'أوافق على مشاركة تقريري الجيني مؤقتًا مع الخبير لغرض الاستشارة فقط، وسيتم حذف البيانات بعد انتهاء الاستشارة.';
 }

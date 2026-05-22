@@ -6,11 +6,12 @@ import '../../models/individual_report_item.dart';
 import '../../models/cross_report_item.dart';
 import 'individual_report_screen.dart';
 import 'cross_report_screen.dart';
-import '../../widgets/analysis_header.dart';
+import '../../widgets/header_section.dart';
 import '../../widgets/bottom_nav_bar.dart';
 
 class SavedReportsScreen extends StatefulWidget {
   final bool selectionMode;
+
   const SavedReportsScreen({super.key, this.selectionMode = false});
 
   @override
@@ -56,18 +57,28 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FF),
+
       body: Column(
         children: [
-          const AnalysisHeader(),
+          HeaderSection(
+            title: "",
+            bigTitle: t.savedReports,
+            subtitle: t.savedReportsDesc,
 
+            bigTitleSize: 30,
+            subtitleSize: 14,
+            headerHeight: 150,
+          ),
+
+          /// ✅ المحتوى بدون transform (مهم جدًا)
           Expanded(
             child: Container(
-              transform: Matrix4.translationValues(0, -120, 0),
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(30),
               ),
+
               child: reports.isEmpty
                   ? _buildEmpty(t)
                   : ListView.builder(
@@ -77,8 +88,7 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
                         final title =
                             item['title']?.toString() ?? t.savedReport;
 
-                        final jsonData =
-                            jsonDecode(item['data'].toString());
+                        final jsonData = jsonDecode(item['data'].toString());
 
                         final type = detectType(item, jsonData);
 
@@ -93,6 +103,7 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
           ),
         ],
       ),
+
       bottomNavigationBar: const BottomNavBar(currentIndex: 1),
     );
   }
@@ -103,16 +114,22 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.folder_open_outlined,
-              size: 90, color: Colors.grey.shade400),
+          Icon(
+            Icons.folder_open_outlined,
+            size: 90,
+            color: Colors.grey.shade400,
+          ),
           const SizedBox(height: 20),
-          Text(t.noSavedReports,
-              style:
-                  const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text(
+            t.noSavedReports,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 8),
-          Text(t.savedReportsDesc,
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.grey)),
+          Text(
+            t.savedReportsDesc,
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Colors.grey),
+          ),
         ],
       ),
     );
@@ -131,7 +148,8 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
       reportItems.add(
         IndividualReportItem(
           gene: r['gene'] ?? t.notAvailable,
-          disease: r['disease'] ?? t.notAvailable,clinicalSignificance: r['clinicalSignificance'] ?? t.notAvailable,
+          disease: r['disease'] ?? t.notAvailable,
+          clinicalSignificance: r['clinicalSignificance'] ?? t.notAvailable,
           inheritance: r['inheritance'] ?? t.notAvailable,
           confidenceLevel: r['confidenceLevel'] ?? t.notAvailable,
         ),
@@ -141,7 +159,7 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
     return _buildCard(
       icon: Icons.person,
       title: title,
-      subtitle: t.genesCount(reportItems.length), // ✅ الصح هنا
+      subtitle: t.genesCount(reportItems.length),
       onTap: () {
         if (widget.selectionMode) {
           Navigator.pop(context, item);
@@ -190,7 +208,7 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
     return _buildCard(
       icon: Icons.family_restroom,
       title: title,
-      subtitle: t.conditionsCount(reportItems.length), // ✅ الصح هنا
+      subtitle: t.conditionsCount(reportItems.length),
       onTap: () {
         if (widget.selectionMode) {
           Navigator.pop(context, {

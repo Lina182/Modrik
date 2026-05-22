@@ -56,171 +56,242 @@ class ReportActionButtons extends StatelessWidget {
                       context: context,
 
                       builder: (_) {
-                        return AlertDialog(
-                          backgroundColor: Colors.white,
+                        bool isAgreed = false;
 
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(22),
-                          ),
+                        return StatefulBuilder(
+                          builder: (context, setState) {
+                            return AlertDialog(
+                              backgroundColor: Colors.white,
 
-                          title: Text(
-                            t.askTheExpert,
-
-                            textAlign: TextAlign.center,
-
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w800,
-                              fontSize: 26,
-                              color: mainPurple,
-                            ),
-                          ),
-
-                          content: TextField(
-                            controller: questionController,
-
-                            maxLines: 4,
-
-                            decoration: InputDecoration(
-                              hintText: t.writeQuestionHere,
-
-                              hintStyle: const TextStyle(
-                                color: Color(0xFF9B9BB3),
-                                fontWeight: FontWeight.w500,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(22),
                               ),
 
-                              filled: true,
+                              title: Text(
+                                t.askTheExpert,
 
-                              fillColor: const Color(0xFFF7F8FF),
+                                textAlign: TextAlign.center,
 
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(14),
-
-                                borderSide: const BorderSide(
-                                  color: Color(0xFFE4E6F5),
-                                ),
-                              ),
-
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(14),
-
-                                borderSide: const BorderSide(
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 26,
                                   color: mainPurple,
-                                  width: 1.4,
                                 ),
                               ),
-                            ),
-                          ),
 
-                          actionsPadding: const EdgeInsets.fromLTRB(
-                            18,
-                            0,
-                            18,
-                            18,
-                          ),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
 
-                          actions: [
-                            Row(
-                              children: [
-                                // CANCEL
-                                Expanded(
-                                  child: TextButton(
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    },
+                                children: [
+                                  /// QUESTION FIELD
+                                  TextField(
+                                    controller: questionController,
 
-                                    style: TextButton.styleFrom(
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 15,
+                                    maxLines: 4,
+
+                                    decoration: InputDecoration(
+                                      hintText: t.writeQuestionHere,
+
+                                      hintStyle: const TextStyle(
+                                        color: Color(0xFF9B9BB3),
+                                        fontWeight: FontWeight.w500,
                                       ),
 
-                                      shape: RoundedRectangleBorder(
+                                      filled: true,
+
+                                      fillColor: const Color(0xFFF7F8FF),
+
+                                      border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(14),
                                       ),
-                                    ),
 
-                                    child: Text(
-                                      t.cancel,
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(14),
 
-                                      style: const TextStyle(
-                                        color: Color(0xFF7B61FF),
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 15,
+                                        borderSide: const BorderSide(
+                                          color: Color(0xFFE4E6F5),
+                                        ),
+                                      ),
+
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(14),
+
+                                        borderSide: const BorderSide(
+                                          color: mainPurple,
+                                          width: 1.4,
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
 
-                                const SizedBox(width: 12),
+                                  const SizedBox(height: 16),
 
-                                // SEND
-                                Expanded(
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      final question = questionController.text
-                                          .trim();
+                                  /// DISCLAIMER
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
 
-                                      if (question.isEmpty) {
-                                        return;
-                                      }
+                                    children: [
+                                      Checkbox(
+                                        value: isAgreed,
 
-                                      onConsultExpert(question);
+                                        activeColor: mainPurple,
 
-                                      Navigator.pop(context);
-                                    },
-
-                                    style: ElevatedButton.styleFrom(
-                                      elevation: 0,
-
-                                      backgroundColor: Colors.transparent,
-
-                                      shadowColor: Colors.transparent,
-
-                                      padding: EdgeInsets.zero,
-
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(14),
-                                      ),
-                                    ),
-
-                                    child: Ink(
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(14),
-
-                                        gradient: const LinearGradient(
-                                          colors: [
-                                            Color(0xFF8B6BFF),
-                                            Color(0xFF6C63FF),
-                                          ],
-                                        ),
+                                        onChanged: (value) {
+                                          setState(() {
+                                            isAgreed = value ?? false;
+                                          });
+                                        },
                                       ),
 
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          vertical: 15,
-                                        ),
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(
+                                            top: 12,
+                                          ),
 
-                                        alignment: Alignment.center,
+                                          child: Text(
+                                            t.consultationDisclaimer,
+
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.grey.shade700,
+                                              height: 1.4,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+
+                              actionsPadding: const EdgeInsets.fromLTRB(
+                                18,
+                                0,
+                                18,
+                                18,
+                              ),
+
+                              actions: [
+                                Row(
+                                  children: [
+                                    /// CANCEL
+                                    Expanded(
+                                      child: TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+
+                                        style: TextButton.styleFrom(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 15,
+                                          ),
+
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              14,
+                                            ),
+                                          ),
+                                        ),
 
                                         child: Text(
-                                          t.send,
+                                          t.cancel,
 
                                           style: const TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w800,
+                                            color: Color(0xFF7B61FF),
+                                            fontWeight: FontWeight.w700,
                                             fontSize: 15,
                                           ),
                                         ),
                                       ),
                                     ),
-                                  ),
+
+                                    const SizedBox(width: 12),
+
+                                    /// SEND BUTTON
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        onPressed: isAgreed
+                                            ? () {
+                                                final question =
+                                                    questionController.text
+                                                        .trim();
+
+                                                if (question.isEmpty) {
+                                                  return;
+                                                }
+
+                                                onConsultExpert(question);
+
+                                                Navigator.pop(context);
+                                              }
+                                            : null,
+
+                                        style: ElevatedButton.styleFrom(
+                                          elevation: 0,
+
+                                          backgroundColor: Colors.transparent,
+
+                                          shadowColor: Colors.transparent,
+
+                                          disabledBackgroundColor:
+                                              Colors.transparent,
+
+                                          padding: EdgeInsets.zero,
+
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              14,
+                                            ),
+                                          ),
+                                        ),
+
+                                        child: Ink(
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(
+                                              14,
+                                            ),
+
+                                            color: isAgreed
+                                                ? null
+                                                : Colors.grey.shade400,
+
+                                            gradient: isAgreed
+                                                ? const LinearGradient(
+                                                    colors: [
+                                                      Color(0xFF8B6BFF),
+                                                      Color(0xFF6C63FF),
+                                                    ],
+                                                  )
+                                                : null,
+                                          ),
+
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 15,
+                                            ),
+
+                                            alignment: Alignment.center,
+
+                                            child: Text(
+                                              t.send,
+
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w800,
+                                                fontSize: 15,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
-                            ),
-                          ],
+                            );
+                          },
                         );
                       },
                     );

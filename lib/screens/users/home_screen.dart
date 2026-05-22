@@ -79,7 +79,9 @@ class HomeScreen extends StatelessWidget {
                                 );
                               },
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 20),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                ),
                                 child: Text("${t.startAnalysis} →"),
                               ),
                             ),
@@ -98,7 +100,8 @@ class HomeScreen extends StatelessWidget {
                           Icons.insert_drive_file,
                           color: Colors.white,
                           size: 40,
-                        ),),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -175,7 +178,8 @@ class HomeScreen extends StatelessWidget {
                                         Navigator.push(
                                           parentContext,
                                           MaterialPageRoute(
-                                            builder: (_) => const AIChatScreen(),
+                                            builder: (_) =>
+                                                const AIChatScreen(),
                                           ),
                                         );
                                       },
@@ -188,7 +192,7 @@ class HomeScreen extends StatelessWidget {
                         },
                         child: buildSmallCard(
                           Icons.smart_toy_outlined,
-                          t.chat,
+                          t.chatbot,
                           t.chatSubtitle,
                         ),
                       ),
@@ -197,7 +201,8 @@ class HomeScreen extends StatelessWidget {
                     const SizedBox(width: 12),
 
                     /// EXPERT
-                    Expanded(child: GestureDetector(
+                    Expanded(
+                      child: GestureDetector(
                         onTap: () {
                           Navigator.push(
                             context,
@@ -240,7 +245,9 @@ class HomeScreen extends StatelessWidget {
                           children: [
                             Text(
                               t.yourDataPrivate,
-                              style: const TextStyle(fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             const SizedBox(height: 6),
                             Text(t.yourDataPrivateText),
@@ -331,6 +338,4 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
-  
-
-  }
+}

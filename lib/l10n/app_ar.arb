@@ -38,11 +38,11 @@
   "generalGeneticQuestion": "سؤال جيني عام",
   "askAnythingGenetics": "اسأل أي شيء عن الجينات",
 
-  "chat": "الدردشة",
-  "chatSubtitle": "اسأل الذكاء الاصطناعي عن جيناتك",
+  "chatbot": "اسأل مساعد AI ",
+  "chatSubtitle": "مُساعدك الجيني",
 
-  "expert": "تواصل مع الخبير",
-  "expertSubtitle": "استشر خبراءنا",
+  "expert": " تواصل مع خبير",
+  "expertSubtitle": "استشر مختصاً",
 
   "yourDataPrivate": "بياناتك خاصة",
   "yourDataPrivateText": "تتم معالجة بياناتك للتحليل فقط ولا يتم حفظها.",
@@ -77,7 +77,7 @@
   "noSavedReports": "لا توجد تقارير محفوظة بعد",
   "savedReportsDesc": "ستظهر التقارير التي تم تحليلها هنا.",
   "savedReports": "التقارير المحفوظة",
-  "savedReport": "تقرير محفوظ",
+  "savedReport": "حفظ التقرير ",
 
   "genesCount": "{count} جينات",
   "@genesCount": {
@@ -319,5 +319,6 @@
 "send": "إرسال",
 "cancel": "إلغاء",
 "askAiAboutReport": "اسأل الذكاء عن التقرير",
-"ok": "حسنًا"
+"ok": "حسنًا",
+"consultationDisclaimer": "أوافق على مشاركة تقريري الجيني مؤقتًا مع الخبير لغرض الاستشارة فقط، وسيتم حذف البيانات بعد انتهاء الاستشارة."
 }

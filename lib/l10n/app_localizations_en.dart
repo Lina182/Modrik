@@ -93,13 +93,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get askAnythingGenetics => 'Ask anything about genetics';
 
   @override
-  String get chat => 'Chat';
+  String get chatbot => 'Genetic Assistant';
 
   @override
   String get chatSubtitle => 'Ask AI about your genetics';
 
   @override
-  String get expert => 'Contact Expert';
+  String get expert => 'Consult Expert';
 
   @override
   String get expertSubtitle => 'Consult with our experts';
@@ -445,6 +445,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notes => 'Notes';
 
   @override
+  String get chat => 'Chat';
+
+  @override
   String get complete => 'Complete';
 
   @override
@@ -593,4 +596,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get askAiAboutReport => 'Ask AI About Report';
+
+  @override
+  String get consultationDisclaimer => 'I agree to share my genetic report temporarily with the expert for consultation purposes only.The data will be deleted after the consultation ends.';
 }
