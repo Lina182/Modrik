@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../services/consultation_service.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/expert_consultation_service.dart';
-import '../../services/consultation_service.dart'; // ✔️ مهم جدًا (getUserId)
+import '../../services/consultation_service.dart';
 import '../users/individual_report_screen.dart';
 import '../users/cross_report_screen.dart';
 import '../../models/individual_report_item.dart';
@@ -20,6 +20,7 @@ class ExpertRequestDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
+
     final isCompleted = consultation["status"] == "completed";
     final isWaiting = consultation["status"] == "waiting";
     final isActive = consultation["status"] == "active";
@@ -58,22 +59,31 @@ class ExpertRequestDetailsScreen extends StatelessWidget {
                       horizontal: 12,
                       vertical: 6,
                     ),
+
                     decoration: BoxDecoration(
                       color: isWaiting
                           ? Colors.orange.withOpacity(0.12)
                           : isActive
                               ? const Color(0xFFEDEBFF)
                               : Colors.green.withOpacity(0.12),
+
                       borderRadius: BorderRadius.circular(20),
                     ),
+
                     child: Text(
-                      consultation["status"],
+                      isWaiting
+                          ? t.waiting
+                          : isActive
+                              ? t.active
+                              : t.completed,
+
                       style: TextStyle(
                         color: isWaiting
                             ? Colors.orange
                             : isActive
                                 ? const Color(0xFF6C63FF)
                                 : Colors.green,
+
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -86,6 +96,7 @@ class ExpertRequestDetailsScreen extends StatelessWidget {
               /// ===== REPORT =====
               Text(
                 t.report,
+
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 17,
@@ -96,6 +107,7 @@ class ExpertRequestDetailsScreen extends StatelessWidget {
 
               Container(
                 padding: const EdgeInsets.all(18),
+
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(24),
@@ -106,32 +118,39 @@ class ExpertRequestDetailsScreen extends StatelessWidget {
                     Container(
                       width: 55,
                       height: 55,
+
                       decoration: BoxDecoration(
                         color: const Color(0xFFEDEBFF),
                         borderRadius: BorderRadius.circular(16),
                       ),
+
                       child: const Icon(
                         Icons.description_outlined,
-                        color: Color(0xFF6C63FF),
-                        size: 28,
+                        color: Color(0xFF6C63FF),size: 28,
                       ),
                     ),
 
                     const SizedBox(width: 14),
 
                     Expanded(
-                      child: Column(crossAxisAlignment: CrossAxisAlignment.start,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+
                         children: [
                           Text(
                             consultation["report_name"] ?? t.notAvailable,
+
                             style: const TextStyle(
                               fontWeight: FontWeight.w700,
                               fontSize: 15,
                             ),
                           ),
+
                           const SizedBox(height: 4),
+
                           Text(
-                            "Case #${consultation["id"]}",
+                            "${t.caseNumber} #${consultation["id"]}",
+
                             style: TextStyle(
                               color: Colors.grey.shade600,
                               fontSize: 12,
@@ -195,6 +214,7 @@ class ExpertRequestDetailsScreen extends StatelessWidget {
                           );
                         }
                       },
+
                       child: Text(t.viewReport),
                     ),
                   ],
@@ -205,6 +225,7 @@ class ExpertRequestDetailsScreen extends StatelessWidget {
 
               Text(
                 t.userQuestion,
+
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 17,
@@ -215,24 +236,33 @@ class ExpertRequestDetailsScreen extends StatelessWidget {
 
               Container(
                 width: double.infinity,
+
                 padding: const EdgeInsets.all(20),
+
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF1EEFF),
-                  borderRadius: BorderRadius.circular(24),
+                  color: const Color(0xFFF1EEFF),borderRadius: BorderRadius.circular(24),
                 ),
 
                 child: Text(
                   consultation["user_question"] ?? t.noQuestion,
-                  style: const TextStyle(fontSize: 14, height: 1.7),),
+
+                  style: const TextStyle(
+                    fontSize: 14,
+                    height: 1.7,
+                  ),
+                ),
               ),
 
               const SizedBox(height: 28),
 
               /// ===== NOTES =====
-              const Text(
-                "Notes",
+              Text(
+                t.notes,
 
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 17,
+                ),
               ),
 
               const SizedBox(height: 14),
@@ -255,7 +285,6 @@ class ExpertRequestDetailsScreen extends StatelessWidget {
                   children: [
                     const Icon(
                       Icons.info_outline_rounded,
-
                       color: Color.fromRGBO(108, 99, 255, 1),
                     ),
 
@@ -264,14 +293,13 @@ class ExpertRequestDetailsScreen extends StatelessWidget {
                     Expanded(
                       child: Text(
                         isWaiting
-                            ? "You can accept this request to start chatting with the user."
+                            ? t.waitingNote
                             : isActive
-                                ? "This consultation is active. You can chat with the user or mark it as complete once done."
-                                : "This consultation is already completed.",
+                                ? t.activeNote
+                                : t.completedNote,
 
                         style: TextStyle(
                           color: Colors.grey.shade700,
-
                           height: 1.5,
                         ),
                       ),
@@ -280,206 +308,209 @@ class ExpertRequestDetailsScreen extends StatelessWidget {
                 ),
               ),
 
-const SizedBox(height: 28),
-/// ===== Active state =====
-if (isActive) ...[
-  Row(
-    children: [
-Expanded(
-  child: ElevatedButton(
-    style: ElevatedButton.styleFrom(
-      backgroundColor: const Color(0xFF6C63FF),
-      elevation: 0,
+              const SizedBox(height: 28),
 
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(18),
-      ),
-    ),
+              /// ===== Active state =====
+              if (isActive) ...[
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF6C63FF),
+                          elevation: 0,
 
-    onPressed: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) =>ChatScreen(
-  consultationId: consultation["id"],
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                        ),
 
-  title:
-      consultation["report_name"],
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => ChatScreen(
+                                consultationId: consultation["id"],
+                                title: consultation["report_name"],
+                                expertName:
+                                    consultation["expert_name"] ??
+                                    t.expert,
+                                status: consultation["status"],
+                                reportData: consultation,
+                                isCompleted: false,
+                              ),
+                            ),
+                          );
+                        },
 
-  expertName:
-      consultation["expert_name"] ?? "Expert",
+                        child: Text(
+                          t.chat,
 
-  status:
-      consultation["status"],
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
 
-  reportData:
-      consultation,
+                    const SizedBox(width: 12),
 
-  isCompleted: false,
-)
-        ),
-      );
-    },
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF6C63FF),
+                          elevation: 0,
 
-    child: const Text(
-      "Chat",
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18),),
+                        ),
 
-      style: TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.bold,
-        color: Colors.white,
-      ),
-    ),
-  ),
-),
+                        onPressed: () async {
+                          final success =
+                              await ExpertConsultationService
+                                  .completeConsultation(
+                            consultationId: consultation["id"],
+                          );
 
-      const SizedBox(width: 12),
+                          if (success) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  t.consultationCompleted,
+                                ),
+                              ),
+                            );
 
-Expanded(
-  child: ElevatedButton(
-    style: ElevatedButton.styleFrom(
-      backgroundColor: const Color(0xFF6C63FF),
-      elevation: 0,
+                            Navigator.pop(context);
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  t.consultationFailed,
+                                ),
+                              ),
+                            );
+                          }
+                        },
 
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(18),
-      ),
-    ),
+                        child: Text(
+                          t.complete,
 
-    onPressed: () async {
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
 
-  final success =
-      await ExpertConsultationService.completeConsultation(
-    consultationId: consultation["id"],
-  );
+                const SizedBox(height: 20),
+              ],
 
-  if (success) {
+              if (isCompleted) ...[
+                Center(
+                  child: SizedBox(
+                    height: 58,
+                    width: 180,
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Consultation completed"),
-      ),
-    );
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF6C63FF),
+                        elevation: 0,
 
-    Navigator.pop(context);
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                      ),
 
-  } else {
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ChatScreen(
+                              consultationId: consultation["id"],
+                              title: consultation["report_name"],
+                              status: consultation["status"],
+                              reportData: consultation,
+                              isCompleted: true,
+                              expertName:
+                                  consultation["expert_name"] ??
+                                  t.expert,
+                            ),
+                          ),
+                        );
+                      },
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Failed to complete consultation"),
-      ),
-    );
-  }
-},
+                      child: Text(
+                        t.viewChat,
 
-    child: const Text(
-      "Complete ",
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
 
-      style: TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.bold,
-        color: Colors.white,
-      ),
-    ),
-  ),
-),
-    ],
-  ),
+                const SizedBox(height: 20),
+              ],
 
-  const SizedBox(height: 20),
-],
-
-if (isCompleted) ...[
-  Center(
-    child: SizedBox(
-      height: 58,
-      width: 180, 
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF6C63FF),
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
-          ),
-        ),
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => ChatScreen(
-                consultationId: consultation["id"],
-                title: consultation["report_name"],
-                status: consultation["status"],
-                reportData: consultation,
-                isCompleted: true,
-                expertName: consultation["expert_name"] ?? "Expert",
-              ),
-            ),
-          );
-        },
-        child: const Text(
-          "View Chat",
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-      ),
-    ),
-  ),
-  const SizedBox(height: 20),
-],
               const Spacer(),
 
               /// ===== ACCEPT BUTTON =====
               if (isWaiting)
-SizedBox(
-  width: double.infinity,
-  height: 58,
-  child: ElevatedButton(
-    style: ElevatedButton.styleFrom(
-      backgroundColor: const Color(0xFF6C63FF),
-      foregroundColor: Colors.white,
+                SizedBox(
+                  width: double.infinity,
+                  height: 58,
 
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(18),
-      ),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF6C63FF),
+                      foregroundColor: Colors.white,
 
-      elevation: 0,
-    ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18),
+                      ),
 
-    onPressed: () async {
-      final expertId = await getUserId();
+                      elevation: 0,
+                    ),
 
-      final success =
-          await ExpertConsultationService.acceptConsultation(
-        consultationId: consultation["id"],
-        expertId: expertId,
-      );
+                    onPressed: () async {final expertId = await getUserId();
 
-      if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(t.acceptRequest),
-          ),
-        );
+                      final success =
+                          await ExpertConsultationService.acceptConsultation(
+                        consultationId: consultation["id"],
+                        expertId: expertId,
+                      );
 
-        Navigator.pop(context);
-      }
-    },
+                      if (success) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(t.acceptRequest),
+                          ),
+                        );
 
-    child: Text(
-      t.acceptRequest,
+                        Navigator.pop(context);
+                      }
+                    },
 
-      style: const TextStyle(
-        fontWeight: FontWeight.bold,
-        fontSize: 16,
-      ),
-    ),
-  ),
-),
+                    child: Text(
+                      t.acceptRequest,
+
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),

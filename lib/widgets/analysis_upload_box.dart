@@ -1,5 +1,5 @@
-// analysis_upload_box.dart
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 
 class AnalysisUploadBox extends StatelessWidget {
   final String title;
@@ -15,6 +15,8 @@ class AnalysisUploadBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
@@ -36,14 +38,20 @@ class AnalysisUploadBox extends StatelessWidget {
 
           Text(
             title,
-            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+            style: const TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+            ),
           ),
 
           const SizedBox(height: 5),
 
-          const Text(
-            "Supported format: .vcf",
-            style: TextStyle(fontSize: 12, color: Colors.grey),
+          Text(
+            t.supportedFormatVc,
+            style: const TextStyle(
+              fontSize: 12,
+              color: Colors.grey,
+            ),
           ),
 
           const SizedBox(height: 15),
@@ -59,7 +67,7 @@ class AnalysisUploadBox extends StatelessWidget {
                   borderRadius: BorderRadius.circular(15),
                 ),
               ),
-              child: const Text("Choose File"),
+              child: Text(t.chooseFile),
             ),
         ],
       ),

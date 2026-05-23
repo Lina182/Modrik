@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 
 class AnalysisLoading {
   static void show(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -32,10 +35,10 @@ class AnalysisLoading {
 
                 const SizedBox(height: 20),
 
-                const Text(
-                  "Analyzing your DNA...",
+                Text(
+                  t.analyzingDna,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: Colors.black,
@@ -45,10 +48,10 @@ class AnalysisLoading {
 
                 const SizedBox(height: 6),
 
-                const Text(
-                  "Please wait a moment",
+                Text(
+                  t.pleaseWait,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 13,
                     color: Colors.grey,
                     decoration: TextDecoration.none,

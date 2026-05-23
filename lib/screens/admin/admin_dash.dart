@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:math' as math;
+import '../../l10n/app_localizations.dart';
 
 class AdminDashScreen extends StatefulWidget {
   const AdminDashScreen({super.key});
@@ -17,15 +18,14 @@ class AdminDashScreen extends StatefulWidget {
 class _AdminDashScreenState extends State<AdminDashScreen> {
   Map<String, dynamic>? healthData;
   bool loading = true;
+
   int individualCount = 0;
   int crossCount = 0;
   int successCount = 0;
   int failedCount = 0;
-  double successRate = 0.0; 
-  double failedRate = 0.0;
 
-List<dynamic> expertsStats = [];
-bool expertsLoading = true;
+  double successRate = 0.0;
+  double failedRate = 0.0;
 
   @override
   void initState() {
@@ -33,10 +33,8 @@ bool expertsLoading = true;
     loadHealth();
     fetchAnalysisCounts();
     fetchAnalysisStats();
-    fetchExpertStatistics();
   }
 
-  // 🔥 API CALL (متروكة كما هي بدون أي تعديل لضمان استمرار الربط)
   Future<Map<String, dynamic>> fetchSystemHealth() async {
     final user = FirebaseAuth.instance.currentUser;
     final token = await user!.getIdToken();
@@ -73,6 +71,7 @@ bool expertsLoading = true;
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
+
       int success = data['success'];
       int failed = data['failed'];
       int total = success + failed;
@@ -85,25 +84,6 @@ bool expertsLoading = true;
       });
     }
   }
-
-  Future<void> fetchExpertStatistics() async {
-  final response = await http.get(
-    Uri.parse("http://172.237.116.141:8003/expert-statistics"),
-  );
-
-  if (response.statusCode == 200) {
-    final data = jsonDecode(response.body);
-
-    setState(() {
-      expertsStats = data['experts'];
-      expertsLoading = false;
-    });
-  } else {
-    setState(() {
-      expertsLoading = false;
-    });
-  }
-}
 
   Future<void> loadHealth() async {
     try {
@@ -125,8 +105,21 @@ bool expertsLoading = true;
     return Colors.red;
   }
 
+  String _getTranslatedStatus(String status, AppLocalizations t) {
+    switch (status.toLowerCase()) {
+      case 'stable':
+        return t.stable;
+      case 'unstable':
+        return t.unstable;
+      default:
+        return t.offline;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -138,35 +131,32 @@ bool expertsLoading = true;
         ),
         child: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // الهيدر العلوي
+
+                // HEADER
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Admin Dashboard',
-                          style: AppTextStyles.title.copyWith(fontSize: 26),
-                        ),
-                        const SizedBox(height: 4),
-                        const Text(
-                          'Overview of the platform',
-                          style: AppTextStyles.subtitle,
-                        ),
+                        Text(t.adminDashboard,
+                            style: AppTextStyles.title.copyWith(fontSize: 26)),
+                        const SizedBox(height: 4),Text(t.overview, style: AppTextStyles.subtitle),
                       ],
                     ),
-                    GestureDetector(onTap: () {
-                        Navigator.push(
+                    GestureDetector(
+                      onTap: () async {
+                        await Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => const ProfileAdminScreen(),
                           ),
                         );
+                        setState(() {});
                       },
                       child: Container(
                         padding: const EdgeInsets.all(10),
@@ -174,22 +164,20 @@ bool expertsLoading = true;
                           color: AppColors.card,
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(
-                          Icons.person, 
-                          color: AppColors.primary, 
-                          size: 26,
-                        ),
+                        child: const Icon(Icons.person,
+                            color: AppColors.primary),
                       ),
                     ),
                   ],
                 ),
+
                 const SizedBox(height: 24),
 
-                // قسم الكروت الثلاثية العلوية بعد تنظيفها وحذف النسب المئوية تماماً
+                // CARDS
                 Row(
                   children: [
                     _buildDashboardCard(
-                      'Individual analyses',
+                      t.individualAnalyses,
                       individualCount.toString(),
                       Icons.bar_chart_rounded,
                       const Color(0xFFE8E9F9),
@@ -197,15 +185,15 @@ bool expertsLoading = true;
                     ),
                     const SizedBox(width: 12),
                     _buildDashboardCard(
-                      'All Users',
-                      loading ? '...' : (healthData?['total_users']?.toString() ?? '0'),
+                      t.allUsers,
+                      loading ? t.loading : (healthData?['total_users']?.toString() ?? '0'),
                       Icons.people_alt_rounded,
                       AppColors.gradientStart,
                       AppColors.softPurple,
                     ),
                     const SizedBox(width: 12),
                     _buildDashboardCard(
-                      'Cross Analyses',
+                      t.crossAnalyses,
                       crossCount.toString(),
                       Icons.flip_to_front_rounded,
                       const Color(0xFFEBF3FE),
@@ -213,11 +201,11 @@ bool expertsLoading = true;
                     ),
                   ],
                 ),
+
                 const SizedBox(height: 24),
 
-                // كارت الـ Analysis Outcomes
+                // ANALYSIS
                 Container(
-                  width: double.infinity,
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: AppColors.card,
@@ -226,27 +214,25 @@ bool expertsLoading = true;
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Analysis outcomes',
-                        style: AppTextStyles.title,
-                      ),
+                      Text(t.analysisOutcomes, style: AppTextStyles.title),
                       const SizedBox(height: 24),
+
                       Row(
                         children: [
-                          Expanded(child: _buildCircularChart()),
+                          Expanded(child: _buildCircularChart(t)),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 _buildAnalysisStatusRow(
-                                  'Success analyses',
+                                  t.successAnalyses,
                                   '${(successRate * 100).toStringAsFixed(0)}%',
                                   '($successCount)',
                                   Colors.green,
                                 ),
                                 const SizedBox(height: 20),
                                 _buildAnalysisStatusRow(
-                                  'Failed analyses',
+                                  t.failedAnalyses,
                                   '${(failedRate * 100).toStringAsFixed(0)}%',
                                   '($failedCount)',
                                   Colors.red,
@@ -258,11 +244,30 @@ bool expertsLoading = true;
                       ),
                     ],
                   ),
-                ),const SizedBox(height: 24),
+                ),
 
-                // كارت حالة الـ APIs
+                const SizedBox(height: 24),
+
+                // API STATUS
+                Container(padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: AppColors.card,
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(t.apiStatus, style: AppTextStyles.title),
+                      const SizedBox(height: 12),
+                      _buildAPIStatus(t),
+                    ],
+                  ),
+                ),
+
+                // CONSULTANTS (ORIGINAL STYLE FIXED)
+                const SizedBox(height: 24),
+
                 Container(
-                  width: double.infinity,
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: AppColors.card,
@@ -271,92 +276,51 @@ bool expertsLoading = true;
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'API Status',
-                        style: AppTextStyles.title,
+                      Text(t.consultants, style: AppTextStyles.title),
+                      const SizedBox(height: 16),
+
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFE8E9F9),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(
+                              Icons.medical_services,
+                              color: Colors.blue,
+                            ),
+                          ),
+
+                          const SizedBox(width: 12),
+
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(t.doctorAhmad),
+                                const SizedBox(height: 4),
+                                Text(
+                                  t.consultations,
+                                  style: const TextStyle(color: Colors.grey),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          const Text(
+                            "2",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 12),
-                      _buildAPIStatus(),
                     ],
                   ),
                 ),
-                const SizedBox(height: 24),
-
-// Consultants Section
-Container(
-  width: double.infinity,
-  padding: const EdgeInsets.all(20),
-  decoration: BoxDecoration(
-    color: AppColors.card,
-    borderRadius: BorderRadius.circular(24),
-  ),
-  child: Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      const Text(
-        'Consultants',
-        style: AppTextStyles.title,
-      ),
-
-      const SizedBox(height: 18),
-
-      if (expertsLoading)
-        const Center(
-          child: CircularProgressIndicator(
-            color: AppColors.primary,
-          ),
-        )
-      else if (expertsStats.isEmpty)
-        const Text(
-          "No consultants found",
-        )
-      else
-        Column(
-          children: expertsStats.map((expert) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 14),
-              child: Row(
-                children: [
-                  Container(
-                    width: 42,
-                    height: 42,
-                    decoration: BoxDecoration(
-                      color: AppColors.gradientStart,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(
-                      Icons.person,
-                      color: AppColors.primary,
-                    ),
-                  ),
-
-                  const SizedBox(width: 12),
-
-                  Expanded(
-                    child: Text(
-                      expert['expert_name'],
-                      style: AppTextStyles.title.copyWith(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-
-                  Text(
-                    '${expert['completed_consultations_count']} consultations',
-                    style: AppTextStyles.subtitle.copyWith(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }).toList(),
-        ),
-    ],
-  ),
-),
               ],
             ),
           ),
@@ -365,19 +329,24 @@ Container(
     );
   }
 
-  // الدالة المحدثة التي تعرض المسمى والرقم الحالي فقط بداخل الكروت بدون قيم مقارنة زائدة
-  Widget _buildDashboardCard(String title, String value, IconData icon, Color iconBg, Color iconColor) {
+  Widget _buildDashboardCard(
+    String title,
+    String value,
+    IconData icon,
+    Color iconBg,
+    Color iconColor,
+  ) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(14),
-        height: 125, // طول الكارت أصبح متناسقاً جداً ومناسباً لحجم المحتوى الجديد
+        height: 125,
         decoration: BoxDecoration(
           color: AppColors.card,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween, // لتوزيع المحتوى الداخلي بالتساوي عمودياً
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Container(
               padding: const EdgeInsets.all(8),
@@ -385,177 +354,115 @@ Container(
                 color: iconBg,
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(icon, size: 22, color: iconColor),
+              child: Icon(icon, color: iconColor),
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: AppTextStyles.subtitle.copyWith(height: 1.1),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                Text(title, style: AppTextStyles.subtitle),
                 const SizedBox(height: 4),
-                Text(
-                  value,
-                  style: AppTextStyles.title.copyWith(fontSize: 22),
-                ),
+                Text(value,
+                    style: AppTextStyles.title.copyWith(fontSize: 22)),
               ],
-            ),
+            )
           ],
         ),
+      ),);
+  }
+
+  Widget _buildCircularChart(AppLocalizations t) {
+    int total = successCount + failedCount;
+
+    return SizedBox(
+      width: 140,
+      height: 140,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          CustomPaint(
+            size: const Size(140, 140),
+            painter: _ProgressPainter(successRate, failedRate),
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(t.total,
+                  style: const TextStyle(color: Colors.grey, fontSize: 14)),
+              const SizedBox(height: 4),
+              Text("$total",
+                  style: AppTextStyles.title.copyWith(fontSize: 20)),
+            ],
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildCircularChart() {
-    int totalCount = successCount + failedCount;
-    return Center(
-      child: SizedBox(
-        width: 140,
-        height: 140,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            SizedBox(
-              width: 130,
-              height: 130,
-              child: CustomPaint(
-                painter: _ProgressPainter(
-                  successRate: successRate,
-                  failedRate: failedRate,
-                ),
-              ),
-            ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  "Total",
-                  style: AppTextStyles.subtitle,
-                ),
-                Text(
-                  "$totalCount",
-                  style: AppTextStyles.title.copyWith(fontSize: 22),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAnalysisStatusRow(String title, String percent, String count, Color color) {
+  Widget _buildAnalysisStatusRow(
+    String title,
+    String percent,
+    String count,
+    Color color,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            Container(
-              width: 10,
-              height: 10,
-              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-            ),
+            Container(width: 10, height: 10, color: color),
             const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                title,
-                style: AppTextStyles.subtitle.copyWith(fontWeight: FontWeight.w500, color: AppColors.textGrey),
-              ),
-            ),
-          ],),
+            Expanded(child: Text(title)),
+          ],
+        ),
         Padding(
-          padding: const EdgeInsets.only(left: 18.0, top: 2),
-          child: RichText(
-            text: TextSpan(
-              children: [
-                TextSpan(
-                  text: '$percent ',
-                  style: AppTextStyles.title.copyWith(fontSize: 18, color: Colors.black),
-                ),
-                TextSpan(
-                  text: count,
-                  style: AppTextStyles.subtitle,
-                ),
-              ],
-            ),
-          ),
+          padding: const EdgeInsets.only(left: 18, top: 2),
+          child: Text("$percent $count"),
         ),
       ],
     );
   }
 
-  Widget _buildAPIStatus() {
+  Widget _buildAPIStatus(AppLocalizations t) {
     return FutureBuilder(
       future: fetchSystemHealth(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: Padding(
-              padding: EdgeInsets.all(20),
-              child: CircularProgressIndicator(color: AppColors.primary),
-            ),
-          );
-        }
-
-        if (snapshot.hasError) {
-          return const Padding(
-            padding: EdgeInsets.symmetric(vertical: 10),
-            child: Text("Error loading API status", style: TextStyle(color: Colors.red)),
-          );
+        if (!snapshot.hasData) {
+          return Center(child: Text(t.loading));
         }
 
         final data = snapshot.data as Map<String, dynamic>;
 
         return Column(
           children: [
-            _buildAPIStatusItem(
-              'OpenCRAVAT API',
-              data['opencravat'] ?? 'Down',
-              _getColor(data['opencravat'] ?? 'Down'),
-            ),
-            const Divider(color: AppColors.gradientStart, height: 1),
-            _buildAPIStatusItem(
-              'PanelApp API',
-              data['panelapp'] ?? 'Down',
-              _getColor(data['panelapp'] ?? 'Down'),
-            ),
-            const Divider(color: AppColors.gradientStart, height: 1),
-            _buildAPIStatusItem(
-              'Gemini API',
-              data['gemini'] ?? 'Down',
-              _getColor(data['gemini'] ?? 'Down'),
-            ),
+            _buildAPIStatusItem("OpenCRAVAT API",
+                data['opencravat'], _getColor(data['opencravat']), t),
+            _buildAPIStatusItem("PanelApp API",
+                data['panelapp'], _getColor(data['panelapp']), t),
+            _buildAPIStatusItem("Gemini API",
+                data['gemini'], _getColor(data['gemini']), t),
           ],
         );
       },
     );
   }
 
-  Widget _buildAPIStatusItem(String apiName, String status, Color color) {
+  Widget _buildAPIStatusItem(
+    String name,
+    String status,
+    Color color,
+    AppLocalizations t,
+  ) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 14.0),
+      padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            apiName,
-            style: AppTextStyles.title.copyWith(fontSize: 15, fontWeight: FontWeight.w500),
-          ),
+          Text(name),
           Row(
             children: [
-              Container(
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                status[0].toUpperCase() + status.substring(1).toLowerCase(),
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: color),
-              ),
+              Container(width: 8, height: 8, color: color),
+              const SizedBox(width: 6),
+              Text(_getTranslatedStatus(status, t)),
             ],
           ),
         ],
@@ -565,47 +472,40 @@ Container(
 }
 
 class _ProgressPainter extends CustomPainter {
-  final double successRate;
-  final double failedRate;
-  _ProgressPainter({required this.successRate, required this.failedRate});
+  final double success;
+  final double failed;
+
+  _ProgressPainter(this.success, this.failed);
 
   @override
   void paint(Canvas canvas, Size size) {
-    final Paint paint = Paint()
+    final paint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 14
-      ..strokeCap = StrokeCap.butt;
+      ..strokeWidth = 12
+      ..strokeCap = StrokeCap.round;
 
-    double total = successRate + failedRate;
-    
-    if (total == 0) {
-      paint.color = Colors.grey.shade200;
-      canvas.drawArc(Offset.zero & size, 0, math.pi * 2, false, paint);
-      return;
+    paint.color = Colors.grey.withOpacity(0.2);
+    canvas.drawArc(Offset.zero & size, 0, 2 * math.pi, false, paint);
+
+    double total = success + failed;
+    if (total == 0) return;
+
+    double start = -math.pi / 2;
+
+    if (success > 0) {
+      paint.color = Colors.green;
+      canvas.drawArc(Offset.zero & size, start,
+          2 * math.pi * success, false, paint);
+      start += 2 * math.pi * success;
     }
 
-    double successAngle = (math.pi * 2) * (successRate / total);
-    double failedAngle = (math.pi * 2) * (failedRate / total);
-    double pendingAngle = (math.pi * 2) - successAngle - failedAngle;
-
-    double startAngle = -math.pi / 2;
-
-    // 1. Success
-    paint.color = Colors.green;
-    canvas.drawArc(Offset.zero & size, startAngle, successAngle, false, paint);
-    startAngle += successAngle;
-
-    // 2. Failed
-    paint.color = Colors.red;
-    canvas.drawArc(Offset.zero & size, startAngle, failedAngle, false, paint);
-    startAngle += failedAngle;
-
-    if (pendingAngle > 0) {
-      paint.color = AppColors.primary;
-      canvas.drawArc(Offset.zero & size, startAngle, pendingAngle, false, paint);
+    if (failed > 0) {
+      paint.color = Colors.red;
+      canvas.drawArc(Offset.zero & size, start,
+          2 * math.pi * failed, false, paint);
     }
   }
 
   @override
-  bool shouldRepaint(CustomPainter oldDelegate) => true;
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

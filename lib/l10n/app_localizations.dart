@@ -278,7 +278,7 @@ abstract class AppLocalizations {
   /// No description provided for @expert.
   ///
   /// In en, this message translates to:
-  /// **'Consult Expert'**
+  /// **'Expert'**
   String get expert;
 
   /// No description provided for @expertSubtitle.
@@ -992,7 +992,7 @@ abstract class AppLocalizations {
   /// No description provided for @noQuestion.
   ///
   /// In en, this message translates to:
-  /// **'No question provided'**
+  /// **'No Question Provided'**
   String get noQuestion;
 
   /// No description provided for @missingReport.
@@ -1000,6 +1000,300 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Report data is missing'**
   String get missingReport;
+
+  /// No description provided for @about.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get about;
+
+  /// No description provided for @manageAdminAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage admin account and preferences'**
+  String get manageAdminAccount;
+
+  /// No description provided for @administrator.
+  ///
+  /// In en, this message translates to:
+  /// **'Administrator'**
+  String get administrator;
+
+  /// No description provided for @role.
+  ///
+  /// In en, this message translates to:
+  /// **'Role'**
+  String get role;
+
+  /// No description provided for @admin.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin'**
+  String get admin;
+
+  /// No description provided for @adminPanelDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Modrik Admin Panel allows administrators to monitor the platform and manage system operations securely.'**
+  String get adminPanelDescription;
+
+  /// No description provided for @adminDashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin Dashboard'**
+  String get adminDashboard;
+
+  /// No description provided for @overview.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get overview;
+
+  /// No description provided for @individualAnalyses.
+  ///
+  /// In en, this message translates to:
+  /// **'Individual Analyses'**
+  String get individualAnalyses;
+
+  /// No description provided for @allUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'All Users'**
+  String get allUsers;
+
+  /// No description provided for @crossAnalyses.
+  ///
+  /// In en, this message translates to:
+  /// **'Cross Analyses'**
+  String get crossAnalyses;
+
+  /// No description provided for @analysisOutcomes.
+  ///
+  /// In en, this message translates to:
+  /// **'Analysis Outcomes'**
+  String get analysisOutcomes;
+
+  /// No description provided for @successAnalyses.
+  ///
+  /// In en, this message translates to:
+  /// **'Successful Analyses'**
+  String get successAnalyses;
+
+  /// No description provided for @failedAnalyses.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed Analyses'**
+  String get failedAnalyses;
+
+  /// No description provided for @apiStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'API Status'**
+  String get apiStatus;
+
+  /// No description provided for @opencravatApi.
+  ///
+  /// In en, this message translates to:
+  /// **'OpenCRAVAT API'**
+  String get opencravatApi;
+
+  /// No description provided for @panelappApi.
+  ///
+  /// In en, this message translates to:
+  /// **'PanelApp API'**
+  String get panelappApi;
+
+  /// No description provided for @geminiApi.
+  ///
+  /// In en, this message translates to:
+  /// **'Gemini API'**
+  String get geminiApi;
+
+  /// No description provided for @total.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get total;
+
+  /// No description provided for @stable.
+  ///
+  /// In en, this message translates to:
+  /// **'Stable'**
+  String get stable;
+
+  /// No description provided for @unstable.
+  ///
+  /// In en, this message translates to:
+  /// **'Unstable'**
+  String get unstable;
+
+  /// No description provided for @offline.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline'**
+  String get offline;
+
+  /// No description provided for @waiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting'**
+  String get waiting;
+
+  /// No description provided for @profile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profile;
+
+  /// No description provided for @analyzingDna.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyzing your DNA...'**
+  String get analyzingDna;
+
+  /// No description provided for @pleaseWait.
+  ///
+  /// In en, this message translates to:
+  /// **'Please wait a moment'**
+  String get pleaseWait;
+
+  /// No description provided for @supportedFormatVc.
+  ///
+  /// In en, this message translates to:
+  /// **'Supported format: .vcf'**
+  String get supportedFormatVc;
+
+  /// No description provided for @chooseFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose File'**
+  String get chooseFile;
+
+  /// No description provided for @details.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get details;
+
+  /// No description provided for @caseText.
+  ///
+  /// In en, this message translates to:
+  /// **'Case'**
+  String get caseText;
+
+  /// No description provided for @myQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'My Question'**
+  String get myQuestion;
+
+  /// No description provided for @waitingNote.
+  ///
+  /// In en, this message translates to:
+  /// **'You can accept this request to start chatting with the user.'**
+  String get waitingNote;
+
+  /// No description provided for @activeNote.
+  ///
+  /// In en, this message translates to:
+  /// **'This consultation is active. You can chat or mark it as complete.'**
+  String get activeNote;
+
+  /// No description provided for @completedNote.
+  ///
+  /// In en, this message translates to:
+  /// **'This consultation has been completed.'**
+  String get completedNote;
+
+  /// No description provided for @viewChat.
+  ///
+  /// In en, this message translates to:
+  /// **'View Chat'**
+  String get viewChat;
+
+  /// No description provided for @openChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Chat'**
+  String get openChat;
+
+  /// No description provided for @consultationCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Consultation completed'**
+  String get consultationCompleted;
+
+  /// No description provided for @consultationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to complete consultation'**
+  String get consultationFailed;
+
+  /// No description provided for @typeMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Type a message...'**
+  String get typeMessage;
+
+  /// No description provided for @individual.
+  ///
+  /// In en, this message translates to:
+  /// **'Individual'**
+  String get individual;
+
+  /// No description provided for @cross.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared'**
+  String get cross;
+
+  /// No description provided for @loading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading...'**
+  String get loading;
+
+  /// No description provided for @openCravatApi.
+  ///
+  /// In en, this message translates to:
+  /// **'OpenCRAVAT API'**
+  String get openCravatApi;
+
+  /// No description provided for @panelAppApi.
+  ///
+  /// In en, this message translates to:
+  /// **'PanelApp API'**
+  String get panelAppApi;
+
+  /// No description provided for @consultations.
+  ///
+  /// In en, this message translates to:
+  /// **'Consultations'**
+  String get consultations;
+
+  /// No description provided for @consultants.
+  ///
+  /// In en, this message translates to:
+  /// **'Consultants'**
+  String get consultants;
+
+  /// No description provided for @doctorName.
+  ///
+  /// In en, this message translates to:
+  /// **'Doctor Name'**
+  String get doctorName;
+
+  /// No description provided for @consultantName.
+  ///
+  /// In en, this message translates to:
+  /// **'Consultant Name'**
+  String get consultantName;
+
+  /// No description provided for @doctorAhmad.
+  ///
+  /// In en, this message translates to:
+  /// **'Dr. Ahmad'**
+  String get doctorAhmad;
 
   /// No description provided for @gene.
   ///

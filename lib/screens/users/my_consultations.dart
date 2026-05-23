@@ -1,3 +1,5 @@
+
+import '../users/UserConsultationDetailsScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -23,21 +25,18 @@ class _ExpertchatState extends State<Expertchat> {
   @override
   void initState() {
     super.initState();
-
     loadConsultations();
   }
 
   Future<void> loadConsultations() async {
     final userId = await getUserId();
 
-    final data =
-        await ConsultationService.getUserConsultations(
-          userId: userId,
-        );
+    final data = await ConsultationService.getUserConsultations(
+      userId: userId,
+    );
 
     setState(() {
       consultations = data;
-
       isLoading = false;
     });
   }
@@ -46,16 +45,13 @@ class _ExpertchatState extends State<Expertchat> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
 
+    final isArabic =
+        Localizations.localeOf(context).languageCode == 'ar';
+
     var list = consultations.where((e) {
-    if (tab == 0) {
-          return e["status"] == "waiting";
-        }
-
-        if (tab == 1) {
-          return e["status"] == "active";
-        }
-
-        return e["status"] == "completed";
+      if (tab == 0) return e["status"] == "waiting";
+      if (tab == 1) return e["status"] == "active";
+      return e["status"] == "completed";
     }).toList();
 
     return Scaffold(
@@ -63,12 +59,11 @@ class _ExpertchatState extends State<Expertchat> {
 
       body: Column(
         children: [
-          /// 🔥 HEADER
+          /// HEADER
           Stack(
             children: [
               Container(
                 height: 220,
-
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
@@ -76,7 +71,6 @@ class _ExpertchatState extends State<Expertchat> {
                       Color(0xFFF3F4FF),
                     ],
                   ),
-
                   borderRadius: BorderRadius.only(
                     bottomLeft: Radius.circular(50),
                     bottomRight: Radius.circular(50),
@@ -86,20 +80,15 @@ class _ExpertchatState extends State<Expertchat> {
 
               /// DNA ICON
               Positioned(
-                right: -40,
+                right: isArabic ? null : -40,
+                left: isArabic ? -40 : null,
                 top: -30,
-
                 child: Transform.rotate(
                   angle: 0.6,
-
-                  child: FaIcon(
-                    FontAwesomeIcons.dna,
-
+                  child: const Icon(
+                    Icons.biotech,
                     size: 220,
-
-                    color: const Color(
-                      0xFF6C63FF,
-                    ).withOpacity(0.15),
+                    color: Color(0x336C63FF),
                   ),
                 ),
               ),
@@ -108,43 +97,31 @@ class _ExpertchatState extends State<Expertchat> {
               Positioned(
                 top: 50,
                 left: 20,
-
                 child: circleBtn(
                   Icons.arrow_back_ios_new,
-                  () {
-                    Navigator.pop(context);
-                  },
+                  () => Navigator.pop(context),
                 ),
               ),
 
-
               /// TEXT
               Positioned(
-                left: 20,
+                left: isArabic ? null : 20,
+                right: isArabic ? 20 : null,
                 bottom: 30,
-
                 child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
-
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       t.myConsultations,
-
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-
                     const SizedBox(height: 5),
-
                     Text(
                       t.consultationDesc,
-
-                      style: const TextStyle(
-                        fontSize: 14,
-                      ),
+                      style: const TextStyle(fontSize: 14),
                     ),
                   ],
                 ),
@@ -156,50 +133,35 @@ class _ExpertchatState extends State<Expertchat> {
 
           /// TABS
           Container(
-            margin: const EdgeInsets.symmetric(
-              horizontal: 20,
-            ),
-
+            margin: const EdgeInsets.symmetric(horizontal: 20),
             padding: const EdgeInsets.all(5),
-
             decoration: BoxDecoration(
               color: Colors.white,
-
-              borderRadius: BorderRadius.circular(15),boxShadow: const [
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 8,
-                ),
+              borderRadius: BorderRadius.circular(15),
+              boxShadow: const [
+                BoxShadow(color: Colors.black12, blurRadius: 8),
               ],
             ),
-
             child: Row(
               children: [
-                tabBtn("Waiting", 0, Icons.access_time),
-                tabBtn("Active", 1, Icons.chat_bubble_outline),
-                tabBtn("Completed", 2, Icons.check_circle_outline),
+                tabBtn(t.waiting, 0, Icons.access_time),tabBtn(t.active, 1, Icons.chat_bubble_outline),
+                tabBtn(t.completed, 2, Icons.check_circle_outline),
               ],
             ),
           ),
 
           const SizedBox(height: 20),
 
-          /// 🔥 LOADING
+          /// LIST
           if (isLoading)
             const Expanded(
-              child: Center(
-                child: CircularProgressIndicator(),
-              ),
+              child: Center(child: CircularProgressIndicator()),
             )
           else
-
-            /// LIST
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.all(20),
-
                 itemCount: list.length,
-
                 itemBuilder: (_, i) {
                   var item = list[i];
 
@@ -214,7 +176,6 @@ class _ExpertchatState extends State<Expertchat> {
                         ),
                       );
                     },
-
                     child: Container(
                       margin: const EdgeInsets.only(bottom: 15),
                       padding: const EdgeInsets.all(16),
@@ -229,84 +190,87 @@ class _ExpertchatState extends State<Expertchat> {
                           ),
                         ],
                       ),
-
                       child: Row(
                         children: [
                           Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: item["status"] == "waiting"
-                                    ? Colors.orange.withOpacity(0.12)
-                                    : item["status"] == "completed"
-                                        ? Colors.green.withOpacity(0.12)
-                                        : const Color(0xFF6C63FF).withOpacity(0.12),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-
-                              child: Icon(
-                                item["status"] == "waiting"
-                                    ? Icons.access_time
-                                    : item["status"] == "completed"
-                                        ? Icons.check_circle
-                                        : Icons.chat_bubble_outline,
-                                color: item["status"] == "waiting"
-                                    ? Colors.orange
-                                    : item["status"] == "completed"
-                                        ? Colors.green
-                                        : const Color(0xFF6C63FF),
-                              ),
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: item["status"] == "waiting"
+                                  ? Colors.orange.withOpacity(0.12)
+                                  : item["status"] == "completed"
+                                      ? Colors.green.withOpacity(0.12)
+                                      : const Color(0xFF6C63FF).withOpacity(0.12),
+                              borderRadius: BorderRadius.circular(12),
                             ),
+                            child: Icon(
+                              item["status"] == "waiting"
+                                  ? Icons.access_time
+                                  : item["status"] == "completed"
+                                      ? Icons.check_circle
+                                      : Icons.chat_bubble_outline,
+                              color: item["status"] == "waiting"
+                                  ? Colors.orange
+                                  : item["status"] == "completed"
+                                      ? Colors.green
+                                      : const Color(0xFF6C63FF),
+                            ),
+                          ),
 
                           const SizedBox(width: 15),
 
                           Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      item["report_name"],
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-
-                                    const SizedBox(height: 6),
-
-                                    Text(
-                                      item["type"] ?? "Individual",
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-
-                                    const SizedBox(height: 4),
-
-                                    Text(
-                                      item["created_at"] ?? "",
-                                      style: const TextStyle(
-                                        fontSize: 11,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-
-                                    const SizedBox(height: 4),
-
-                                    Text(
-                                      item["status"],
-                                      style: TextStyle(
-                                        color: item["status"] == "completed"
-                                            ? Colors.green
-                                            : item["status"] == "waiting"
-                                                ? Colors.orange
-                                                : const Color(0xFF6C63FF),
-                                        fontSize: 13,
-                                      ),
-                                    ),
-                                  ],
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item["report_name"],
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
                                 ),
-                              ),
+
+                                const SizedBox(height: 6),
+
+                                Text(
+                                  item["type"] == "cross"
+                                      ? t.cross
+                                      : t.individual,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey,),
+                                ),
+
+                                const SizedBox(height: 4),
+
+                                Text(
+                                  item["created_at"] ?? "",
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+
+                                const SizedBox(height: 4),
+
+                                Text(
+                                  item["status"] == "waiting"
+                                      ? t.waiting
+                                      : item["status"] == "active"
+                                          ? t.active
+                                          : t.completed,
+                                  style: TextStyle(
+                                    color: item["status"] == "completed"
+                                        ? Colors.green
+                                        : item["status"] == "waiting"
+                                            ? Colors.orange
+                                            : const Color(0xFF6C63FF),
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
 
                           const Icon(
                             Icons.arrow_forward_ios,
@@ -317,38 +281,26 @@ class _ExpertchatState extends State<Expertchat> {
                       ),
                     ),
                   );
-                }
+                },
               ),
             ),
 
           /// INFO BOX
           Container(
             margin: const EdgeInsets.all(20),
-
             padding: const EdgeInsets.all(15),
-
             decoration: BoxDecoration(
               color: const Color(0xFFF2F3FF),
-
               borderRadius: BorderRadius.circular(15),
             ),
-
             child: Row(
               children: [
-                const Icon(
-                  Icons.info_outline,
-                  color: Color(0xFF6C63FF),
-                ),
-
+                const Icon(Icons.info_outline, color: Color(0xFF6C63FF)),
                 const SizedBox(width: 10),
-
                 Expanded(
                   child: Text(
                     t.consultationInfo,
-
-                    style: const TextStyle(
-                      fontSize: 12,
-                    ),
+                    style: const TextStyle(fontSize: 12),
                   ),
                 ),
               ],
@@ -359,51 +311,27 @@ class _ExpertchatState extends State<Expertchat> {
     );
   }
 
-  Widget tabBtn(
-    String t,
-    int i,
-    IconData ic,
-  ) {
+  Widget tabBtn(String label, int i, IconData ic) {
     bool a = tab == i;
 
     return Expanded(
       child: GestureDetector(
         onTap: () => setState(() => tab = i),
-
         child: Container(
-          padding: const EdgeInsets.symmetric(
-            vertical: 12,
-          ),
-
+          padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: a
-                ? const Color(0xFF6C63FF)
-                : Colors.transparent,
-
+            color: a ? const Color(0xFF6C63FF) : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
           ),
-
           child: Row(
-            mainAxisAlignment:
-                MainAxisAlignment.center,
-
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                ic,
-                size: 18,
-                color:
-                    a ? Colors.white : Colors.grey,
-              ),
-
+              Icon(ic, size: 18, color: a ? Colors.white : Colors.grey),
               const SizedBox(width: 8),
-
               Text(
-                t,
-
+                label,
                 style: TextStyle(
-                  color:
-                      a ? Colors.white : Colors.grey,
-
+                  color: a ? Colors.white : Colors.grey,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -414,20 +342,15 @@ class _ExpertchatState extends State<Expertchat> {
     );
   }
 
-  Widget circleBtn(
-    IconData icon,
-    VoidCallback tap,
-  ) {
+  Widget circleBtn(IconData icon, VoidCallback tap) {
     return GestureDetector(
-      onTap: tap,child: Container(
+      onTap: tap,
+      child: Container(
         padding: const EdgeInsets.all(8),
-
         decoration: const BoxDecoration(
           color: Colors.white,
-
           shape: BoxShape.circle,
         ),
-
         child: Icon(icon, size: 18),
       ),
     );

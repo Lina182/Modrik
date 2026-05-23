@@ -99,7 +99,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get chatSubtitle => 'مُساعدك الجيني';
 
   @override
-  String get expert => ' تواصل مع خبير';
+  String get expert => 'خبير';
 
   @override
   String get expertSubtitle => 'استشر مختصاً';
@@ -364,16 +364,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get myConsultations => 'استشاراتي';
 
   @override
-  String get consultationDesc => 'تابع استشاراتك\nوتحدث مع خبرائنا.';
+  String get consultationDesc => 'تابع استشاراتك\nوتحدث مع خبرائنا. ';
 
   @override
-  String get active => 'نشطة';
+  String get active => 'نشط';
 
   @override
-  String get completed => 'مكتملة';
+  String get completed => 'مكتمل';
 
   @override
-  String get consultationInfo => 'افتح الاستشارة لبدء أو متابعة المحادثة مع الخبير.';
+  String get consultationInfo => 'افتح الاستشارة لبدء أو متابعة المحادثة مع الخبير. ';
 
   @override
   String get newRequests => 'الطلبات الجديدة';
@@ -394,7 +394,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get viewCompletedConsultations => 'عرض الاستشارات المكتملة.';
 
   @override
-  String get caseNumber => 'الحالة';
+  String get caseNumber => 'حالة';
 
   @override
   String get crossAnalysisReport => 'تقرير تحليل مشترك';
@@ -445,7 +445,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get notes => 'ملاحظات';
 
   @override
-  String get chat => 'دردشة';
+  String get chat => 'محادثة';
 
   @override
   String get complete => 'إنهاء';
@@ -464,6 +464,153 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get missingReport => 'بيانات التقرير مفقودة';
+
+  @override
+  String get about => 'حول';
+
+  @override
+  String get manageAdminAccount => 'إدارة حساب المشرف والتفضيلات';
+
+  @override
+  String get administrator => 'المشرف';
+
+  @override
+  String get role => 'الدور';
+
+  @override
+  String get admin => 'مشرف';
+
+  @override
+  String get adminPanelDescription => 'تتيح لوحة تحكم مودرك للمشرفين مراقبة المنصة وإدارة عمليات النظام بأمان.';
+
+  @override
+  String get adminDashboard => 'لوحة تحكم المسؤول';
+
+  @override
+  String get overview => 'نظرة عامة';
+
+  @override
+  String get individualAnalyses => 'التحاليل الفردية';
+
+  @override
+  String get allUsers => 'جميع المستخدمين';
+
+  @override
+  String get crossAnalyses => 'التحاليل المشتركة';
+
+  @override
+  String get analysisOutcomes => 'نتائج التحليل';
+
+  @override
+  String get successAnalyses => 'التحاليل الناجحة';
+
+  @override
+  String get failedAnalyses => 'التحاليل الفاشلة';
+
+  @override
+  String get apiStatus => 'حالة الـ API';
+
+  @override
+  String get opencravatApi => 'واجهة OpenCRAVAT';
+
+  @override
+  String get panelappApi => 'واجهة PanelApp';
+
+  @override
+  String get geminiApi => 'واجهة Gemini';
+
+  @override
+  String get total => 'الإجمالي';
+
+  @override
+  String get stable => 'مستقر';
+
+  @override
+  String get unstable => 'غير مستقر';
+
+  @override
+  String get offline => 'متوقف';
+
+  @override
+  String get waiting => 'قيد الانتظار';
+
+  @override
+  String get profile => 'الملف الشخصي';
+
+  @override
+  String get analyzingDna => 'جاري تحليل الحمض النووي...';
+
+  @override
+  String get pleaseWait => 'يرجى الانتظار لحظة';
+
+  @override
+  String get supportedFormatVc => 'الصيغة المدعومة: .vcf';
+
+  @override
+  String get chooseFile => 'اختيار ملف';
+
+  @override
+  String get details => 'التفاصيل';
+
+  @override
+  String get caseText => 'حالة';
+
+  @override
+  String get myQuestion => 'سؤالي';
+
+  @override
+  String get waitingNote => 'يمكنك قبول هذا الطلب لبدء المحادثة مع المستخدم.';
+
+  @override
+  String get activeNote => 'الاستشارة نشطة. يمكنك المحادثة مع المستخدم أو إنهائها عند الانتهاء.';
+
+  @override
+  String get completedNote => 'تم إنهاء هذه الاستشارة.';
+
+  @override
+  String get viewChat => 'عرض المحادثة';
+
+  @override
+  String get openChat => 'فتح المحادثة';
+
+  @override
+  String get consultationCompleted => 'تم إنهاء الاستشارة';
+
+  @override
+  String get consultationFailed => 'فشل إنهاء الاستشارة';
+
+  @override
+  String get typeMessage => 'اكتب رسالة...';
+
+  @override
+  String get individual => 'فردي';
+
+  @override
+  String get cross => 'مشترك';
+
+  @override
+  String get loading => 'جاري التحميل...';
+
+  @override
+  String get openCravatApi => 'واجهة OpenCRAVAT';
+
+  @override
+  String get panelAppApi => 'واجهة PanelApp';
+
+  @override
+  String get consultations => 'الاستشارات';
+
+  @override
+  String get consultants => 'المستشارون';
+
+  @override
+  String get doctorName => 'اسم الدكتور';
+
+  @override
+  String get consultantName => 'اسم المستشار';
+
+  @override
+  String get doctorAhmad => 'د. أحمد';
 
   @override
   String get gene => 'الجين';

@@ -54,7 +54,12 @@ class HeaderSection extends StatelessWidget {
 
         /// DNA
         Positioned(
-          right: -40,
+          right:
+              Directionality.of(context) == TextDirection.ltr ? -40 : null,
+
+          left:
+              Directionality.of(context) == TextDirection.rtl ? -40 : null,
+
           top: size.height * 0.15 - 170,
 
           child: Transform.rotate(
@@ -112,7 +117,10 @@ class HeaderSection extends StatelessWidget {
               const SizedBox(height: 4),
 
               /// SUBTITLE
-              Text(subtitle, style: TextStyle(fontSize: subtitleSize ?? 14)),
+              Text(
+                subtitle,
+                style: TextStyle(fontSize: subtitleSize ?? 14),
+              ),
             ],
           ),
         ),

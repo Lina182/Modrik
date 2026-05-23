@@ -99,7 +99,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chatSubtitle => 'Ask AI about your genetics';
 
   @override
-  String get expert => 'Consult Expert';
+  String get expert => 'Expert';
 
   @override
   String get expertSubtitle => 'Consult with our experts';
@@ -460,10 +460,157 @@ class AppLocalizationsEn extends AppLocalizations {
   String get report => 'Report';
 
   @override
-  String get noQuestion => 'No question provided';
+  String get noQuestion => 'No Question Provided';
 
   @override
   String get missingReport => 'Report data is missing';
+
+  @override
+  String get about => 'About';
+
+  @override
+  String get manageAdminAccount => 'Manage admin account and preferences';
+
+  @override
+  String get administrator => 'Administrator';
+
+  @override
+  String get role => 'Role';
+
+  @override
+  String get admin => 'Admin';
+
+  @override
+  String get adminPanelDescription => 'Modrik Admin Panel allows administrators to monitor the platform and manage system operations securely.';
+
+  @override
+  String get adminDashboard => 'Admin Dashboard';
+
+  @override
+  String get overview => 'Overview';
+
+  @override
+  String get individualAnalyses => 'Individual Analyses';
+
+  @override
+  String get allUsers => 'All Users';
+
+  @override
+  String get crossAnalyses => 'Cross Analyses';
+
+  @override
+  String get analysisOutcomes => 'Analysis Outcomes';
+
+  @override
+  String get successAnalyses => 'Successful Analyses';
+
+  @override
+  String get failedAnalyses => 'Failed Analyses';
+
+  @override
+  String get apiStatus => 'API Status';
+
+  @override
+  String get opencravatApi => 'OpenCRAVAT API';
+
+  @override
+  String get panelappApi => 'PanelApp API';
+
+  @override
+  String get geminiApi => 'Gemini API';
+
+  @override
+  String get total => 'Total';
+
+  @override
+  String get stable => 'Stable';
+
+  @override
+  String get unstable => 'Unstable';
+
+  @override
+  String get offline => 'Offline';
+
+  @override
+  String get waiting => 'Waiting';
+
+  @override
+  String get profile => 'Profile';
+
+  @override
+  String get analyzingDna => 'Analyzing your DNA...';
+
+  @override
+  String get pleaseWait => 'Please wait a moment';
+
+  @override
+  String get supportedFormatVc => 'Supported format: .vcf';
+
+  @override
+  String get chooseFile => 'Choose File';
+
+  @override
+  String get details => 'Details';
+
+  @override
+  String get caseText => 'Case';
+
+  @override
+  String get myQuestion => 'My Question';
+
+  @override
+  String get waitingNote => 'You can accept this request to start chatting with the user.';
+
+  @override
+  String get activeNote => 'This consultation is active. You can chat or mark it as complete.';
+
+  @override
+  String get completedNote => 'This consultation has been completed.';
+
+  @override
+  String get viewChat => 'View Chat';
+
+  @override
+  String get openChat => 'Open Chat';
+
+  @override
+  String get consultationCompleted => 'Consultation completed';
+
+  @override
+  String get consultationFailed => 'Failed to complete consultation';
+
+  @override
+  String get typeMessage => 'Type a message...';
+
+  @override
+  String get individual => 'Individual';
+
+  @override
+  String get cross => 'Shared';
+
+  @override
+  String get loading => 'Loading...';
+
+  @override
+  String get openCravatApi => 'OpenCRAVAT API';
+
+  @override
+  String get panelAppApi => 'PanelApp API';
+
+  @override
+  String get consultations => 'Consultations';
+
+  @override
+  String get consultants => 'Consultants';
+
+  @override
+  String get doctorName => 'Doctor Name';
+
+  @override
+  String get consultantName => 'Consultant Name';
+
+  @override
+  String get doctorAhmad => 'Dr. Ahmad';
 
   @override
   String get gene => 'Gene';

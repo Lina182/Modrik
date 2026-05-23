@@ -5,7 +5,7 @@ import '../users/individual_report_screen.dart';
 import '../users/cross_report_screen.dart';
 import '../../models/individual_report_item.dart';
 import '../../models/cross_report_item.dart';
-
+import '../../l10n/app_localizations.dart';
 class UserConsultationDetailsScreen extends StatelessWidget {
   final Map consultation;
 
@@ -20,6 +20,7 @@ class UserConsultationDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final reportData = consultation["report_data"];
 
     return Scaffold(
@@ -48,7 +49,7 @@ class UserConsultationDetailsScreen extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: Text(
-                        "Details",
+                        t.details,
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -77,10 +78,10 @@ class UserConsultationDetailsScreen extends StatelessWidget {
 
                     child: Text(
                       isWaiting
-                          ? "Waiting"
+                          ? t.waiting
                           : isActive
-                              ? "Active"
-                              : "Completed",
+                              ? t.active
+                              : t.completed,
 
                       style: TextStyle(
                         color: isWaiting
@@ -99,9 +100,9 @@ class UserConsultationDetailsScreen extends StatelessWidget {
               const SizedBox(height: 28),
 
               /// ================= REPORT =================
-              const Text(
-                "Report",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+              Text(
+                t.report,
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
               ),
 
               const SizedBox(height: 14),
@@ -115,14 +116,13 @@ class UserConsultationDetailsScreen extends StatelessWidget {
                 child: Row(
                   children: [
 
-                    /// ICON
+/// ICON
                     Container(
                       width: 58,
                       height: 58,
                       decoration: BoxDecoration(
                         color: isWaiting
-                            ? const Color(0xFFFFF3E6)
-                            : isActive
+                            ? const Color(0xFFFFF3E6): isActive
                                 ? const Color(0xFFEDEBFF)
                                 : const Color(0xFFEAF8EE),
                         borderRadius: BorderRadius.circular(18),
@@ -146,14 +146,14 @@ class UserConsultationDetailsScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            consultation["report_name"] ?? "Report",
+                            consultation["report_name"] ?? t.report,
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
 
                           const SizedBox(height: 4),
 
                           Text(
-                            "Case #${consultation["id"]}",
+                            "${t.caseText} #${consultation["id"]}",
                             style: TextStyle(
                               color: Colors.grey.shade600,
                               fontSize: 12,
@@ -207,7 +207,7 @@ class UserConsultationDetailsScreen extends StatelessWidget {
                           );
                         }
                       },
-                      child: const Text("View Report"),
+                      child: Text(t.viewReport),
                     ),
                   ],
                 ),
@@ -215,10 +215,10 @@ class UserConsultationDetailsScreen extends StatelessWidget {
 
               const SizedBox(height: 28),
 
-              /// ================= QUESTION =================
-             const Text(
-                "My Question",
-                style: TextStyle(
+/// ================= QUESTION =================
+              Text(
+                t.myQuestion,
+                style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
@@ -227,8 +227,7 @@ class UserConsultationDetailsScreen extends StatelessWidget {
               const SizedBox(height: 10),
 
               /// QUESTION BOX
-              Container(
-                width: double.infinity,
+              Container(width: double.infinity,
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: const Color(0xFFEDEBFF),
@@ -249,7 +248,7 @@ class UserConsultationDetailsScreen extends StatelessWidget {
 
                     /// QUESTION TEXT
                     Text(
-                      consultation["user_question"] ?? "No question provided",
+                      consultation["user_question"] ?? t.noQuestion,
                       style: const TextStyle(
                         height: 1.5,
                         fontSize: 14,
@@ -269,12 +268,13 @@ class UserConsultationDetailsScreen extends StatelessWidget {
                   ],
                 ),
               ),
+
               const SizedBox(height: 25),
 
               /// ================= NOTES =================
-              const Text(
-                "Notes",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              Text(
+                t.notes,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
 
               const SizedBox(height: 10),
@@ -299,10 +299,10 @@ class UserConsultationDetailsScreen extends StatelessWidget {
                     Expanded(
                       child: Text(
                         isWaiting
-                            ? "Please wait patiently while an expert reviews your request."
+                            ? t.waitingNote
                             : isActive
-                                ? "This consultation is active. Now you can chat with the expert."
-                                : "This consultation is already completed.",
+                                ? t.activeNote
+                                : t.completedNote,
                         style: TextStyle(
                           color: Colors.grey.shade700,
                           height: 1.5,
@@ -315,7 +315,7 @@ class UserConsultationDetailsScreen extends StatelessWidget {
 
               const SizedBox(height: 30),
 
-              /// ================= CHAT =================
+/// ================= CHAT =================
 if (isActive || isCompleted)
 Center(
   child: ElevatedButton(
@@ -323,16 +323,14 @@ Center(
       Navigator.push(
         context,
         MaterialPageRoute(
-                builder: (_) => ChatScreen(
-
-                  consultationId: consultation["id"],
-                  title: consultation["report_name"] ?? "",
-                  status: consultation["status"] ?? "",
-                  reportData: consultation,
-                  isCompleted: consultation["status"] == "completed",
-                  expertName:
-                      consultation["expert_name"] ?? "Expert",
-                ),
+          builder: (_) => ChatScreen(
+            title: consultation["title"] ?? "",
+            consultationId: consultation["id"],
+            status: consultation["status"],
+            reportData: consultation,
+            isCompleted: isCompleted,
+            expertName: consultation["expert_name"] ?? "Expert",
+          ),
         ),
       );
     },
@@ -347,7 +345,7 @@ Center(
       ),
     ),
     child: Text(
-      isCompleted ? "View Chat" : "Open Chat",
+      isCompleted ? t.viewChat : t.openChat,
       style: const TextStyle(
         color: Colors.white,
         fontWeight: FontWeight.bold,
