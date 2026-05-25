@@ -135,19 +135,24 @@ class _AdminDashScreenState extends State<AdminDashScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
                 // HEADER
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(t.adminDashboard,
-                            style: AppTextStyles.title.copyWith(fontSize: 26)),
-                        const SizedBox(height: 4),Text(t.overview, style: AppTextStyles.subtitle),
-                      ],
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            t.adminDashboard,
+                            style: AppTextStyles.title.copyWith(fontSize: 26),overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(t.overview, style: AppTextStyles.subtitle),
+                        ],
+                      ),
                     ),
+                    const SizedBox(width: 10),
                     GestureDetector(
                       onTap: () async {
                         await Navigator.push(
@@ -164,8 +169,7 @@ class _AdminDashScreenState extends State<AdminDashScreen> {
                           color: AppColors.card,
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.person,
-                            color: AppColors.primary),
+                        child: const Icon(Icons.person, color: AppColors.primary),
                       ),
                     ),
                   ],
@@ -174,7 +178,13 @@ class _AdminDashScreenState extends State<AdminDashScreen> {
                 const SizedBox(height: 24),
 
                 // CARDS
-                Row(
+                GridView.count(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisCount: 3,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                  childAspectRatio: 0.75,
                   children: [
                     _buildDashboardCard(
                       t.individualAnalyses,
@@ -183,7 +193,6 @@ class _AdminDashScreenState extends State<AdminDashScreen> {
                       const Color(0xFFE8E9F9),
                       AppColors.primary,
                     ),
-                    const SizedBox(width: 12),
                     _buildDashboardCard(
                       t.allUsers,
                       loading ? t.loading : (healthData?['total_users']?.toString() ?? '0'),
@@ -191,7 +200,6 @@ class _AdminDashScreenState extends State<AdminDashScreen> {
                       AppColors.gradientStart,
                       AppColors.softPurple,
                     ),
-                    const SizedBox(width: 12),
                     _buildDashboardCard(
                       t.crossAnalyses,
                       crossCount.toString(),
@@ -216,11 +224,12 @@ class _AdminDashScreenState extends State<AdminDashScreen> {
                     children: [
                       Text(t.analysisOutcomes, style: AppTextStyles.title),
                       const SizedBox(height: 24),
-
                       Row(
                         children: [
-                          Expanded(child: _buildCircularChart(t)),
+                          Expanded(flex: 4, child: _buildCircularPainterContainer(t)),
+                          const SizedBox(width: 12),
                           Expanded(
+                            flex: 5,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -232,8 +241,7 @@ class _AdminDashScreenState extends State<AdminDashScreen> {
                                 ),
                                 const SizedBox(height: 20),
                                 _buildAnalysisStatusRow(
-                                  t.failedAnalyses,
-                                  '${(failedRate * 100).toStringAsFixed(0)}%',
+                                  t.failedAnalyses,'${(failedRate * 100).toStringAsFixed(0)}%',
                                   '($failedCount)',
                                   Colors.red,
                                 ),
@@ -249,7 +257,8 @@ class _AdminDashScreenState extends State<AdminDashScreen> {
                 const SizedBox(height: 24),
 
                 // API STATUS
-                Container(padding: const EdgeInsets.all(20),
+                Container(
+                  padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: AppColors.card,
                     borderRadius: BorderRadius.circular(24),
@@ -264,9 +273,9 @@ class _AdminDashScreenState extends State<AdminDashScreen> {
                   ),
                 ),
 
-                // CONSULTANTS (ORIGINAL STYLE FIXED)
                 const SizedBox(height: 24),
 
+                // CONSULTANTS
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
@@ -278,7 +287,6 @@ class _AdminDashScreenState extends State<AdminDashScreen> {
                     children: [
                       Text(t.consultants, style: AppTextStyles.title),
                       const SizedBox(height: 16),
-
                       Row(
                         children: [
                           Container(
@@ -292,23 +300,22 @@ class _AdminDashScreenState extends State<AdminDashScreen> {
                               color: Colors.blue,
                             ),
                           ),
-
                           const SizedBox(width: 12),
-
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(t.doctorAhmad),
+                                Text(t.doctorAhmad, maxLines: 1, overflow: TextOverflow.ellipsis),
                                 const SizedBox(height: 4),
                                 Text(
                                   t.consultations,
                                   style: const TextStyle(color: Colors.grey),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ],
                             ),
                           ),
-
                           const Text(
                             "2",
                             style: TextStyle(
@@ -336,65 +343,74 @@ class _AdminDashScreenState extends State<AdminDashScreen> {
     Color iconBg,
     Color iconColor,
   ) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        height: 125,
-        decoration: BoxDecoration(
-          color: AppColors.card,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: iconBg,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(icon, color: iconColor),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: AppTextStyles.subtitle),
-                const SizedBox(height: 4),
-                Text(value,
-                    style: AppTextStyles.title.copyWith(fontSize: 22)),
-              ],
-            )
-          ],
-        ),
-      ),);
-  }
-
-  Widget _buildCircularChart(AppLocalizations t) {
-    int total = successCount + failedCount;
-
-    return SizedBox(
-      width: 140,
-      height: 140,
-      child: Stack(
-        alignment: Alignment.center,
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: AppColors.card,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          CustomPaint(
-            size: const Size(140, 140),
-            painter: _ProgressPainter(successRate, failedRate),
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: iconBg,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: iconColor, size: 20),
           ),
           Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(t.total,
-                  style: const TextStyle(color: Colors.grey, fontSize: 14)),
-              const SizedBox(height: 4),
-              Text("$total",
-                  style: AppTextStyles.title.copyWith(fontSize: 20)),
+              Text(
+                title,
+                style: AppTextStyles.subtitle.copyWith(fontSize: 12),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                style: AppTextStyles.title.copyWith(fontSize: 18),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ],
-          ),
+          )
         ],
       ),
+    );
+  }
+
+  Widget _buildCircularPainterContainer(AppLocalizations t) {
+    int total = successCount + failedCount;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        double diameter = constraints.maxWidth < 120 ? constraints.maxWidth : 120;
+        return SizedBox(
+          width: diameter,
+          height: diameter,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              CustomPaint(
+                size: Size(diameter, diameter),
+                painter: _ProgressPainter(successRate, failedRate),
+              ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(t.total, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                  Text("$total", style: AppTextStyles.title.copyWith(fontSize: 16)),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -409,14 +425,24 @@ class _AdminDashScreenState extends State<AdminDashScreen> {
       children: [
         Row(
           children: [
-            Container(width: 10, height: 10, color: color),
-            const SizedBox(width: 8),
-            Expanded(child: Text(title)),
+            Container(width: 8, height: 8, color: color),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontSize: 13),
+              ),
+            ),
           ],
         ),
         Padding(
-          padding: const EdgeInsets.only(left: 18, top: 2),
-          child: Text("$percent $count"),
+          padding: const EdgeInsets.only(left: 14, top: 2),
+          child: Text(
+            "$percent $count",
+            style: const TextStyle(fontSize: 12),
+          ),
         ),
       ],
     );
@@ -426,20 +452,26 @@ class _AdminDashScreenState extends State<AdminDashScreen> {
     return FutureBuilder(
       future: fetchSystemHealth(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: Text(t.loading));
+        }
+        if (snapshot.hasError || !snapshot.hasData) {
+          return Column(
+            children: [
+              _buildAPIStatusItem("OpenCRAVAT API", "offline", Colors.red, t),
+              _buildAPIStatusItem("PanelApp API", "offline", Colors.red, t),
+              _buildAPIStatusItem("Gemini API", "offline", Colors.red, t),
+            ],
+          );
         }
 
         final data = snapshot.data as Map<String, dynamic>;
 
         return Column(
           children: [
-            _buildAPIStatusItem("OpenCRAVAT API",
-                data['opencravat'], _getColor(data['opencravat']), t),
-            _buildAPIStatusItem("PanelApp API",
-                data['panelapp'], _getColor(data['panelapp']), t),
-            _buildAPIStatusItem("Gemini API",
-                data['gemini'], _getColor(data['gemini']), t),
+            _buildAPIStatusItem("OpenCRAVAT API", data['opencravat'] ?? 'offline', _getColor(data['opencravat'] ?? 'offline'), t),
+            _buildAPIStatusItem("PanelApp API", data['panelapp'] ?? 'offline', _getColor(data['panelapp'] ?? 'offline'), t),
+            _buildAPIStatusItem("Gemini API", data['gemini'] ?? 'offline', _getColor(data['gemini'] ?? 'offline'), t),
           ],
         );
       },
@@ -456,8 +488,7 @@ class _AdminDashScreenState extends State<AdminDashScreen> {
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(name),
+        children: [Expanded(child: Text(name, maxLines: 1, overflow: TextOverflow.ellipsis)),
           Row(
             children: [
               Container(width: 8, height: 8, color: color),
@@ -481,7 +512,7 @@ class _ProgressPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 12
+      ..strokeWidth = 10
       ..strokeCap = StrokeCap.round;
 
     paint.color = Colors.grey.withOpacity(0.2);
@@ -494,15 +525,13 @@ class _ProgressPainter extends CustomPainter {
 
     if (success > 0) {
       paint.color = Colors.green;
-      canvas.drawArc(Offset.zero & size, start,
-          2 * math.pi * success, false, paint);
+      canvas.drawArc(Offset.zero & size, start, 2 * math.pi * success, false, paint);
       start += 2 * math.pi * success;
     }
 
     if (failed > 0) {
       paint.color = Colors.red;
-      canvas.drawArc(Offset.zero & size, start,
-          2 * math.pi * failed, false, paint);
+      canvas.drawArc(Offset.zero & size, start, 2 * math.pi * failed, false, paint);
     }
   }
 

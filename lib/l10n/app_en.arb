@@ -343,7 +343,7 @@
   "successAnalyses": "Successful Analyses",
   "failedAnalyses": "Failed Analyses",
 
-  "apiStatus": "API Status",
+  "apiStatus": "External integration & API Status",
 
   "total": "Total",
 
