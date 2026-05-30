@@ -36,8 +36,21 @@ class _AdminDashScreenState extends State<AdminDashScreen> {
   }
 
   Future<Map<String, dynamic>> fetchSystemHealth() async {
+    // نجيب المستخدم الحالي من Firebase
     final user = FirebaseAuth.instance.currentUser;
-    final token = await user!.getIdToken();
+
+    // إذا المستخدم سجل خروج لا نحاول نجيب Token
+    if (user == null) {
+      return {
+        "opencravat": "offline",
+        "panelapp": "offline",
+        "gemini": "offline",
+        "total_users": 0,
+      };
+    }
+
+    // نجيب التوكن بعد التأكد أن المستخدم موجود
+    final token = await user.getIdToken();
 
     final response = await http.get(
       Uri.parse("http://172.237.116.141:8003/system/health?token=$token"),
@@ -145,7 +158,8 @@ class _AdminDashScreenState extends State<AdminDashScreen> {
                         children: [
                           Text(
                             t.adminDashboard,
-                            style: AppTextStyles.title.copyWith(fontSize: 26),overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.title.copyWith(fontSize: 26),
+                            overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 4),
                           Text(t.overview, style: AppTextStyles.subtitle),
@@ -169,7 +183,10 @@ class _AdminDashScreenState extends State<AdminDashScreen> {
                           color: AppColors.card,
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.person, color: AppColors.primary),
+                        child: const Icon(
+                          Icons.person,
+                          color: AppColors.primary,
+                        ),
                       ),
                     ),
                   ],
@@ -195,7 +212,9 @@ class _AdminDashScreenState extends State<AdminDashScreen> {
                     ),
                     _buildDashboardCard(
                       t.allUsers,
-                      loading ? t.loading : (healthData?['total_users']?.toString() ?? '0'),
+                      loading
+                          ? t.loading
+                          : (healthData?['total_users']?.toString() ?? '0'),
                       Icons.people_alt_rounded,
                       AppColors.gradientStart,
                       AppColors.softPurple,
@@ -226,7 +245,10 @@ class _AdminDashScreenState extends State<AdminDashScreen> {
                       const SizedBox(height: 24),
                       Row(
                         children: [
-                          Expanded(flex: 4, child: _buildCircularPainterContainer(t)),
+                          Expanded(
+                            flex: 4,
+                            child: _buildCircularPainterContainer(t),
+                          ),
                           const SizedBox(width: 12),
                           Expanded(
                             flex: 5,
@@ -241,7 +263,8 @@ class _AdminDashScreenState extends State<AdminDashScreen> {
                                 ),
                                 const SizedBox(height: 20),
                                 _buildAnalysisStatusRow(
-                                  t.failedAnalyses,'${(failedRate * 100).toStringAsFixed(0)}%',
+                                  t.failedAnalyses,
+                                  '${(failedRate * 100).toStringAsFixed(0)}%',
                                   '($failedCount)',
                                   Colors.red,
                                 ),
@@ -305,7 +328,11 @@ class _AdminDashScreenState extends State<AdminDashScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(t.doctorAhmad, maxLines: 1, overflow: TextOverflow.ellipsis),
+                                Text(
+                                  t.doctorAhmad,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                                 const SizedBox(height: 4),
                                 Text(
                                   t.consultations,
@@ -378,7 +405,7 @@ class _AdminDashScreenState extends State<AdminDashScreen> {
                 overflow: TextOverflow.ellipsis,
               ),
             ],
-          )
+          ),
         ],
       ),
     );
@@ -389,7 +416,9 @@ class _AdminDashScreenState extends State<AdminDashScreen> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        double diameter = constraints.maxWidth < 120 ? constraints.maxWidth : 120;
+        double diameter = constraints.maxWidth < 120
+            ? constraints.maxWidth
+            : 120;
         return SizedBox(
           width: diameter,
           height: diameter,
@@ -403,8 +432,14 @@ class _AdminDashScreenState extends State<AdminDashScreen> {
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(t.total, style: const TextStyle(color: Colors.grey, fontSize: 12)),
-                  Text("$total", style: AppTextStyles.title.copyWith(fontSize: 16)),
+                  Text(
+                    t.total,
+                    style: const TextStyle(color: Colors.grey, fontSize: 12),
+                  ),
+                  Text(
+                    "$total",
+                    style: AppTextStyles.title.copyWith(fontSize: 16),
+                  ),
                 ],
               ),
             ],
@@ -439,10 +474,7 @@ class _AdminDashScreenState extends State<AdminDashScreen> {
         ),
         Padding(
           padding: const EdgeInsets.only(left: 14, top: 2),
-          child: Text(
-            "$percent $count",
-            style: const TextStyle(fontSize: 12),
-          ),
+          child: Text("$percent $count", style: const TextStyle(fontSize: 12)),
         ),
       ],
     );
@@ -469,9 +501,24 @@ class _AdminDashScreenState extends State<AdminDashScreen> {
 
         return Column(
           children: [
-            _buildAPIStatusItem("OpenCRAVAT API", data['opencravat'] ?? 'offline', _getColor(data['opencravat'] ?? 'offline'), t),
-            _buildAPIStatusItem("PanelApp API", data['panelapp'] ?? 'offline', _getColor(data['panelapp'] ?? 'offline'), t),
-            _buildAPIStatusItem("Gemini API", data['gemini'] ?? 'offline', _getColor(data['gemini'] ?? 'offline'), t),
+            _buildAPIStatusItem(
+              "OpenCRAVAT API",
+              data['opencravat'] ?? 'offline',
+              _getColor(data['opencravat'] ?? 'offline'),
+              t,
+            ),
+            _buildAPIStatusItem(
+              "PanelApp API",
+              data['panelapp'] ?? 'offline',
+              _getColor(data['panelapp'] ?? 'offline'),
+              t,
+            ),
+            _buildAPIStatusItem(
+              "Gemini API",
+              data['gemini'] ?? 'offline',
+              _getColor(data['gemini'] ?? 'offline'),
+              t,
+            ),
           ],
         );
       },
@@ -488,7 +535,10 @@ class _AdminDashScreenState extends State<AdminDashScreen> {
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [Expanded(child: Text(name, maxLines: 1, overflow: TextOverflow.ellipsis)),
+        children: [
+          Expanded(
+            child: Text(name, maxLines: 1, overflow: TextOverflow.ellipsis),
+          ),
           Row(
             children: [
               Container(width: 8, height: 8, color: color),
@@ -525,13 +575,25 @@ class _ProgressPainter extends CustomPainter {
 
     if (success > 0) {
       paint.color = Colors.green;
-      canvas.drawArc(Offset.zero & size, start, 2 * math.pi * success, false, paint);
+      canvas.drawArc(
+        Offset.zero & size,
+        start,
+        2 * math.pi * success,
+        false,
+        paint,
+      );
       start += 2 * math.pi * success;
     }
 
     if (failed > 0) {
       paint.color = Colors.red;
-      canvas.drawArc(Offset.zero & size, start, 2 * math.pi * failed, false, paint);
+      canvas.drawArc(
+        Offset.zero & size,
+        start,
+        2 * math.pi * failed,
+        false,
+        paint,
+      );
     }
   }
 
