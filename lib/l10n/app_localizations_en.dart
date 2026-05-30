@@ -99,7 +99,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chatSubtitle => 'Ask AI about your genetics';
 
   @override
-  String get expert => 'Expert';
+  String get expertinhome => 'Consult Expert';
 
   @override
   String get expertSubtitle => 'Consult with our experts';
@@ -508,7 +508,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get failedAnalyses => 'Failed Analyses';
 
   @override
-  String get apiStatus => 'API Status';
+  String get apiStatus => 'External integration & API Status';
 
   @override
   String get opencravatApi => 'OpenCRAVAT API';
@@ -578,6 +578,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get consultationFailed => 'Failed to complete consultation';
+
+  @override
+  String get expert => 'Expert';
 
   @override
   String get typeMessage => 'Type a message...';

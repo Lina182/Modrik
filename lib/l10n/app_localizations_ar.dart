@@ -99,7 +99,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get chatSubtitle => 'مُساعدك الجيني';
 
   @override
-  String get expert => 'خبير';
+  String get expertinhome => ' تواصل مع خبير';
 
   @override
   String get expertSubtitle => 'استشر مختصاً';
@@ -508,7 +508,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get failedAnalyses => 'التحاليل الفاشلة';
 
   @override
-  String get apiStatus => 'حالة الـ API';
+  String get apiStatus => 'حالة الـ API التكامل الخارجي و';
 
   @override
   String get opencravatApi => 'واجهة OpenCRAVAT';
@@ -535,7 +535,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get waiting => 'قيد الانتظار';
 
   @override
-  String get profile => 'الملف الشخصي';
+  String get profile => ' الملف الشخصي';
 
   @override
   String get analyzingDna => 'جاري تحليل الحمض النووي...';
@@ -578,6 +578,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get consultationFailed => 'فشل إنهاء الاستشارة';
+
+  @override
+  String get expert => 'خبير';
 
   @override
   String get typeMessage => 'اكتب رسالة...';

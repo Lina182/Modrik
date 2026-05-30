@@ -275,11 +275,11 @@ abstract class AppLocalizations {
   /// **'Ask AI about your genetics'**
   String get chatSubtitle;
 
-  /// No description provided for @expert.
+  /// No description provided for @expertinhome.
   ///
   /// In en, this message translates to:
-  /// **'Expert'**
-  String get expert;
+  /// **'Consult Expert'**
+  String get expertinhome;
 
   /// No description provided for @expertSubtitle.
   ///
@@ -1088,7 +1088,7 @@ abstract class AppLocalizations {
   /// No description provided for @apiStatus.
   ///
   /// In en, this message translates to:
-  /// **'API Status'**
+  /// **'External integration & API Status'**
   String get apiStatus;
 
   /// No description provided for @opencravatApi.
@@ -1228,6 +1228,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed to complete consultation'**
   String get consultationFailed;
+
+  /// No description provided for @expert.
+  ///
+  /// In en, this message translates to:
+  /// **'Expert'**
+  String get expert;
 
   /// No description provided for @typeMessage.
   ///

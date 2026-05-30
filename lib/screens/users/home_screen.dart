@@ -211,7 +211,7 @@ class HomeScreen extends StatelessWidget {
                         },
                         child: buildSmallCard(
                           Icons.person,
-                          t.expert,
+                          t.expertinhome,
                           t.expertSubtitle,
                         ),
                       ),
