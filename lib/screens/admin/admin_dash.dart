@@ -26,6 +26,7 @@ class _AdminDashScreenState extends State<AdminDashScreen> {
 
   double successRate = 0.0;
   double failedRate = 0.0;
+  List<dynamic> experts = [];
 
   @override
   void initState() {
@@ -33,7 +34,22 @@ class _AdminDashScreenState extends State<AdminDashScreen> {
     loadHealth();
     fetchAnalysisCounts();
     fetchAnalysisStats();
+    fetchExpertStatistics();
   }
+
+Future<void> fetchExpertStatistics() async {
+  final response = await http.get(
+    Uri.parse("http://172.237.116.141:8003/expert-statistics"),
+  );
+
+  if (response.statusCode == 200) {
+    final data = jsonDecode(response.body);
+
+    setState(() {
+      experts = data["experts"] ?? [];
+    });
+  }
+}
 
   Future<Map<String, dynamic>> fetchSystemHealth() async {
     // نجيب المستخدم الحالي من Firebase
@@ -310,48 +326,58 @@ class _AdminDashScreenState extends State<AdminDashScreen> {
                     children: [
                       Text(t.consultants, style: AppTextStyles.title),
                       const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFE8E9F9),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Icon(
-                              Icons.medical_services,
-                              color: Colors.blue,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  t.doctorAhmad,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  t.consultations,
-                                  style: const TextStyle(color: Colors.grey),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
-                            ),
-                          ),
-                          const Text(
-                            "2",
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
+                     Column(
+  children: experts.map((expert) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: const Color(0xFFE8E9F9),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              Icons.medical_services,
+              color: Colors.blue,
+            ),
+          ),
+
+          const SizedBox(width: 12),
+
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  expert["expert_name"] ?? "",
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+
+                const SizedBox(height: 4),
+
+                Text(
+                  t.consultations,
+                  style: const TextStyle(color: Colors.grey),
+                ),
+              ],
+            ),
+          ),
+
+          Text(
+            expert["completed_consultations_count"].toString(),
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }).toList(),
+)
                     ],
                   ),
                 ),
