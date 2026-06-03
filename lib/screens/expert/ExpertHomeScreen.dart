@@ -281,7 +281,7 @@ class _ExpertHomeScreenState extends State<ExpertHomeScreen> {
                         ),
 
                         /// ===== MESSAGE BOX =====
-                        if (selectedTab != 2 && item["user_question"] != null) ...[
+                        if (item["user_question"] != null) ...[
                           const SizedBox(height: 18),
 
                           Container(

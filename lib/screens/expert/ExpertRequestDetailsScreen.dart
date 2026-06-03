@@ -164,7 +164,96 @@ class ExpertRequestDetailsScreen extends StatelessWidget {
                       onPressed: () {
                         final reportData = consultation["report_data"];
 
-                        if (reportData == null) return;
+                        if (reportData == null) {
+                          showDialog(
+                            context: context,
+                            barrierDismissible: true,
+                            builder: (_) => Dialog(
+                              backgroundColor: Colors.transparent,
+                              child: Container(
+                                padding: const EdgeInsets.all(22),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(26),
+                                ),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    /// ICON
+                                    Container(
+                                      width: 65,
+                                      height: 65,
+                                      decoration: const BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Color(0xFFFFE9E9),
+                                      ),
+                                      child: const Icon(
+                                        Icons.delete_outline_rounded,
+                                        color: Colors.redAccent,
+                                        size: 32,
+                                      ),
+                                    ),
+
+                                    const SizedBox(height: 18),
+
+                                    /// TITLE
+                                    const Text(
+                                      "Report Deleted",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w900,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+
+                                    const SizedBox(height: 10),
+
+                                    /// DESCRIPTION
+                                    Text(
+                                      "This report was deleted after the consultation was completed.",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 14.5,
+                                        height: 1.5,
+                                        color: Colors.grey.shade600,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+
+                                    const SizedBox(height: 22),
+
+                                    /// BUTTON
+                                    SizedBox(
+                                      width: double.infinity,
+                                      height: 52,
+                                      child: ElevatedButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        style: ElevatedButton.styleFrom(
+                                          elevation: 0,
+                                          backgroundColor: const Color(0xFF6C63FF),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(16),
+                                          ),
+                                        ),
+                                        child: const Text(
+                                          "OK",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w800,
+                                            fontSize: 15,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+
+                          return;
+                        }
 
                         if (consultation["report_type"] == "cross") {
                           final reports = (reportData as List)
