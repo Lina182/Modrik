@@ -179,7 +179,7 @@ class _AdminDashScreenState extends State<AdminDashScreen> {
                     _buildDashboardCard(
                       t.individualAnalyses,
                       individualCount.toString(),
-                      Icons.bar_chart_rounded,
+                      Icons.person,
                       const Color(0xFFE8E9F9),
                       AppColors.primary,
                     ),
@@ -188,16 +188,16 @@ class _AdminDashScreenState extends State<AdminDashScreen> {
                       loading
                           ? t.loading
                           : (healthData?['total_users']?.toString() ?? '0'),
-                      Icons.people_alt_rounded,
-                      AppColors.gradientStart,
-                      AppColors.softPurple,
+                     Icons.groups,
+                     const Color(0xFFE8E9F9),
+AppColors.primary,
                     ),
                     _buildDashboardCard(
                       t.crossAnalyses,
                       crossCount.toString(),
-                      Icons.flip_to_front_rounded,
-                      const Color(0xFFEBF3FE),
-                      Colors.blue,
+                     Icons.people,
+                      const Color(0xFFE8E9F9),
+                      AppColors.primary,
                     ),
                   ],
                 ),
