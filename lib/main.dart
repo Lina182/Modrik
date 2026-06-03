@@ -18,9 +18,7 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   await FirebaseMessaging.instance.requestPermission();
 
@@ -28,18 +26,14 @@ void main() async {
   print("FCM TOKEN: $fcmToken");
   print("FIREBASE UID: ${FirebaseAuth.instance.currentUser?.uid}");
 
-
   const AndroidInitializationSettings initializationSettingsAndroid =
       AndroidInitializationSettings('@mipmap/ic_launcher');
 
-  const InitializationSettings initializationSettings =
-      InitializationSettings(
+  const InitializationSettings initializationSettings = InitializationSettings(
     android: initializationSettingsAndroid,
   );
 
-  await flutterLocalNotificationsPlugin.initialize(
-    initializationSettings,
-  );
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
 
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
     RemoteNotification? notification = message.notification;
@@ -77,10 +71,7 @@ class MyApp extends StatelessWidget {
 
           locale: locale,
 
-          supportedLocales: const [
-            Locale('en'),
-            Locale('ar'),
-          ],
+          supportedLocales: const [Locale('en'), Locale('ar')],
 
           localizationsDelegates: const [
             AppLocalizations.delegate,
@@ -89,9 +80,7 @@ class MyApp extends StatelessWidget {
             GlobalCupertinoLocalizations.delegate,
           ],
 
-          theme: ThemeData(
-            fontFamily: 'Sans-serif',
-          ),
+          theme: ThemeData(fontFamily: 'Sans-serif'),
 
           home: const StartScreen(),
         );

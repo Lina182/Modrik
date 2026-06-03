@@ -328,8 +328,8 @@
 "typeMessage": "Type a message...",
   "caseNumber": "Case",
   "notAvailable": "Not available",
-"individual": "Individual",
-"cross": "Shared",
+"individualtype": "Individual",
+"crosstype": "cross",
 "myConsultations": "My Consultations",
 
   "adminDashboard": "Admin Dashboard",

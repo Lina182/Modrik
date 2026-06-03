@@ -1,12 +1,8 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:http/http.dart' as http;
-import 'package:firebase_auth/firebase_auth.dart';
 import '../../l10n/app_localizations.dart';
-import '../../models/cross_report_item.dart';
 import 'cross_report_screen.dart';
-
+import '../../services/analysis_service.dart';
 import '../../widgets/analysis_header.dart';
 import '../../widgets/analysis_upload_box.dart';
 import '../../widgets/analysis_button.dart';
@@ -22,8 +18,6 @@ class CrossUploadScreen extends StatefulWidget {
 class _CrossUploadScreenState extends State<CrossUploadScreen> {
   PlatformFile? maleFile;
   PlatformFile? femaleFile;
-
-  final String apiUrl = "http://172.237.116.141:8003/analyze_cross/";
 
   Future<void> pickMaleFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -59,78 +53,22 @@ class _CrossUploadScreenState extends State<CrossUploadScreen> {
     AnalysisLoading.show(context);
 
     try {
-      var request = http.MultipartRequest("POST", Uri.parse(apiUrl));
-      request.fields['uid'] = FirebaseAuth.instance.currentUser!.uid;
-
-      request.files.add(
-        http.MultipartFile.fromBytes(
-          'male_file',
-          maleFile!.bytes!,
-          filename: maleFile!.name,
-        ),
+      final reports = await AnalysisService.analyzeCross(
+        maleBytes: maleFile!.bytes!,
+        maleName: maleFile!.name,
+        femaleBytes: femaleFile!.bytes!,
+        femaleName: femaleFile!.name,
       );
-
-      request.files.add(
-        http.MultipartFile.fromBytes(
-          'female_file',
-          femaleFile!.bytes!,
-          filename: femaleFile!.name,
-        ),
-      );
-
-      final streamedResponse = await request.send();
-      final response = await http.Response.fromStream(streamedResponse);
 
       AnalysisLoading.hide(context);
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final crossResults = data['cross_results'];
-
-        List<CrossReportItem> reports = [];
-
-        for (var item in crossResults['autosomal_dominant']) {
-          reports.add(
-            CrossReportItem.fromJson(item, "Autosomal Dominant Risks"),
-          );
-        }
-
-        for (var item in crossResults['autosomal_recessive']) {
-          reports.add(
-            CrossReportItem.fromJson(item, "Autosomal Recessive Risks"),
-          );
-        }
-
-        for (var item in crossResults['x_linked_recessive']) {
-          reports.add(
-            CrossReportItem.fromJson(item, "X-Linked Recessive Risks"),
-          );
-        }
-
-        for (var item in crossResults['x_linked_dominant']) {
-          reports.add(
-            CrossReportItem.fromJson(item, "X-Linked Dominant Risks"),
-          );
-        }
-
-        for (var item in crossResults['both_uncertain']) {
-          reports.add(
-            CrossReportItem.fromJson(item, "Uncertain / Both Pattern Risks"),
-          );
-        }
-
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => CrossReportScreen(
-              reports: reports,
-              fileName: "Cross Report",
-            ),
-          ),
-        );
-      } else {
-        showError("Failed to analyze files");
-      }
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) =>
+              CrossReportScreen(reports: reports, fileName: "Cross Report"),
+        ),
+      );
     } catch (e) {
       AnalysisLoading.hide(context);
       showError("Something went wrong");
@@ -146,7 +84,8 @@ class _CrossUploadScreenState extends State<CrossUploadScreen> {
         title: Text(t.error),
         content: Text(message),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
             child: Text(t.ok),
           ),
         ],
@@ -260,10 +199,9 @@ class _CrossUploadScreenState extends State<CrossUploadScreen> {
 
                   AnalysisButton(
                     text: t.continueBtn,
-                    onPressed:
-                        (maleFile == null || femaleFile == null)
-                            ? null
-                            : analyzeCrossFiles,
+                    onPressed: (maleFile == null || femaleFile == null)
+                        ? null
+                        : analyzeCrossFiles,
                   ),
                 ],
               ),

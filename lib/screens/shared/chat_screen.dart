@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import '../../services/consultation_service.dart';
 import 'dart:async';
 import '../users/individual_report_screen.dart';
@@ -8,6 +6,7 @@ import '../users/cross_report_screen.dart';
 import '../../models/individual_report_item.dart';
 import '../../models/cross_report_item.dart';
 import '../../l10n/app_localizations.dart';
+import '../../services/message_service.dart';
 
 class ChatScreen extends StatefulWidget {
   final int consultationId;
@@ -62,15 +61,11 @@ class _ChatScreenState extends State<ChatScreen> {
   Future<void> loadMessages() async {
     if (currentUserId == null || currentUserRole == null) return;
 
-    final res = await http.get(
-      Uri.parse(
-        "http://172.237.116.141:8003/messages/${widget.consultationId}"
-        "?current_user_id=$currentUserId"
-        "&current_user_role=$currentUserRole",
-      ),
+    final data = await MessageService.loadMessages(
+      consultationId: widget.consultationId,
+      currentUserId: currentUserId!,
+      currentUserRole: currentUserRole!,
     );
-
-    final data = jsonDecode(res.body);
 
     setState(() {
       msgs = data["messages"] ?? [];
@@ -80,14 +75,10 @@ class _ChatScreenState extends State<ChatScreen> {
   Future<void> send() async {
     if (c.text.trim().isEmpty) return;
 
-    await http.post(
-      Uri.parse("http://172.237.116.141:8003/messages/send"),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({
-        "consultation_id": widget.consultationId,
-        "sender_id": currentUserId,
-        "message_text": c.text.trim(),
-      }),
+    await MessageService.sendMessage(
+      consultationId: widget.consultationId,
+      senderId: currentUserId!,
+      message: c.text.trim(),
     );
 
     c.clear();
@@ -142,7 +133,10 @@ class _ChatScreenState extends State<ChatScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: Row(
               children: [
-                circleBtn(Icons.arrow_back_ios_new, () => Navigator.pop(context)),
+                circleBtn(
+                  Icons.arrow_back_ios_new,
+                  () => Navigator.pop(context),
+                ),
                 const SizedBox(width: 10),
                 const CircleAvatar(),
                 const SizedBox(width: 12),
@@ -150,14 +144,13 @@ class _ChatScreenState extends State<ChatScreen> {
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      buildTitle(t),
-                    ],
+                    children: [buildTitle(t)],
                   ),
                 ),
               ],
             ),
-          ),const Divider(height: 30, color: Colors.black12),
+          ),
+          const Divider(height: 30, color: Colors.black12),
 
           if (!widget.isCompleted)
             GestureDetector(
@@ -167,10 +160,12 @@ class _ChatScreenState extends State<ChatScreen> {
 
                 if (widget.reportData["report_type"] == "cross") {
                   final reports = (data as List)
-                      .map((e) => CrossReportItem.fromJson(
-                            Map<String, dynamic>.from(e),
-                            widget.reportData["report_name"] ?? "",
-                          ))
+                      .map(
+                        (e) => CrossReportItem.fromJson(
+                          Map<String, dynamic>.from(e),
+                          widget.reportData["report_name"] ?? "",
+                        ),
+                      )
                       .toList();
 
                   Navigator.push(
@@ -186,10 +181,12 @@ class _ChatScreenState extends State<ChatScreen> {
                   );
                 } else {
                   final reports = (data as List)
-                      .map((e) => IndividualReportItem.fromJson(
-                            Map<String, dynamic>.from(e),
-                            null,
-                          ))
+                      .map(
+                        (e) => IndividualReportItem.fromJson(
+                          Map<String, dynamic>.from(e),
+                          null,
+                        ),
+                      )
                       .toList();
 
                   Navigator.push(
@@ -255,13 +252,14 @@ class _ChatScreenState extends State<ChatScreen> {
                     m['sender_id'].toString() == currentUserId.toString();
 
                 return Align(
-                  alignment:
-                      isMe ? Alignment.centerRight : Alignment.centerLeft,
+                  alignment: isMe
+                      ? Alignment.centerRight
+                      : Alignment.centerLeft,
                   child: Container(
                     padding: const EdgeInsets.all(10),
-                    margin: const EdgeInsets.symmetric(vertical: 4),decoration: BoxDecoration(
-                      color:
-                          isMe ? const Color(0xFF6C63FF) : Colors.grey[300],
+                    margin: const EdgeInsets.symmetric(vertical: 4),
+                    decoration: BoxDecoration(
+                      color: isMe ? const Color(0xFF6C63FF) : Colors.grey[300],
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -278,8 +276,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
           if (widget.status != "completed")
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               child: Row(
                 children: [
                   Expanded(
@@ -301,10 +298,13 @@ class _ChatScreenState extends State<ChatScreen> {
                     backgroundColor: const Color(0xFF6C63FF),
                     child: IconButton(
                       onPressed: send,
-                      icon: const Icon(Icons.send,
-                          color: Colors.white, size: 20),
+                      icon: const Icon(
+                        Icons.send,
+                        color: Colors.white,
+                        size: 20,
+                      ),
                     ),
-                  )
+                  ),
                 ],
               ),
             ),

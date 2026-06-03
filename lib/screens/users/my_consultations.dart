@@ -1,4 +1,3 @@
-
 import '../users/UserConsultationDetailsScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -31,9 +30,7 @@ class _ExpertchatState extends State<Expertchat> {
   Future<void> loadConsultations() async {
     final userId = await getUserId();
 
-    final data = await ConsultationService.getUserConsultations(
-      userId: userId,
-    );
+    final data = await ConsultationService.getUserConsultations(userId: userId);
 
     setState(() {
       consultations = data;
@@ -45,8 +42,7 @@ class _ExpertchatState extends State<Expertchat> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
 
-    final isArabic =
-        Localizations.localeOf(context).languageCode == 'ar';
+    final isArabic = Localizations.localeOf(context).languageCode == 'ar';
 
     var list = consultations.where((e) {
       if (tab == 0) return e["status"] == "waiting";
@@ -66,10 +62,7 @@ class _ExpertchatState extends State<Expertchat> {
                 height: 220,
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [
-                      Color(0xFFE0E2FF),
-                      Color(0xFFF3F4FF),
-                    ],
+                    colors: [Color(0xFFE0E2FF), Color(0xFFF3F4FF)],
                   ),
                   borderRadius: BorderRadius.only(
                     bottomLeft: Radius.circular(50),
@@ -144,7 +137,8 @@ class _ExpertchatState extends State<Expertchat> {
             ),
             child: Row(
               children: [
-                tabBtn(t.waiting, 0, Icons.access_time),tabBtn(t.active, 1, Icons.chat_bubble_outline),
+                tabBtn(t.waiting, 0, Icons.access_time),
+                tabBtn(t.active, 1, Icons.chat_bubble_outline),
                 tabBtn(t.completed, 2, Icons.check_circle_outline),
               ],
             ),
@@ -154,9 +148,7 @@ class _ExpertchatState extends State<Expertchat> {
 
           /// LIST
           if (isLoading)
-            const Expanded(
-              child: Center(child: CircularProgressIndicator()),
-            )
+            const Expanded(child: Center(child: CircularProgressIndicator()))
           else
             Expanded(
               child: ListView.builder(
@@ -170,9 +162,8 @@ class _ExpertchatState extends State<Expertchat> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => UserConsultationDetailsScreen(
-                            consultation: item,
-                          ),
+                          builder: (_) =>
+                              UserConsultationDetailsScreen(consultation: item),
                         ),
                       );
                     },
@@ -198,21 +189,21 @@ class _ExpertchatState extends State<Expertchat> {
                               color: item["status"] == "waiting"
                                   ? Colors.orange.withOpacity(0.12)
                                   : item["status"] == "completed"
-                                      ? Colors.green.withOpacity(0.12)
-                                      : const Color(0xFF6C63FF).withOpacity(0.12),
+                                  ? Colors.green.withOpacity(0.12)
+                                  : const Color(0xFF6C63FF).withOpacity(0.12),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Icon(
                               item["status"] == "waiting"
                                   ? Icons.access_time
                                   : item["status"] == "completed"
-                                      ? Icons.check_circle
-                                      : Icons.chat_bubble_outline,
+                                  ? Icons.check_circle
+                                  : Icons.chat_bubble_outline,
                               color: item["status"] == "waiting"
                                   ? Colors.orange
                                   : item["status"] == "completed"
-                                      ? Colors.green
-                                      : const Color(0xFF6C63FF),
+                                  ? Colors.green
+                                  : const Color(0xFF6C63FF),
                             ),
                           ),
 
@@ -233,12 +224,13 @@ class _ExpertchatState extends State<Expertchat> {
                                 const SizedBox(height: 6),
 
                                 Text(
-                                  item["type"] == "cross"
-                                      ? t.cross
-                                      : t.individual,
+                                  item["report_type"] == "cross"
+                                      ? t.crosstype
+                                      : t.individualtype,
                                   style: const TextStyle(
                                     fontSize: 12,
-                                    color: Colors.grey,),
+                                    color: Colors.grey,
+                                  ),
                                 ),
 
                                 const SizedBox(height: 4),
@@ -257,14 +249,14 @@ class _ExpertchatState extends State<Expertchat> {
                                   item["status"] == "waiting"
                                       ? t.waiting
                                       : item["status"] == "active"
-                                          ? t.active
-                                          : t.completed,
+                                      ? t.active
+                                      : t.completed,
                                   style: TextStyle(
                                     color: item["status"] == "completed"
                                         ? Colors.green
                                         : item["status"] == "waiting"
-                                            ? Colors.orange
-                                            : const Color(0xFF6C63FF),
+                                        ? Colors.orange
+                                        : const Color(0xFF6C63FF),
                                     fontSize: 13,
                                   ),
                                 ),

@@ -7,6 +7,7 @@ import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:math' as math;
 import '../../l10n/app_localizations.dart';
+import '../../services/admin_service.dart';
 
 class AdminDashScreen extends StatefulWidget {
   const AdminDashScreen({super.key});
@@ -37,86 +38,42 @@ class _AdminDashScreenState extends State<AdminDashScreen> {
     fetchExpertStatistics();
   }
 
-Future<void> fetchExpertStatistics() async {
-  final response = await http.get(
-    Uri.parse("http://172.237.116.141:8003/expert-statistics"),
-  );
-
-  if (response.statusCode == 200) {
-    final data = jsonDecode(response.body);
+  Future<void> fetchExpertStatistics() async {
+    final data = await AdminService.getExpertStatistics();
 
     setState(() {
-      experts = data["experts"] ?? [];
+      experts = data;
     });
-  }
-}
-
-  Future<Map<String, dynamic>> fetchSystemHealth() async {
-    // نجيب المستخدم الحالي من Firebase
-    final user = FirebaseAuth.instance.currentUser;
-
-    // إذا المستخدم سجل خروج لا نحاول نجيب Token
-    if (user == null) {
-      return {
-        "opencravat": "offline",
-        "panelapp": "offline",
-        "gemini": "offline",
-        "total_users": 0,
-      };
-    }
-
-    // نجيب التوكن بعد التأكد أن المستخدم موجود
-    final token = await user.getIdToken();
-
-    final response = await http.get(
-      Uri.parse("http://172.237.116.141:8003/system/health?token=$token"),
-    );
-
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception("Failed to load system health");
-    }
   }
 
   Future<void> fetchAnalysisCounts() async {
-    final response = await http.get(
-      Uri.parse("http://172.237.116.141:8003/analysis-count"),
-    );
+    final data = await AdminService.getAnalysisCounts();
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      setState(() {
-        individualCount = data['individual'];
-        crossCount = data['cross'];
-      });
-    }
+    setState(() {
+      individualCount = data['individual'];
+      crossCount = data['cross'];
+    });
   }
 
   Future<void> fetchAnalysisStats() async {
-    final response = await http.get(
-      Uri.parse("http://172.237.116.141:8003/analysis-stats"),
-    );
+    final data = await AdminService.getAnalysisStats();
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
+    int success = data['success'];
+    int failed = data['failed'];
+    int total = success + failed;
 
-      int success = data['success'];
-      int failed = data['failed'];
-      int total = success + failed;
-
-      setState(() {
-        successCount = success;
-        failedCount = failed;
-        successRate = total == 0 ? 0 : success / total;
-        failedRate = total == 0 ? 0 : failed / total;
-      });
-    }
+    setState(() {
+      successCount = success;
+      failedCount = failed;
+      successRate = total == 0 ? 0 : success / total;
+      failedRate = total == 0 ? 0 : failed / total;
+    });
   }
 
   Future<void> loadHealth() async {
     try {
-      final data = await fetchSystemHealth();
+      final data = await AdminService.getSystemHealth();
+
       setState(() {
         healthData = data;
         loading = false;
@@ -326,58 +283,62 @@ Future<void> fetchExpertStatistics() async {
                     children: [
                       Text(t.consultants, style: AppTextStyles.title),
                       const SizedBox(height: 16),
-                     Column(
-  children: experts.map((expert) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: const Color(0xFFE8E9F9),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(
-              Icons.medical_services,
-              color: Colors.blue,
-            ),
-          ),
+                      Column(
+                        children: experts.map((expert) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFE8E9F9),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: const Icon(
+                                    Icons.medical_services,
+                                    color: Colors.blue,
+                                  ),
+                                ),
 
-          const SizedBox(width: 12),
+                                const SizedBox(width: 12),
 
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  expert["expert_name"] ?? "",
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        expert["expert_name"] ?? "",
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
 
-                const SizedBox(height: 4),
+                                      const SizedBox(height: 4),
 
-                Text(
-                  t.consultations,
-                  style: const TextStyle(color: Colors.grey),
-                ),
-              ],
-            ),
-          ),
+                                      Text(
+                                        t.consultations,
+                                        style: const TextStyle(
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
 
-          Text(
-            expert["completed_consultations_count"].toString(),
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-    );
-  }).toList(),
-)
+                                Text(
+                                  expert["completed_consultations_count"]
+                                      .toString(),
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                      ),
                     ],
                   ),
                 ),
@@ -508,7 +469,7 @@ Future<void> fetchExpertStatistics() async {
 
   Widget _buildAPIStatus(AppLocalizations t) {
     return FutureBuilder(
-      future: fetchSystemHealth(),
+      future: AdminService.getSystemHealth(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: Text(t.loading));

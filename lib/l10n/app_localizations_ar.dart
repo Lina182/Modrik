@@ -586,10 +586,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get typeMessage => 'اكتب رسالة...';
 
   @override
-  String get individual => 'فردي';
+  String get individualtype => 'فردي';
 
   @override
-  String get cross => 'مشترك';
+  String get crosstype => 'زوجي';
 
   @override
   String get loading => 'جاري التحميل...';

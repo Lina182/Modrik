@@ -1,10 +1,7 @@
-import 'dart:convert';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-
+import '../../services/auth_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import 'login_screen.dart';
@@ -85,9 +82,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         await user!.verifyBeforeUpdateEmail(email.text.trim());
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.of(context)!.confirmEmail),
-          ),
+          SnackBar(content: Text(AppLocalizations.of(context)!.confirmEmail)),
         );
       }
 
@@ -95,9 +90,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         await user!.updatePassword(password.text.trim());
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.of(context)!.profileUpdated),
-          ),
+          SnackBar(content: Text(AppLocalizations.of(context)!.profileUpdated)),
         );
       }
 
@@ -112,9 +105,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       setState(() {});
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppLocalizations.of(context)!.profileUpdated),
-        ),
+        SnackBar(content: Text(AppLocalizations.of(context)!.profileUpdated)),
       );
 
       Navigator.pop(context);
@@ -127,9 +118,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         msg = AppLocalizations.of(context)!.wrongPassword;
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(msg)),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
     } finally {
       setState(() => isLoading = false);
     }
@@ -141,21 +130,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     try {
       if (currentPassword.text.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.of(context)!.deletePassword),
-          ),
+          SnackBar(content: Text(AppLocalizations.of(context)!.deletePassword)),
         );
-        return;}
+        return;
+      }
 
       await reAuthenticate();
 
       final token = await user!.getIdToken();
 
-      await http.post(
-        Uri.parse("http://172.237.116.141:8003/delete-user"),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({"token": token}),
-      );
+      if (token == null) {
+        throw Exception("Failed to get token");
+      }
+
+      await AuthService.deleteUser(token);
 
       await FirebaseAuth.instance.signOut();
 
@@ -188,10 +176,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           backgroundColor: Colors.transparent,
           centerTitle: true,
           iconTheme: const IconThemeData(color: Colors.black),
-          title: Text(
-            t.editProfile,
-            style: AppTextStyles.title,
-          ),
+          title: Text(t.editProfile, style: AppTextStyles.title),
           actions: [
             Padding(
               padding: const EdgeInsets.only(right: 14),
@@ -237,10 +222,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   gradient: const LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [
-                      AppColors.gradientStart,
-                      AppColors.gradientEnd,
-                    ],
+                    colors: [AppColors.gradientStart, AppColors.gradientEnd],
                   ),
                   borderRadius: BorderRadius.circular(28),
                 ),
@@ -268,7 +250,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             user?.displayName ?? "Username",
                             style: const TextStyle(
                               fontSize: 22,
-                              fontWeight: FontWeight.bold,),
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                           const SizedBox(height: 6),
                           Text(
@@ -286,8 +269,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
               _field(t.fullName, t.enterName, name, icon: Icons.person),
               const SizedBox(height: 22),
-              _field(t.email, t.enterEmail, email,
-                  icon: Icons.email_outlined),
+              _field(t.email, t.enterEmail, email, icon: Icons.email_outlined),
               const SizedBox(height: 22),
               _field(
                 t.newPassword,
@@ -364,8 +346,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title,
-            style: AppTextStyles.title.copyWith(fontSize: 15)),
+        Text(title, style: AppTextStyles.title.copyWith(fontSize: 15)),
         const SizedBox(height: 8),
         TextFormField(
           controller: controller,
@@ -375,9 +356,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             filled: true,
             fillColor: Colors.white,
             prefixIcon: Icon(icon, color: AppColors.primary),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
           ),
         ),
       ],

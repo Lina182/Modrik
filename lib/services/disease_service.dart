@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'db_service.dart';
+import '../config/api_config.dart';
 
 class DiseaseService {
-  static const String baseUrl = "http://172.237.116.141:8003";
   // TRANSLATE DISEASES
   static Future<Map<String, String>> translateDiseases(
     List<String> diseases,
@@ -28,7 +28,7 @@ class DiseaseService {
     }
     // API REQUEST
     final response = await http.post(
-      Uri.parse("$baseUrl/translate_diseases/"),
+      Uri.parse("${ApiConfig.baseUrl}/translate_diseases/"),
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({"diseases": diseasesToTranslate}),
     );
@@ -59,9 +59,9 @@ class DiseaseService {
   // EXPLAIN DISEASE
   static Future<String> explainDisease(String disease, String language) async {
     final response = await http.post(
-      Uri.parse("$baseUrl/explain_disease/"),
+      Uri.parse("${ApiConfig.baseUrl}/explain_disease/"),
       headers: {"Content-Type": "application/json"},
-      body: jsonEncode({"disease": disease,"language": language},),
+      body: jsonEncode({"disease": disease, "language": language}),
     );
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);

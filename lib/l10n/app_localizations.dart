@@ -1241,17 +1241,17 @@ abstract class AppLocalizations {
   /// **'Type a message...'**
   String get typeMessage;
 
-  /// No description provided for @individual.
+  /// No description provided for @individualtype.
   ///
   /// In en, this message translates to:
   /// **'Individual'**
-  String get individual;
+  String get individualtype;
 
-  /// No description provided for @cross.
+  /// No description provided for @crosstype.
   ///
   /// In en, this message translates to:
-  /// **'Shared'**
-  String get cross;
+  /// **'cross'**
+  String get crosstype;
 
   /// No description provided for @loading.
   ///

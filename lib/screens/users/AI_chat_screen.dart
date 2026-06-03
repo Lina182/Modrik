@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import '../../l10n/app_localizations.dart';
+import '../../services/ai_chat_service.dart';
+
 class AIChatScreen extends StatefulWidget {
   final Map<String, dynamic>? reportData;
   const AIChatScreen({super.key, this.reportData});
@@ -16,10 +17,8 @@ class _AIChatScreenState extends State<AIChatScreen> {
   /// UI messages
   final List<Map<String, String>> messages = [];
 
-  /// 🔥 ذاكرة الشات (الأهم)
   List<Map<String, String>> chatHistory = [];
 
-  /// 🔥 التقرير (لو موجود)
   late Map<String, dynamic>? reportData;
 
   @override
@@ -31,28 +30,6 @@ class _AIChatScreenState extends State<AIChatScreen> {
   }
 
   /// ================= BACKEND =================
-  Future<String> sendMessageToBackend() async {
-    final url = Uri.parse("http://172.237.116.141:8003/chat/");
-    try {
-      final response = await http.post(
-        url,
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({
-          "messages": chatHistory,
-          "analysis_data": reportData,
-        }),
-      );
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        return data["reply"];
-      } else {
-        return "Server error";
-      }
-    } catch (e) {
-      return "Connection error";
-    }
-  }
 
   bool _initialized = false;
 
@@ -60,10 +37,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
     if (_initialized) return;
     _initialized = true;
 
-    messages.add({
-      "sender": "bot",
-      "text": t.welcomeBot,
-    });
+    messages.add({"sender": "bot", "text": t.welcomeBot});
 
     if (reportData != null) {
       chatHistory.add({
@@ -71,10 +45,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
         "content": "This is my genetic report: ${jsonEncode(reportData)}",
       });
 
-      messages.add({
-        "sender": "bot",
-        "text": t.reportReceived,
-      });
+      messages.add({"sender": "bot", "text": t.reportReceived});
     }
   }
 
@@ -107,10 +78,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
               width: double.infinity,
               padding: const EdgeInsets.all(8),
               color: Colors.green.withOpacity(0.1),
-              child: Text(
-                t.reportModeBanner,
-                textAlign: TextAlign.center,
-              ),
+              child: Text(t.reportModeBanner, textAlign: TextAlign.center),
             ),
 
           /// الرسائل
@@ -123,16 +91,15 @@ class _AIChatScreenState extends State<AIChatScreen> {
                 final isBot = message["sender"] == "bot";
 
                 return Align(
-                  alignment:
-                      isBot ? Alignment.centerLeft : Alignment.centerRight,
+                  alignment: isBot
+                      ? Alignment.centerLeft
+                      : Alignment.centerRight,
                   child: Container(
                     margin: const EdgeInsets.only(bottom: 12),
                     padding: EdgeInsets.all(width * 0.04),
                     constraints: BoxConstraints(maxWidth: width * 0.75),
                     decoration: BoxDecoration(
-                      color: isBot
-                          ? const Color(0xFFD6D9F2)
-                          : Colors.white,
+                      color: isBot ? const Color(0xFFD6D9F2) : Colors.white,
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Text(message["text"] ?? ""),
@@ -150,9 +117,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
                 Expanded(
                   child: TextField(
                     controller: _controller,
-                    decoration: InputDecoration(
-                      hintText: t.messageHint,
-                    ),
+                    decoration: InputDecoration(hintText: t.messageHint),
                   ),
                 ),
                 IconButton(
@@ -182,7 +147,10 @@ class _AIChatScreenState extends State<AIChatScreen> {
 
     chatHistory.add({"role": "user", "content": userMessage});
 
-    String botReply = await sendMessageToBackend();
+    String botReply = await AIChatService.sendMessage(
+      messages: chatHistory,
+      reportData: reportData,
+    );
 
     chatHistory.add({"role": "assistant", "content": botReply});
 

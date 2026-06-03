@@ -1,11 +1,9 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-
 import '../../l10n/app_localizations.dart';
 import 'create_account_screen.dart';
 import 'forget_password_screen.dart';
@@ -14,6 +12,7 @@ import '../admin/admin_dash.dart';
 import '../expert/ExpertHomeScreen.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
+import '../../services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -52,9 +51,9 @@ class _LoginScreenState extends State<LoginScreen> {
     final t = AppLocalizations.of(context)!;
 
     if (emailController.text.isEmpty || passwordController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(t.pleaseFillFields)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(t.pleaseFillFields)));
       return;
     }
 
@@ -65,28 +64,24 @@ class _LoginScreenState extends State<LoginScreen> {
 
       final Prefs = await SharedPreferences.getInstance();
       await Prefs.clear();
-      
+
       final userCredential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(
-        email: emailController.text.trim(),
-        password: passwordController.text.trim(),
-      );
+            email: emailController.text.trim(),
+            password: passwordController.text.trim(),
+          );
 
       final user = userCredential.user;
       if (user == null) throw Exception(t.userNull);
 
       final idToken = await user.getIdToken();
+      if (idToken == null) {
+        throw Exception("Failed to get Firebase token");
+      }
 
       final fcmToken = await FirebaseMessaging.instance.getToken();
 
-      await http.post(
-        Uri.parse("http://172.237.116.141:8003/save-fcm-token"),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({
-          "uid": user.uid,
-          "fcm_token": fcmToken,
-        }),
-      );
+      await AuthService.saveFcmToken(uid: user.uid, fcmToken: fcmToken);
 
       await FirebaseFirestore.instance.collection('login_activity').add({
         'userId': user.uid,
@@ -94,18 +89,13 @@ class _LoginScreenState extends State<LoginScreen> {
         'timestamp': Timestamp.now(),
       });
 
-      final response = await http.post(
-        Uri.parse("http://172.237.116.141:8003/verify-token"),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({"token": idToken}),
-      );
+      final response = await AuthService.verifyToken(idToken);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final user_id = data['user_id'];
         final uid = data['uid'];
-        final role =
-            (data['role'] ?? 'user').toString().trim().toLowerCase();
+        final role = (data['role'] ?? 'user').toString().trim().toLowerCase();
 
         final prefs = await SharedPreferences.getInstance();
 
@@ -115,15 +105,11 @@ class _LoginScreenState extends State<LoginScreen> {
         if (user_id != null) {
           await prefs.setString('user_id', user_id.toString());
 
-            print("SAVED USER ID = $user_id");
-            print("SAVED ROLE = $role");
+          print("SAVED USER ID = $user_id");
+          print("SAVED ROLE = $role");
         }
 
-        final logResponse = await http.post(
-          Uri.parse("http://172.237.116.141:8003/login-log"),
-          headers: {"Content-Type": "application/json"},
-          body: jsonEncode({"token": idToken}),
-        );
+        await AuthService.createLoginLog(idToken);
 
         if (!mounted) return;
 
@@ -138,14 +124,15 @@ class _LoginScreenState extends State<LoginScreen> {
             MaterialPageRoute(builder: (_) => const ExpertHomeScreen()),
           );
         } else {
-          Navigator.pushReplacement(context,
+          Navigator.pushReplacement(
+            context,
             MaterialPageRoute(builder: (_) => const HomeScreen()),
           );
         }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(t.tokenVerificationFailed)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(t.tokenVerificationFailed)));
       }
     } on FirebaseAuthException catch (e) {
       final t = AppLocalizations.of(context)!;
@@ -162,9 +149,9 @@ class _LoginScreenState extends State<LoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
     } catch (e) {
       final t = AppLocalizations.of(context)!;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(t.unexpectedError)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(t.unexpectedError)));
     } finally {
       setState(() => _loading = false);
     }
@@ -191,10 +178,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [
-                      AppColors.gradientStart,
-                      AppColors.gradientEnd,
-                    ],
+                    colors: [AppColors.gradientStart, AppColors.gradientEnd],
                   ),
                   shape: BoxShape.circle,
                 ),
@@ -262,7 +246,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       controller: passwordController,
                       focusNode: passwordFocus,
                       obscureText: true,
-                      decoration: InputDecoration(hintText: t.password,
+                      decoration: InputDecoration(
+                        hintText: t.password,
                         prefixIcon: const Icon(
                           Icons.lock_outline,
                           color: AppColors.primary,

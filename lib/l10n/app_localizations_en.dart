@@ -586,10 +586,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get typeMessage => 'Type a message...';
 
   @override
-  String get individual => 'Individual';
+  String get individualtype => 'Individual';
 
   @override
-  String get cross => 'Shared';
+  String get crosstype => 'cross';
 
   @override
   String get loading => 'Loading...';

@@ -8,6 +8,7 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../l10n/app_localizations.dart';
 import '../../main.dart';
+import '../../services/auth_service.dart';
 
 class Expertprofile extends StatefulWidget {
   const Expertprofile({super.key});
@@ -58,11 +59,7 @@ class _ExpertprofileState extends State<Expertprofile> {
             bigTitleSize: 30,
             subtitleSize: 15,
             headerHeight: 170,
-            customPadding: const EdgeInsets.only(
-              left: 24,
-              right: 24,
-              top: 60,
-            ),
+            customPadding: const EdgeInsets.only(left: 24, right: 24, top: 60),
           ),
 
           const SizedBox(height: 20),
@@ -130,10 +127,10 @@ class _ExpertprofileState extends State<Expertprofile> {
 
                               GestureDetector(
                                 onTap: () {
-                                  Navigator.push(context,
+                                  Navigator.push(
+                                    context,
                                     MaterialPageRoute(
-                                      builder: (_) =>
-                                          const EditProfileScreen(),
+                                      builder: (_) => const EditProfileScreen(),
                                     ),
                                   );
                                 },
@@ -192,9 +189,7 @@ class _ExpertprofileState extends State<Expertprofile> {
                           title: t.language,
 
                           trailing: DropdownButton<String>(
-                            value: Localizations.localeOf(
-                              context,
-                            ).languageCode,
+                            value: Localizations.localeOf(context).languageCode,
 
                             underline: const SizedBox(),
 
@@ -210,10 +205,22 @@ class _ExpertprofileState extends State<Expertprofile> {
                               ),
                             ],
 
-                            onChanged: (value) {
-                              if (value != null) {
-                                appLocale.value = Locale(value);
+                            onChanged: (value) async {
+                              if (value == null) return;
+
+                              appLocale.value = Locale(value);
+
+                              final uid =
+                                  FirebaseAuth.instance.currentUser?.uid;
+
+                              if (uid != null) {
+                                await AuthService.updateLanguage(
+                                  uid: uid,
+                                  language: value,
+                                );
                               }
+
+                              setState(() {});
                             },
                           ),
                         ),
@@ -226,8 +233,7 @@ class _ExpertprofileState extends State<Expertprofile> {
 
                           trailing: Switch(
                             value: notifications,
-                            onChanged: (v) =>
-                                setState(() => notifications = v),
+                            onChanged: (v) => setState(() => notifications = v),
                           ),
                         ),
                       ],
@@ -241,7 +247,8 @@ class _ExpertprofileState extends State<Expertprofile> {
 
                   _card(
                     child: Column(
-                      children: [GestureDetector(
+                      children: [
+                        GestureDetector(
                           onTap: () {
                             setState(() {
                               privacyExpanded = !privacyExpanded;
@@ -263,12 +270,7 @@ class _ExpertprofileState extends State<Expertprofile> {
 
                         if (privacyExpanded)
                           Padding(
-                            padding: const EdgeInsets.fromLTRB(
-                              16,
-                              0,
-                              16,
-                              12,
-                            ),
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
 
                             child: Text(
                               t.privacyText,
@@ -315,12 +317,7 @@ class _ExpertprofileState extends State<Expertprofile> {
 
                         if (contactExpanded)
                           Padding(
-                            padding: const EdgeInsets.fromLTRB(
-                              16,
-                              0,
-                              16,
-                              12,
-                            ),
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
 
                             child: Text(
                               t.contactText,
@@ -357,12 +354,8 @@ class _ExpertprofileState extends State<Expertprofile> {
                         ),
 
                         if (aboutExpanded)
-                          Padding(padding: const EdgeInsets.fromLTRB(
-                              16,
-                              0,
-                              16,
-                              12,
-                            ),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
 
                             child: Text(
                               t.aboutText,
@@ -421,10 +414,7 @@ class _ExpertprofileState extends State<Expertprofile> {
 
                             const Spacer(),
 
-                            const Icon(
-                              Icons.arrow_forward_ios,
-                              size: 14,
-                            ),
+                            const Icon(Icons.arrow_forward_ios, size: 14),
                           ],
                         ),
                       ),
@@ -468,10 +458,7 @@ class _ExpertprofileState extends State<Expertprofile> {
         borderRadius: BorderRadius.circular(18),
 
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-          ),
+          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10),
         ],
       ),
 
@@ -485,10 +472,7 @@ class _ExpertprofileState extends State<Expertprofile> {
     required Widget trailing,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 12,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
 
       child: Row(
         children: [
@@ -500,18 +484,12 @@ class _ExpertprofileState extends State<Expertprofile> {
               shape: BoxShape.circle,
             ),
 
-            child: Icon(
-              icon,
-              color: AppColors.primary,
-              size: 18,
-            ),
+            child: Icon(icon, color: AppColors.primary, size: 18),
           ),
 
           const SizedBox(width: 10),
 
-          Text(
-            title,
-            style: const TextStyle(fontSize: 14),),
+          Text(title, style: const TextStyle(fontSize: 14)),
 
           const Spacer(),
 

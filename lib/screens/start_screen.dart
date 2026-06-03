@@ -4,9 +4,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'users/home_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
 import 'admin/admin_dash.dart';
 import 'expert/ExpertHomeScreen.dart';
+import '../config/api_config.dart';
 
 class StartScreen extends StatefulWidget {
   const StartScreen({super.key});
@@ -41,7 +41,7 @@ class _StartScreenState extends State<StartScreen> {
       final token = await user.getIdToken();
 
       final response = await http.post(
-        Uri.parse("http://172.237.116.141:8003/verify-token"),
+        Uri.parse("${ApiConfig.baseUrl}/verify-token"),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({"token": token}),
       );

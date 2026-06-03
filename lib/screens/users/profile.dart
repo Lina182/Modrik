@@ -9,8 +9,7 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import 'package:modik_pages/l10n/app_localizations.dart';
 import 'package:app_settings/app_settings.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import '../../services/auth_service.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -73,7 +72,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: ListView(
                   padding: EdgeInsets.zero,
                   children: [
-
                     /// ===== USER CARD =====
                     Container(
                       padding: const EdgeInsets.all(22),
@@ -93,9 +91,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           const CircleAvatar(
                             radius: 40,
                             backgroundColor: Colors.white,
-                            child: Icon(Icons.person,
-                                size: 40,
-                                color: Color(0xFF6C63FF)),
+                            child: Icon(
+                              Icons.person,
+                              size: 40,
+                              color: Color(0xFF6C63FF),
+                            ),
                           ),
 
                           const SizedBox(width: 14),
@@ -120,7 +120,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   onTap: () {
                                     Navigator.push(
                                       context,
-                                      MaterialPageRoute(builder: (_) =>
+                                      MaterialPageRoute(
+                                        builder: (_) =>
                                             const EditProfileScreen(),
                                       ),
                                     );
@@ -137,9 +138,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        const Icon(Icons.edit,
-                                            size: 16,
-                                            color: Color(0xFF6C63FF)),
+                                        const Icon(
+                                          Icons.edit,
+                                          size: 16,
+                                          color: Color(0xFF6C63FF),
+                                        ),
                                         const SizedBox(width: 6),
                                         Text(
                                           t.editProfile,
@@ -166,7 +169,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     _card(
                       child: Column(
                         children: [
-
                           /// LANGUAGE
                           _rowItem(
                             icon: Icons.language,
@@ -184,26 +186,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   child: Text("العربية"),
                                 ),
                               ],
-                            onChanged: (value) async {
-  if (value == null) return;
+                              onChanged: (value) async {
+                                if (value == null) return;
 
-  setState(() {
-    language = value;
-  });
+                                setState(() {
+                                  language = value;
+                                });
 
-  appLocale.value = value;
+                                appLocale.value = value;
 
-  await http.post(
-    Uri.parse("http://172.237.116.141:8003/update-language"),
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: jsonEncode({
-      "uid": FirebaseAuth.instance.currentUser?.uid,
-      "language": value.languageCode,
-    }),
-  );
-},
+                                final uid =
+                                    FirebaseAuth.instance.currentUser?.uid;
+
+                                if (uid != null) {
+                                  await AuthService.updateLanguage(
+                                    uid: uid,
+                                    language: value.languageCode,
+                                  );
+                                }
+                              },
                             ),
                           ),
 
@@ -219,19 +220,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             icon: Icons.notifications,
                             title: t.notifications,
                             trailing: Switch(
-  value: notifications,
-  onChanged: (v) {
+                              value: notifications,
+                              onChanged: (v) {
+                                setState(() => notifications = v);
 
-    setState(() => notifications = v);
-
-    AppSettings.openAppSettings(
-      type: AppSettingsType.notification,
-    );
-  },
-),
+                                AppSettings.openAppSettings(
+                                  type: AppSettingsType.notification,
+                                );
+                              },
+                            ),
                           ),
                         ],
-                      ),),
+                      ),
+                    ),
 
                     const SizedBox(height: 18),
 
@@ -242,8 +243,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         children: [
                           GestureDetector(
                             onTap: () {
-                              setState(() =>
-                                  privacyExpanded = !privacyExpanded);
+                              setState(
+                                () => privacyExpanded = !privacyExpanded,
+                              );
                             },
                             child: _rowItem(
                               icon: Icons.verified_user,
@@ -280,11 +282,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     _card(
                       child: Column(
                         children: [
-
                           GestureDetector(
                             onTap: () {
-                              setState(() =>
-                                  contactExpanded = !contactExpanded);
+                              setState(
+                                () => contactExpanded = !contactExpanded,
+                              );
                             },
                             child: _rowItem(
                               icon: Icons.headphones,
@@ -321,8 +323,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                           GestureDetector(
                             onTap: () {
-                              setState(() =>
-                                  aboutExpanded = !aboutExpanded);
+                              setState(() => aboutExpanded = !aboutExpanded);
                             },
                             child: _rowItem(
                               icon: Icons.info,
@@ -331,7 +332,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 aboutExpanded
                                     ? Icons.keyboard_arrow_up
                                     : Icons.keyboard_arrow_down,
-                                size: 18,),
+                                size: 18,
+                              ),
                             ),
                           ),
 
@@ -364,13 +366,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                           child: Row(
                             children: [
-                              const Icon(Icons.logout,
-                                  color: Colors.red, size: 18),
+                              const Icon(
+                                Icons.logout,
+                                color: Colors.red,
+                                size: 18,
+                              ),
                               const SizedBox(width: 10),
                               Text(
                                 t.logout,
                                 style: const TextStyle(
-                                    color: Colors.red, fontSize: 14),
+                                  color: Colors.red,
+                                  fontSize: 14,
+                                ),
                               ),
                               const Spacer(),
                               const Icon(Icons.arrow_forward_ios, size: 14),
@@ -436,8 +443,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               color: AppColors.softPurple,
               shape: BoxShape.circle,
             ),
-            child: Icon(icon,
-                color: AppColors.primary, size: 18),
+            child: Icon(icon, color: AppColors.primary, size: 18),
           ),
           const SizedBox(width: 10),
           Text(title, style: const TextStyle(fontSize: 14)),

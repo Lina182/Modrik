@@ -3,16 +3,12 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-
 import '../../l10n/app_localizations.dart';
 import '../../firebase_options.dart';
 import '../users/home_screen.dart';
-
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
+import '../../services/auth_service.dart';
 
 class CreateAccountScreen extends StatefulWidget {
   const CreateAccountScreen({super.key});
@@ -36,9 +32,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
   bool _loading = false;
 
   void showMsg(String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(msg)),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
   bool isValidEmail(String email) {
@@ -71,10 +65,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     super.dispose();
   }
 
-  InputDecoration inputDecoration(
-    String hint,
-    IconData icon,
-  ) {
+  InputDecoration inputDecoration(String hint, IconData icon) {
     return InputDecoration(
       hintText: hint,
       prefixIcon: Icon(icon, color: AppColors.primary),
@@ -86,10 +77,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(
-          color: Colors.black,
-          width: 1,
-        ),
+        borderSide: const BorderSide(color: Colors.black, width: 1),
       ),
     );
   }
@@ -115,8 +103,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       return;
     }
 
-    if (passwordController.text !=
-        confirmPasswordController.text) {
+    if (passwordController.text != confirmPasswordController.text) {
       showMsg(t.passwordsDontMatch);
       return;
     }
@@ -124,12 +111,11 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     setState(() => _loading = true);
 
     try {
-      final userCredential =
-          await FirebaseAuth.instance
-              .createUserWithEmailAndPassword(
-                email: emailController.text.trim(),
-                password: passwordController.text,
-              );
+      final userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+            email: emailController.text.trim(),
+            password: passwordController.text,
+          );
 
       final user = userCredential.user;
 
@@ -137,68 +123,44 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
         throw Exception(t.userCreationFailed);
       }
 
-      await user.updateDisplayName(
-        nameController.text.trim(),
-      );
+      await user.updateDisplayName(nameController.text.trim());
 
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .set({
-            'name': nameController.text.trim(),'email': emailController.text.trim(),
-            'uid': user.uid,
-            'role': 'user',
-            'createdAt': Timestamp.now(),
-          });
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+        'name': nameController.text.trim(),
+        'email': emailController.text.trim(),
+        'uid': user.uid,
+        'role': 'user',
+        'createdAt': Timestamp.now(),
+      });
 
       final idToken = await user.getIdToken();
+      if (idToken == null) {
+        throw Exception("Token is null");
+      }
       print("Firebase ID Token: $idToken");
 
-      await http.post(
-        Uri.parse("http://172.237.116.141:8003/register"),
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: jsonEncode({
-          "uid": user.uid,
-          "name": nameController.text.trim(),
-          "email": emailController.text.trim(),
-          "role": "user",
-          "token": idToken,
-        }),
+      await AuthService.registerUser(
+        uid: user.uid,
+        name: nameController.text.trim(),
+        email: emailController.text.trim(),
+        token: idToken,
       );
 
-      final fcmToken =
-          await FirebaseMessaging.instance.getToken();
+      final fcmToken = await FirebaseMessaging.instance.getToken();
 
       print("FCM TOKEN: $fcmToken");
 
-      await http.post(
-        Uri.parse(
-          "http://172.237.116.141:8003/save-fcm-token",
-        ),
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: jsonEncode({
-          "uid": user.uid,
-          "fcm_token": fcmToken,
-        }),
-      );
+      await AuthService.saveFcmToken(uid: user.uid, fcmToken: fcmToken);
 
       print("FCM TOKEN SAVED");
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(t.accountCreated),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(t.accountCreated)));
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-          builder: (_) => const HomeScreen(),
-        ),
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
       );
     } on FirebaseAuthException catch (e) {
       final t = AppLocalizations.of(context)!;
@@ -217,9 +179,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
         msg = t.emailInUse;
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(msg)),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
     } finally {
       setState(() => _loading = false);
     }
@@ -247,10 +207,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [
-                      AppColors.gradientStart,
-                      AppColors.gradientEnd,
-                    ],
+                    colors: [AppColors.gradientStart, AppColors.gradientEnd],
                   ),
                   shape: BoxShape.circle,
                 ),
@@ -269,8 +226,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
 
             SingleChildScrollView(
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 28),
+                padding: const EdgeInsets.symmetric(horizontal: 28),
                 child: Column(
                   children: [
                     const SizedBox(height: 120),
@@ -288,16 +244,15 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                     Text(
                       t.createAccountSubtitle,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: AppColors.textGrey,
-                      ),
+                      style: const TextStyle(color: AppColors.textGrey),
                     ),
 
                     const SizedBox(height: 50),
 
                     TextField(
                       focusNode: nameFocus,
-                      controller: nameController,decoration: inputDecoration(
+                      controller: nameController,
+                      decoration: inputDecoration(
                         t.fullName,
                         Icons.person_outline,
                       ),
@@ -330,8 +285,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
 
                     TextField(
                       focusNode: confirmPasswordFocus,
-                      controller:
-                          confirmPasswordController,
+                      controller: confirmPasswordController,
                       obscureText: true,
                       decoration: inputDecoration(
                         t.confirmPassword,
@@ -347,25 +301,18 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                             width: double.infinity,
                             height: 55,
                             child: ElevatedButton(
-                              style:
-                                  ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        AppColors.primary,
-                                    shape:
-                                        RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(
-                                                14,
-                                              ),
-                                        ),
-                                  ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                              ),
                               onPressed: _signUp,
                               child: Text(
                                 t.signUp,
                                 style: const TextStyle(
                                   fontSize: 18,
-                                  fontWeight:
-                                      FontWeight.bold,
+                                  fontWeight: FontWeight.bold,
                                   color: Colors.white,
                                 ),
                               ),
@@ -375,13 +322,10 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                     const SizedBox(height: 16),
 
                     TextButton(
-                      onPressed: () =>
-                          Navigator.pop(context),
+                      onPressed: () => Navigator.pop(context),
                       child: Text(
                         t.alreadyHaveAccount,
-                        style: const TextStyle(
-                          color: AppColors.primary,
-                        ),
+                        style: const TextStyle(color: AppColors.primary),
                       ),
                     ),
                   ],
@@ -407,18 +351,11 @@ class TopCurvePainter extends CustomPainter {
 
     path.moveTo(0, size.height);
 
-    path.quadraticBezierTo(
-      size.width / 2,
-      0,
-      size.width,
-      size.height,
-    );
+    path.quadraticBezierTo(size.width / 2, 0, size.width, size.height);
 
     canvas.drawPath(path, paint);
   }
 
   @override
-  bool shouldRepaint(
-    covariant CustomPainter oldDelegate,
-  ) => false;
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

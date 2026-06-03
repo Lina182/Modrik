@@ -4,8 +4,8 @@ import '../shared/login_screen.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../l10n/app_localizations.dart';
-
-import '../../main.dart'; // مهم عشان appLocale
+import '../../services/auth_service.dart';
+import '../../main.dart';
 
 class ProfileAdminScreen extends StatefulWidget {
   const ProfileAdminScreen({super.key});
@@ -34,10 +34,7 @@ class _ProfileAdminScreenState extends State<ProfileAdminScreen> {
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [
-                  AppColors.gradientStart,
-                  AppColors.heroGradient1,
-                ],
+                colors: [AppColors.gradientStart, AppColors.heroGradient1],
               ),
               borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(40),
@@ -104,7 +101,6 @@ class _ProfileAdminScreenState extends State<ProfileAdminScreen> {
               child: ListView(
                 padding: EdgeInsets.zero,
                 children: [
-
                   /// ===== USER CARD =====
                   Container(
                     padding: const EdgeInsets.all(22),
@@ -118,7 +114,8 @@ class _ProfileAdminScreenState extends State<ProfileAdminScreen> {
                           offset: const Offset(0, 6),
                         ),
                       ],
-                    ),child: Row(
+                    ),
+                    child: Row(
                       children: [
                         const CircleAvatar(
                           radius: 40,
@@ -211,15 +208,29 @@ class _ProfileAdminScreenState extends State<ProfileAdminScreen> {
                                 child: Text("العربية"),
                               ),
                             ],
-                            onChanged: (value) {
+                            onChanged: (value) async {
                               if (value == null) return;
+
                               appLocale.value = value;
+
+                              final uid =
+                                  FirebaseAuth.instance.currentUser?.uid;
+
+                              if (uid != null) {
+                                await AuthService.updateLanguage(
+                                  uid: uid,
+                                  language: value.languageCode,
+                                );
+                              }
+
+                              setState(() {});
                             },
                           ),
                         ),
                       ],
                     ),
-                  ),const SizedBox(height: 18),
+                  ),
+                  const SizedBox(height: 18),
 
                   /// ===== ABOUT =====
                   _sectionTitle(t.about),
@@ -299,10 +310,7 @@ class _ProfileAdminScreenState extends State<ProfileAdminScreen> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-          ),
+          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10),
         ],
       ),
       child: child,
