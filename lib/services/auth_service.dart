@@ -67,4 +67,20 @@ class AuthService {
       body: jsonEncode({"uid": uid, "language": language}),
     );
   }
+
+  static Future<void> updateProfile({
+  required String token,
+  required String name,
+  required String email,
+}) async {
+  await http.post(
+    Uri.parse("${ApiConfig.baseUrl}/update-profile"),
+    headers: {"Content-Type": "application/json"},
+    body: jsonEncode({
+      "token": token,
+      "name": name,
+      "email": email,
+    }),
+  );
+}
 }

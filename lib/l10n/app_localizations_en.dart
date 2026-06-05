@@ -241,7 +241,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get currentPassword => 'Current Password';
 
   @override
-  String get requiredPassword => 'Required to change email or password';
+  String get requiredPassword => 'Required to change password';
 
   @override
   String get securityNotice => 'For your security, please enter your current password to save any changes.';

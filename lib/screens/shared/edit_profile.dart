@@ -17,7 +17,6 @@ class EditProfileScreen extends StatefulWidget {
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final name = TextEditingController();
-  final email = TextEditingController();
   final password = TextEditingController();
   final currentPassword = TextEditingController();
 
@@ -31,7 +30,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     user = FirebaseAuth.instance.currentUser;
 
     name.text = user?.displayName ?? '';
-    email.text = user?.email ?? '';
+
   }
 
   Future<void> reAuthenticate() async {
@@ -46,11 +45,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Future<void> updateProfile() async {
     if (user == null) return;
 
-    final isEmailChanged = email.text.trim() != user!.email;
+
     final isPasswordChanged = password.text.isNotEmpty;
     final isNameChanged = name.text.trim() != (user!.displayName ?? '');
 
-    if (!isEmailChanged && !isPasswordChanged && !isNameChanged) {
+    if (!isPasswordChanged && !isNameChanged) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(AppLocalizations.of(context)!.noChanges)),
       );
@@ -60,31 +59,23 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     setState(() => isLoading = true);
 
     try {
-      final uid = user!.uid;
 
-      if ((isEmailChanged || isPasswordChanged) &&
+      if (( isPasswordChanged) &&
           currentPassword.text.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(AppLocalizations.of(context)!.enterCurrentPassword),
           ),
         );
+        setState(() => isLoading = false);
         return;
       }
 
-      if (isEmailChanged || isPasswordChanged) {
+      if (isPasswordChanged) {
         await reAuthenticate();
       }
 
       await user!.updateDisplayName(name.text.trim());
-
-      if (isEmailChanged) {
-        await user!.verifyBeforeUpdateEmail(email.text.trim());
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.confirmEmail)),
-        );
-      }
 
       if (isPasswordChanged) {
         await user!.updatePassword(password.text.trim());
@@ -96,11 +87,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
       await user!.reload();
       user = FirebaseAuth.instance.currentUser;
+    
+    final token = await user!.getIdToken();
 
-      await FirebaseFirestore.instance.collection('users').doc(uid).set({
-        'name': user!.displayName,
-        'email': user!.email,
-      }, SetOptions(merge: true));
+  if (token != null) {
+    await AuthService.updateProfile(
+      token: token,
+      name: user!.displayName ?? name.text.trim(),
+      email: user!.email ?? "",
+    );
+  }
 
       setState(() {});
 
@@ -268,8 +264,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               const SizedBox(height: 30),
 
               _field(t.fullName, t.enterName, name, icon: Icons.person),
-              const SizedBox(height: 22),
-              _field(t.email, t.enterEmail, email, icon: Icons.email_outlined),
               const SizedBox(height: 22),
               _field(
                 t.newPassword,

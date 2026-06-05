@@ -121,7 +121,7 @@
   "leaveEmpty": "Leave empty if you don't want to change it",
 
   "currentPassword": "Current Password",
-  "requiredPassword": "Required to change email or password",
+  "requiredPassword": "Required to change password",
 
   "securityNotice": "For your security, please enter your current password to save any changes.",
   "deleteAccount": "Delete Account",

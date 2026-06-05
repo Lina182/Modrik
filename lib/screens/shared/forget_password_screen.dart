@@ -106,7 +106,25 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                 painter: TopCurvePainter(),
               ),
             ),
-
+            
+            Positioned(
+              top: 20,
+              left: 20,
+              child: GestureDetector(
+                onTap: () => Navigator.pop(context),
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.arrow_back_ios_new,
+                    size: 18,
+                  ),
+                ),
+              ),
+            ),
             SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 28),
