@@ -108,7 +108,7 @@
   "messageHint": "Type your message...",
   "typing": "Typing...",
 
-  "welcomeBot": "Hi! I'm Modrik 👋\nAsk me about your report or general genetics.",
+  "welcomeBot": "Hi! I'm Modrik 👋\nI'm here to help you understand genetics in a simple and friendly way. Just tell me what you want to know.",
   "reportReceived": "I have received your report. You can now ask about it.",
   "serverError": "Server error",
   "connectionError": "Connection error",
@@ -343,7 +343,7 @@
   "successAnalyses": "Successful Analyses",
   "failedAnalyses": "Failed Analyses",
 
-  "apiStatus": "External integration & API Status",
+  "apiStatusdash": "External integration & API Status",
 
   "total": "Total",
 
@@ -357,13 +357,10 @@
   "panelAppApi": "PanelApp API",
   "geminiApi": "Gemini API",
 
-  "consultations": "Consultations",
-  "consultants": "Consultants",
+  "consultations": "Completed Consultations",
   "doctorName": "Doctor Name",
   "consultantName": "Consultant Name",
- "consultants": "Consultants",
-  "consultations": "Consultations",
-  "doctorAhmad": "Dr. Ahmad",
+ "consultants": "Genetic Experts Performance",
 
 
 

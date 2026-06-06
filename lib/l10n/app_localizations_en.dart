@@ -211,7 +211,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get typing => 'Typing...';
 
   @override
-  String get welcomeBot => 'Hi! I\'m Modrik 👋\nAsk me about your report or general genetics.';
+  String get welcomeBot => 'Hi! I\'m Modrik 👋\nI\'m here to help you understand genetics in a simple and friendly way. Just tell me what you want to know.';
 
   @override
   String get reportReceived => 'I have received your report. You can now ask about it.';
@@ -508,7 +508,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get failedAnalyses => 'Failed Analyses';
 
   @override
-  String get apiStatus => 'External integration & API Status';
+  String get apiStatus => 'API Status';
 
   @override
   String get opencravatApi => 'OpenCRAVAT API';
@@ -592,6 +592,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get crosstype => 'cross';
 
   @override
+  String get apiStatusdash => 'External integration & API Status';
+
+  @override
   String get loading => 'Loading...';
 
   @override
@@ -601,10 +604,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get panelAppApi => 'PanelApp API';
 
   @override
-  String get consultations => 'Consultations';
-
-  @override
-  String get consultants => 'Consultants';
+  String get consultations => 'Completed Consultations';
 
   @override
   String get doctorName => 'Doctor Name';
@@ -613,7 +613,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get consultantName => 'Consultant Name';
 
   @override
-  String get doctorAhmad => 'Dr. Ahmad';
+  String get consultants => 'Genetic Experts Performance';
 
   @override
   String get gene => 'Gene';

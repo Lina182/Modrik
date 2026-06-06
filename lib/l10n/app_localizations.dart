@@ -494,7 +494,7 @@ abstract class AppLocalizations {
   /// No description provided for @welcomeBot.
   ///
   /// In en, this message translates to:
-  /// **'Hi! I\'m Modrik 👋\nAsk me about your report or general genetics.'**
+  /// **'Hi! I\'m Modrik 👋\nI\'m here to help you understand genetics in a simple and friendly way. Just tell me what you want to know.'**
   String get welcomeBot;
 
   /// No description provided for @reportReceived.
@@ -554,7 +554,7 @@ abstract class AppLocalizations {
   /// No description provided for @requiredPassword.
   ///
   /// In en, this message translates to:
-  /// **'Required to change email or password'**
+  /// **'Required to change password'**
   String get requiredPassword;
 
   /// No description provided for @securityNotice.
@@ -1088,7 +1088,7 @@ abstract class AppLocalizations {
   /// No description provided for @apiStatus.
   ///
   /// In en, this message translates to:
-  /// **'External integration & API Status'**
+  /// **'API Status'**
   String get apiStatus;
 
   /// No description provided for @opencravatApi.
@@ -1253,6 +1253,12 @@ abstract class AppLocalizations {
   /// **'cross'**
   String get crosstype;
 
+  /// No description provided for @apiStatusdash.
+  ///
+  /// In en, this message translates to:
+  /// **'External integration & API Status'**
+  String get apiStatusdash;
+
   /// No description provided for @loading.
   ///
   /// In en, this message translates to:
@@ -1274,14 +1280,8 @@ abstract class AppLocalizations {
   /// No description provided for @consultations.
   ///
   /// In en, this message translates to:
-  /// **'Consultations'**
+  /// **'Completed Consultations'**
   String get consultations;
-
-  /// No description provided for @consultants.
-  ///
-  /// In en, this message translates to:
-  /// **'Consultants'**
-  String get consultants;
 
   /// No description provided for @doctorName.
   ///
@@ -1295,11 +1295,11 @@ abstract class AppLocalizations {
   /// **'Consultant Name'**
   String get consultantName;
 
-  /// No description provided for @doctorAhmad.
+  /// No description provided for @consultants.
   ///
   /// In en, this message translates to:
-  /// **'Dr. Ahmad'**
-  String get doctorAhmad;
+  /// **'Genetic Experts Performance'**
+  String get consultants;
 
   /// No description provided for @gene.
   ///

@@ -131,11 +131,14 @@ class _AdminDashScreenState extends State<AdminDashScreen> {
                         children: [
                           Text(
                             t.adminDashboard,
-                            style: AppTextStyles.title.copyWith(fontSize: 26),
+                            style: AppTextStyles.title.copyWith(
+                              fontSize: 26,
+                              color: const Color(0xFF6C63FF),
+                            ),
                             overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 4),
-                          Text(t.overview, style: AppTextStyles.subtitle),
+                          Text(t.overview, style: AppTextStyles.title),
                         ],
                       ),
                     ),
@@ -188,14 +191,14 @@ class _AdminDashScreenState extends State<AdminDashScreen> {
                       loading
                           ? t.loading
                           : (healthData?['total_users']?.toString() ?? '0'),
-                     Icons.groups,
-                     const Color(0xFFE8E9F9),
-AppColors.primary,
+                      Icons.groups,
+                      const Color(0xFFE8E9F9),
+                      AppColors.primary,
                     ),
                     _buildDashboardCard(
                       t.crossAnalyses,
                       crossCount.toString(),
-                     Icons.people,
+                      Icons.people,
                       const Color(0xFFE8E9F9),
                       AppColors.primary,
                     ),
@@ -262,7 +265,7 @@ AppColors.primary,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(t.apiStatus, style: AppTextStyles.title),
+                      Text(t.apiStatusdash, style: AppTextStyles.title),
                       const SizedBox(height: 12),
                       _buildAPIStatus(t),
                     ],

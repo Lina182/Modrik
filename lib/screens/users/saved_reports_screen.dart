@@ -70,7 +70,6 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
             headerHeight: 150,
           ),
 
-          /// ✅ المحتوى بدون transform (مهم جدًا)
           Expanded(
             child: Container(
               padding: const EdgeInsets.all(20),
@@ -146,13 +145,7 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
 
     for (var r in jsonData) {
       reportItems.add(
-        IndividualReportItem(
-          gene: r['gene'] ?? t.notAvailable,
-          disease: r['disease'] ?? t.notAvailable,
-          clinicalSignificance: r['clinicalSignificance'] ?? t.notAvailable,
-          inheritance: r['inheritance'] ?? t.notAvailable,
-          confidenceLevel: r['confidenceLevel'] ?? t.notAvailable,
-        ),
+        IndividualReportItem.fromJson(Map<String, dynamic>.from(r), null),
       );
     }
 
@@ -191,16 +184,9 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
 
     for (var r in jsonData) {
       reportItems.add(
-        CrossReportItem(
-          sectionTitle: r['sectionTitle'] ?? '',
-          disease: r['disease'] ?? t.unknown,
-          gene: r['gene'] ?? t.unknown,
-          inheritance: r['inheritance'] ?? t.unknown,
-          clinicalSignificance: r['clinicalSignificance'] ?? t.unknown,
-          affectedRisk: r['affectedRisk'] ?? '0%',
-          carrierRisk: r['carrierRisk'] ?? '0%',
-          healthyRisk: r['healthyRisk'] ?? '0%',
-          explainRisk: r['explainRisk'] ?? t.noExplanation,
+        CrossReportItem.fromJson(
+          Map<String, dynamic>.from(r),
+          r['sectionTitle']?.toString() ?? '',
         ),
       );
     }

@@ -120,13 +120,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get individualAnalysisText => 'قم بتحليل ملف VCF لشخص واحد.';
 
   @override
-  String get crossAnalysis => 'تحليل مشترك';
+  String get crossAnalysis => 'تحليل زوجي';
 
   @override
   String get crossAnalysisText => 'قم بتحليل ملفين VCF لمقارنة المتغيرات المشتركة أو الوراثية.';
 
   @override
-  String get crossUpload => 'الرفع المشترك';
+  String get crossUpload => 'الرفع الزوجي';
 
   @override
   String get crossUploadDesc => 'ارفع ملفين VCF لمقارنة المتغيرات المشتركة أو الوراثية.';
@@ -211,7 +211,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get typing => 'جاري الكتابة...';
 
   @override
-  String get welcomeBot => 'مرحبًا! أنا مودرك 👋\nاسألني عن تقريرك أو أي شيء في الجينات.';
+  String get welcomeBot => 'مرحباً! أنا مُدرك 👋\nأنا هنا لمساعدتك على فهم علم الوراثة بطريقة بسيطة وواضحة. اكتب لي أي سؤال وسأساعدك.';
 
   @override
   String get reportReceived => 'تم استلام التقرير، يمكنك البدء بالسؤال.';
@@ -397,7 +397,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get caseNumber => 'حالة';
 
   @override
-  String get crossAnalysisReport => 'تقرير تحليل مشترك';
+  String get crossAnalysisReport => 'تقرير تحليل الزوجي ';
 
   @override
   String get noQuestionProvided => 'لا يوجد سؤال مرفق';
@@ -496,7 +496,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get allUsers => 'جميع المستخدمين';
 
   @override
-  String get crossAnalyses => 'التحاليل المشتركة';
+  String get crossAnalyses => 'التحاليل الزوجيه';
 
   @override
   String get analysisOutcomes => 'نتائج التحليل';
@@ -508,7 +508,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get failedAnalyses => 'التحاليل الفاشلة';
 
   @override
-  String get apiStatus => 'حالة الـ API التكامل الخارجي و';
+  String get apiStatus => 'حالة الـ API';
 
   @override
   String get opencravatApi => 'واجهة OpenCRAVAT';
@@ -592,6 +592,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get crosstype => 'زوجي';
 
   @override
+  String get apiStatusdash => 'حالة الاتصال بالخدمات الخارجية وواجهة الـ API ';
+
+  @override
   String get loading => 'جاري التحميل...';
 
   @override
@@ -601,10 +604,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get panelAppApi => 'واجهة PanelApp';
 
   @override
-  String get consultations => 'الاستشارات';
-
-  @override
-  String get consultants => 'المستشارون';
+  String get consultations => '  الاستشارات المكتملة';
 
   @override
   String get doctorName => 'اسم الدكتور';
@@ -613,7 +613,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get consultantName => 'اسم المستشار';
 
   @override
-  String get doctorAhmad => 'د. أحمد';
+  String get consultants => 'أداء الخبراء الجينيين';
 
   @override
   String get gene => 'الجين';

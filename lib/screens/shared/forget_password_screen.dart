@@ -4,6 +4,7 @@ import 'login_screen.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../l10n/app_localizations.dart';
+
 class ForgetPasswordScreen extends StatefulWidget {
   const ForgetPasswordScreen({super.key});
 
@@ -21,9 +22,9 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
     final t = AppLocalizations.of(context)!;
 
     if (email.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(t.enterEmail)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(t.enterEmail)));
       return;
     }
 
@@ -32,9 +33,9 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
     try {
       await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(t.resetLinkSent)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(t.resetLinkSent)));
 
       Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
@@ -46,9 +47,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
         msg = t.invalidEmail;
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(msg)),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
     } finally {
       setState(() => _loading = false);
     }
@@ -106,8 +105,8 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                 painter: TopCurvePainter(),
               ),
             ),
-            
-             Positioned(
+
+            Positioned(
               top: 20,
               left: Localizations.localeOf(context).languageCode == 'ar'
                   ? null
@@ -116,24 +115,21 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                   ? 20
                   : null,
               child: GestureDetector(
-                onTap: (){ Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const LoginScreen()),
-                      (route) => false
-                    );
+                onTap: () {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (_) => const LoginScreen()),
+                    (route) => false,
+                  );
                 },
-                
+
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: const BoxDecoration(
                     color: Colors.white,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
-                    Icons.arrow_back_ios_new,
-                    size: 18,
-                  ),
+                  child: const Icon(Icons.arrow_back_ios_new, size: 18),
                 ),
               ),
             ),
@@ -165,7 +161,8 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
 
                     const SizedBox(height: 50),
 
-                    TextField(controller: emailController,
+                    TextField(
+                      controller: emailController,
                       decoration: inputDecoration(
                         t.email,
                         Icons.email_outlined,

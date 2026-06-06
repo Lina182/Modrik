@@ -17,7 +17,9 @@ class Expertchat extends StatefulWidget {
 class _ExpertchatState extends State<Expertchat> {
   int tab = 0;
 
-  List consultations = [];
+  List waiting = [];
+  List active = [];
+  List completed = [];
 
   bool isLoading = true;
 
@@ -33,7 +35,9 @@ class _ExpertchatState extends State<Expertchat> {
     final data = await ConsultationService.getUserConsultations(userId: userId);
 
     setState(() {
-      consultations = data;
+      waiting = data["waiting"] ?? [];
+      active = data["active"] ?? [];
+      completed = data["completed"] ?? [];
       isLoading = false;
     });
   }
@@ -44,11 +48,15 @@ class _ExpertchatState extends State<Expertchat> {
 
     final isArabic = Localizations.localeOf(context).languageCode == 'ar';
 
-    var list = consultations.where((e) {
-      if (tab == 0) return e["status"] == "waiting";
-      if (tab == 1) return e["status"] == "active";
-      return e["status"] == "completed";
-    }).toList();
+    List list = [];
+
+    if (tab == 0) {
+      list = waiting;
+    } else if (tab == 1) {
+      list = active;
+    } else {
+      list = completed;
+    }
 
     return Scaffold(
       backgroundColor: const Color(0xFFFBFBFF),
@@ -78,10 +86,12 @@ class _ExpertchatState extends State<Expertchat> {
                 top: -30,
                 child: Transform.rotate(
                   angle: 0.6,
-                  child: const Icon(
-                    Icons.biotech,
-                    size: 220,
-                    color: Color(0x336C63FF),
+                  child: FaIcon(
+                    FontAwesomeIcons.dna,
+
+                    size: 270,
+
+                    color: const Color(0xFF6C63FF).withOpacity(0.15),
                   ),
                 ),
               ),

@@ -7,6 +7,7 @@ import '../../theme/app_text_styles.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/auth_service.dart';
 import '../../main.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class ProfileAdminScreen extends StatefulWidget {
   const ProfileAdminScreen({super.key});
@@ -27,68 +28,77 @@ class _ProfileAdminScreenState extends State<ProfileAdminScreen> {
       body: Column(
         children: [
           /// ===== HEADER =====
-          Container(
-            height: 170,
-            width: double.infinity,
-            padding: const EdgeInsets.only(left: 24, right: 24, top: 60),
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [AppColors.gradientStart, AppColors.heroGradient1],
-              ),
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(40),
-                bottomRight: Radius.circular(40),
-              ),
-            ),
-
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      t.account, // 🔥 هنا التعديل فقط
-                      style: const TextStyle(
-                        color: AppColors.primary,
-                        fontSize: 30,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      t.manageAdminAccount,
-                      style: const TextStyle(
-                        color: Colors.black87,
-                        fontSize: 15,
-                      ),
-                    ),
-                  ],
+          Stack(
+            children: [
+              Container(
+                height: 170,
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFFE0E2FF), Color(0xFFF3F4FF)],
+                  ),
                 ),
+              ),
 
-                /// 🔙 back button
-                InkWell(
+              Positioned(
+                right: appLocale.value.languageCode == 'ar' ? null : 10,
+                left: appLocale.value.languageCode == 'ar' ? 10 : null,
+                top: 10,
+                child: Transform.rotate(
+                  angle: 0.2,
+                  child: FaIcon(
+                    FontAwesomeIcons.screwdriverWrench,
+                    size: 130,
+                    color: const Color(0xFF6C63FF).withOpacity(0.15),
+                  ),
+                ),
+              ),
+
+              /// Back Button
+              Positioned(
+                left: appLocale.value.languageCode == 'ar' ? null : 10,
+                right: appLocale.value.languageCode == 'ar' ? 10 : null,
+                top: 33,
+                child: InkWell(
                   onTap: () => Navigator.pop(context),
                   child: Container(
-                    width: 38,
-                    height: 38,
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                    ),
+                    width: 42,
+                    height: 42,
                     child: Icon(
-                      appLocale.value.languageCode == 'ar'
-                          ? Icons.arrow_back_ios_new
-                          : Icons.arrow_forward_ios,
-                      size: 16,
+                      Icons.arrow_back_ios_new,
+                      size: 25,
                       color: AppColors.primary,
                     ),
                   ),
                 ),
-              ],
-            ),
+              ),
+
+              /// Title
+              Positioned(
+                left: appLocale.value.languageCode == 'ar' ? null : 40,
+                right: appLocale.value.languageCode == 'ar' ? 40 : null,
+                bottom: 30,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      t.account,
+                      style: const TextStyle(
+                        fontSize: 30,
+                        color: const Color(0xFF6C63FF),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    const SizedBox(height: 5),
+
+                    Text(
+                      t.manageAdminAccount,
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
 
           const SizedBox(height: 20),
@@ -144,67 +154,46 @@ class _ProfileAdminScreenState extends State<ProfileAdminScreen> {
                               ),
                               const SizedBox(height: 10),
 
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 6,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  t.administrator,
-                                  style: const TextStyle(
-                                    color: AppColors.primary,
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
+                              const SizedBox(height: 10),
+
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const EditProfileScreen(),
+                                    ),
+                                  );
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 18,
+                                    vertical: 10,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(
+                                        Icons.edit,
+                                        size: 16,
+                                        color: AppColors.primary,
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        t.editProfile,
+                                        style: const TextStyle(
+                                          color: AppColors.primary,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
-
-const SizedBox(height: 10),
-
-GestureDetector(
-  onTap: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const EditProfileScreen(),
-      ),
-    );
-  },
-  child: Container(
-    padding: const EdgeInsets.symmetric(
-      horizontal: 18,
-      vertical: 10,
-    ),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(12),
-    ),
-    child: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        const Icon(
-          Icons.edit,
-          size: 16,
-          color: AppColors.primary,
-        ),
-        const SizedBox(width: 6),
-        Text(
-          t.editProfile,
-          style: const TextStyle(
-            color: AppColors.primary,
-            fontSize: 14,
-          ),
-        ),
-      ],
-    ),
-  ),
-),
-
-
                             ],
                           ),
                         ),

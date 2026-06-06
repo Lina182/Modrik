@@ -52,10 +52,10 @@
   "individualAnalysis": "تحليل فردي",
   "individualAnalysisText": "قم بتحليل ملف VCF لشخص واحد.",
 
-  "crossAnalysis": "تحليل مشترك",
+  "crossAnalysis": "تحليل زوجي",
   "crossAnalysisText": "قم بتحليل ملفين VCF لمقارنة المتغيرات المشتركة أو الوراثية.",
 
-  "crossUpload": "الرفع المشترك",
+  "crossUpload": "الرفع الزوجي",
   "crossUploadDesc": "ارفع ملفين VCF لمقارنة المتغيرات المشتركة أو الوراثية.",
 
   "selectFiles": "اختر ملفات VCF",
@@ -108,7 +108,7 @@
   "messageHint": "اكتب رسالتك...",
   "typing": "جاري الكتابة...",
 
-  "welcomeBot": "مرحبًا! أنا مودرك 👋\nاسألني عن تقريرك أو أي شيء في الجينات.",
+  "welcomeBot": "مرحباً! أنا مُدرك 👋\nأنا هنا لمساعدتك على فهم علم الوراثة بطريقة بسيطة وواضحة. اكتب لي أي سؤال وسأساعدك.",
   "reportReceived": "تم استلام التقرير، يمكنك البدء بالسؤال.",
   "serverError": "خطأ في السيرفر",
   "connectionError": "خطأ في الاتصال",
@@ -197,7 +197,7 @@
 
 "caseNumber": "الحالة",
 
-"crossAnalysisReport": "تقرير التحليل المشترك",
+"crossAnalysisReport": "تقرير التحليل الزوجي ",
 
 "noQuestionProvided": "لا يوجد سؤال مرفق",
 
@@ -218,7 +218,7 @@
 "continueConsultations": "تابع الاستشارات النشطة.",
 "viewCompletedConsultations": "عرض الاستشارات المكتملة.",
 
-"crossAnalysisReport": "تقرير تحليل مشترك",
+"crossAnalysisReport": "تقرير تحليل الزوجي ",
 "individualAnalysisOnly": "تحليل فردي",
 
 "noQuestionProvided": "لا يوجد سؤال مرفق",
@@ -331,13 +331,13 @@
 
   "individualAnalyses": "التحاليل الفردية",
   "allUsers": "جميع المستخدمين",
-  "crossAnalyses": "التحاليل المشتركة",
+  "crossAnalyses": "التحاليل الزوجيه",
 
   "analysisOutcomes": "نتائج التحليل",
   "successAnalyses": "التحاليل الناجحة",
   "failedAnalyses": "التحاليل الفاشلة",
 
-  "apiStatus": "حالة الـ API التكامل الخارجي و",
+  "apiStatusdash": "حالة الاتصال بالخدمات الخارجية وواجهة الـ API ",
 
   "total": "الإجمالي",
 
@@ -351,13 +351,10 @@
   "panelAppApi": "واجهة PanelApp",
   "geminiApi": "واجهة Gemini",
 
-  "consultations": "الاستشارات",
-  "consultants": "المستشارون",
+  "consultations": "  الاستشارات المكتملة",
   "doctorName": "اسم الدكتور",
   "consultantName": "اسم المستشار",
-"consultants": "المستشارون",
-  "consultations": "الاستشارات",
-  "doctorAhmad": "د. أحمد",
+"consultants": "أداء الخبراء الجينيين",
 
 
 

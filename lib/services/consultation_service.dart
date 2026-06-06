@@ -43,7 +43,7 @@ class ConsultationService {
     return response.statusCode == 200;
   }
 
-  static Future<List<dynamic>> getUserConsultations({
+  static Future<Map<String, List<dynamic>>> getUserConsultations({
     required int userId,
   }) async {
     final url = Uri.parse('${ApiConfig.baseUrl}/users/$userId/consultations');
@@ -53,12 +53,25 @@ class ConsultationService {
     print("Status Code: ${response.statusCode}");
     print("Response Body: ${response.body}");
 
-    if (response.statusCode == 200) {
-      final decoded = jsonDecode(response.body);
-
-      return decoded["consultations"];
-    } else {
-      return [];
+    if (response.statusCode != 200) {
+      return {"waiting": [], "active": [], "completed": []};
     }
+
+    final decoded = jsonDecode(response.body);
+
+    final List consultations = (decoded["consultations"] as List?) ?? [];
+
+    // تقسيم حسب الحالة
+    final waiting = consultations
+        .where((c) => c["status"] == "waiting")
+        .toList();
+
+    final active = consultations.where((c) => c["status"] == "active").toList();
+
+    final completed = consultations
+        .where((c) => c["status"] == "completed")
+        .toList();
+
+    return {"waiting": waiting, "active": active, "completed": completed};
   }
 }
