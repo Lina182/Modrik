@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
+import 'login_screen.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../l10n/app_localizations.dart';
@@ -107,11 +107,23 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
               ),
             ),
             
-            Positioned(
+             Positioned(
               top: 20,
-              left: 20,
+              left: Localizations.localeOf(context).languageCode == 'ar'
+                  ? null
+                  : 20,
+              right: Localizations.localeOf(context).languageCode == 'ar'
+                  ? 20
+                  : null,
               child: GestureDetector(
-                onTap: () => Navigator.pop(context),
+                onTap: (){ Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const LoginScreen()),
+                      (route) => false
+                    );
+                },
+                
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: const BoxDecoration(
@@ -125,6 +137,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                 ),
               ),
             ),
+
             SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 28),
