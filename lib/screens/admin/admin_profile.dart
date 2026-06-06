@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../shared/login_screen.dart';
+import '../shared/edit_profile.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_text_styles.dart';
 import '../../l10n/app_localizations.dart';
@@ -161,6 +162,49 @@ class _ProfileAdminScreenState extends State<ProfileAdminScreen> {
                                   ),
                                 ),
                               ),
+
+const SizedBox(height: 10),
+
+GestureDetector(
+  onTap: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const EditProfileScreen(),
+      ),
+    );
+  },
+  child: Container(
+    padding: const EdgeInsets.symmetric(
+      horizontal: 18,
+      vertical: 10,
+    ),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const Icon(
+          Icons.edit,
+          size: 16,
+          color: AppColors.primary,
+        ),
+        const SizedBox(width: 6),
+        Text(
+          t.editProfile,
+          style: const TextStyle(
+            color: AppColors.primary,
+            fontSize: 14,
+          ),
+        ),
+      ],
+    ),
+  ),
+),
+
+
                             ],
                           ),
                         ),
